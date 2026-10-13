@@ -10,6 +10,7 @@
   --border-strong: #c9c3be;
   --text-primary: #1e2d28;
   --text-muted: #6b625b;
+  --logo-name-hover: #5de9b5;
 }
 
 html {
@@ -102,4 +103,10 @@ small {
   border: 1px solid var(--wellb);
   border-radius: 8px;
   box-shadow: var(--well-sh);
+}
+
+/* Logo name hover */
+.logo-name:hover {
+  color: var(--logo-name-hover);
+  transition: .6s ;
 }
