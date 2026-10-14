@@ -20,7 +20,7 @@ export default function Main({ searchTerm }) {
     const surahs = filteredData.map((item) => (
         <a
             key={item.surah_number}
-            href={item.audio_url}
+            href={`${import.meta.env.BASE_URL}surha.html?number=${item.surah_number}`}
             aria-label={`استمع إلى سورة ${item.surah_name} (${item.surah_name_en})`}
             className="flex h-30 gap-2 items-center justify-center rounded-xl border border-[#d9d4cd] bg-[#f5f2ed] px-2 py-3 text-center text-inherit no-underline shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:border-slate-700 dark:bg-slate-800"
         >
