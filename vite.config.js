@@ -12,7 +12,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(fileURLToPath(new URL('.', import.meta.url)), 'index.html'),
-        surah: resolve(fileURLToPath(new URL('.', import.meta.url)), 'surha.html'),
       },
     },
   },
