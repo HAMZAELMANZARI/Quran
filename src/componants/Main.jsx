@@ -33,7 +33,7 @@ export default function Main({ searchTerm }) {
     ));
 
     return (
-        <main className="mx-auto max-w-325 px-4 py-5 sm:px-6 lg:px-8">
+        <main className="mx-auto max-w-325 flex-1 px-4 py-5 sm:px-6 lg:px-8">
             <div className="rounded-2xl border border-[#d9d4cd] bg-[#f7f4f1] p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                 <h1 className="mb-4 pb-3 border-b-3 text-center text-3xl font-bold tracking-tight text-[#1e2d28] dark:text-emerald-300">
                     فهرس السور
