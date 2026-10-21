@@ -14,7 +14,7 @@ function App() {
   const selectedSurah = Data.find((item) => item.surah_number === surahNumber)
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
         <Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
         {isSurahPage ? (
           <Surah surah={selectedSurah} />
@@ -22,7 +22,7 @@ function App() {
           <Main searchTerm={searchTerm} />
         )}
         <Footer/>
-    </>
+    </div>
   )
 }
 
