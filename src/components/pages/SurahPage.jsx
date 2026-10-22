@@ -1,65 +1,61 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import Data from "../../data/quran"
+import useSurah from '../../hooks/useSurah'
+import { LAYOUT_CLASSES, LABELS, UI } from '../../utils/constants'
 
 export default function SurahPage() {
     const { number } = useParams()
     const navigate = useNavigate()
-    const surahNumber = Number(number)
-    const surah = Data.find((item) => item.surah_number === surahNumber)
+    const { surah, previous, next } = useSurah(number)
 
     if (!surah) {
         return (
-            <main className="mx-auto max-w-325 flex-1 px-4 py-5 sm:px-6 lg:px-8">
-                <div className="rounded-2xl border border-[#d9d4cd] bg-[#f7f4f1] p-4 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <main className={LAYOUT_CLASSES.CONTAINER}>
+                <div className={LAYOUT_CLASSES.CARD + ' text-center'}>
                     <h1 className="mb-4 text-2xl font-bold text-(--text-primary)">
-                        لم يتم العثور على السورة
+                        {LABELS.SURAH_NOT_FOUND}
                     </h1>
                     <button
                         onClick={() => navigate('/')}
                         className="text-emerald-700 underline dark:text-emerald-300 hover:no-underline"
                     >
-                        العودة إلى فهرس السور
+                        {LABELS.BACK_TO_INDEX}
                     </button>
                 </div>
             </main>
         )
     }
 
-    const surahIndex = Data.findIndex((item) => item.surah_number === surah.surah_number)
-    const previousSurah = Data[surahIndex - 1]
-    const nextSurah = Data[surahIndex + 1]
-
     return (
-        <main className="mx-auto max-w-325 flex-1 px-4 py-5 sm:px-6 lg:px-8">
-            <div className="rounded-2xl border border-[#d9d4cd] bg-[#f7f4f1] p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-                <h1 className="mb-4 border-b-3 pb-3 text-center text-3xl font-bold tracking-tight text-[#1e2d28] dark:text-emerald-300">
+        <main className={LAYOUT_CLASSES.CONTAINER}>
+            <div className={LAYOUT_CLASSES.CARD}>
+                <h1 className={LAYOUT_CLASSES.MAIN_HEADING}>
                     {surah.surah_name}
                 </h1>
 
                 <p className="par-center text-center text-base sm:text-lg">
-                    {surah.surah_name_en} ٠ {surah.revelation_place} ٠ آية {surah.ayahs_count}
+                    {surah.surah_name_en} {UI.SEPARATOR} {surah.revelation_place} {UI.SEPARATOR} آية {surah.ayahs_count}
                 </p>
 
                 <audio
                     className="mx-auto mb-6 w-full max-w-2xl"
                     controls
-                    preload="none"
+                    preload={UI.AUDIO_PRELOAD}
                     src={surah.audio_url}
                 >
-                    متصفحك لا يدعم تشغيل الصوت.
+                    {LABELS.AUDIO_NOT_SUPPORTED}
                 </audio>
 
                 <nav
-                    aria-label="التنقل بين السور"
+                    aria-label={LABELS.NAVIGATE_SURAHS}
                     className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                 >
-                    {previousSurah ? (
+                    {previous ? (
                         <button
-                            onClick={() => navigate(`/surah/${previousSurah.surah_number}`)}
-                            className="order-2 rounded-lg border border-[#d9d4cd] bg-white px-4 py-2 text-(--text-primary) no-underline shadow-sm transition-colors hover:bg-[#f5f2ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 sm:order-1"
+                            onClick={() => navigate(`/surah/${previous.surah_number}`)}
+                            className={LAYOUT_CLASSES.BUTTON_NAV + ' order-2 sm:order-1'}
                         >
-                            <i className="chev chev-r" />
-                            {previousSurah.surah_name}
+                            <i className={UI.CHEVRON_RIGHT} />
+                            {previous.surah_name}
                         </button>
                     ) : (
                         <span className="order-2 sm:order-1" />
@@ -67,18 +63,18 @@ export default function SurahPage() {
 
                     <button
                         onClick={() => navigate('/')}
-                        className="order-1 inline-block rounded-lg border border-[#d9d4cd] bg-white px-4 py-2 text-center text-(--text-primary) no-underline shadow-sm transition-colors hover:bg-[#f5f2ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 sm:order-2"
+                        className={LAYOUT_CLASSES.BUTTON_NAV + ' order-1 inline-block sm:order-2 text-center'}
                     >
-                        العودة إلى فهرس السور
+                        {LABELS.BACK_TO_INDEX}
                     </button>
 
-                    {nextSurah ? (
+                    {next ? (
                         <button
-                            onClick={() => navigate(`/surah/${nextSurah.surah_number}`)}
-                            className="order-3 rounded-lg border border-[#d9d4cd] bg-white px-4 py-2 text-left text-(--text-primary) no-underline shadow-sm transition-colors hover:bg-[#f5f2ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                            onClick={() => navigate(`/surah/${next.surah_number}`)}
+                            className={LAYOUT_CLASSES.BUTTON_NAV + ' order-3 text-left'}
                         >
-                            {nextSurah.surah_name}
-                            <i className="chev chev-l" />
+                            {next.surah_name}
+                            <i className={UI.CHEVRON_LEFT} />
                         </button>
                     ) : null}
                 </nav>
