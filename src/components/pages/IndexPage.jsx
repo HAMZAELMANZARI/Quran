@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { SearchContext } from '../../context/SearchContext'
+import { SearchContext } from '../../context/searchContext'
 import useSearch from '../../hooks/useSearch'
 import { LAYOUT_CLASSES, LABELS, UI } from '../../utils/constants'
 

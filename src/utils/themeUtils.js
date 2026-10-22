@@ -1,3 +1,5 @@
+import { getItem, setItem } from './storage'
+
 /**
  * Get a CSS custom property value from the root element
  * @param {string} varName - CSS variable name (without --)
@@ -50,32 +52,23 @@ export function applyTheme(theme) {
 
 /**
  * Get the current theme value from localStorage
+ * Uses safe storage to handle errors gracefully
  * @returns {string|null} Saved theme or null
  */
 export function getSavedTheme() {
   if (typeof window === 'undefined') return null
-  try {
-    return localStorage.getItem('theme')
-  } catch (e) {
-    console.warn('Failed to read theme from storage:', e)
-    return null
-  }
+  return getItem('theme', null)
 }
 
 /**
  * Save theme preference to localStorage
+ * Uses safe storage to handle errors gracefully
  * @param {string} theme - Theme value ('light' or 'dark')
  * @returns {boolean} Success status
  */
 export function saveTheme(theme) {
   if (typeof window === 'undefined') return false
-  try {
-    localStorage.setItem('theme', theme)
-    return true
-  } catch (e) {
-    console.warn('Failed to save theme to storage:', e)
-    return false
-  }
+  return setItem('theme', theme)
 }
 
 /**

@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import Header from './common/Header'
 import Footer from './common/Footer'
-import { SearchContext } from '../context/SearchContext'
+import { SearchContext } from '../context/searchContext'
 import '../css/tailwind.css'
 import '../css/normalize.css'
 
