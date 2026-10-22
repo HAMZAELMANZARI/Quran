@@ -1,4 +1,7 @@
-import Data from "../API/Data"
+import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { SearchContext } from '../../context/SearchContext'
+import Data from "../../data/quran"
 
 const searchableData = Data.map((item) => ({
     item,
@@ -10,7 +13,9 @@ const searchableData = Data.map((item) => ({
     ],
 }))
 
-export default function Main({ searchTerm }) {
+export default function IndexPage() {
+    const navigate = useNavigate()
+    const { searchTerm } = useContext(SearchContext)
     const normalizedSearch = searchTerm.trim().toLocaleLowerCase()
     const filteredData = normalizedSearch
         ? searchableData
@@ -18,18 +23,18 @@ export default function Main({ searchTerm }) {
             .map(({ item }) => item)
         : Data
     const surahs = filteredData.map((item) => (
-        <a
+        <button
             key={item.surah_number}
-            href={`${import.meta.env.BASE_URL}surha.html?number=${item.surah_number}`}
+            onClick={() => navigate(`/surah/${item.surah_number}`)}
             aria-label={`استمع إلى سورة ${item.surah_name} (${item.surah_name_en})`}
-            className="flex h-30 gap-2 items-center justify-center rounded-xl border border-[#d9d4cd] bg-[#f5f2ed] px-2 py-3 text-center text-inherit no-underline shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:border-slate-700 dark:bg-slate-800"
+            className="flex h-30 gap-2 items-center justify-center rounded-xl border border-[#d9d4cd] bg-[#f5f2ed] px-2 py-3 text-center text-inherit shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:border-slate-700 dark:bg-slate-800 cursor-pointer"
         >
             <span className="num dark:text-slate-300">{item.surah_number}</span>
             <span className="min-w-0 dark:text-slate-300">
                 <p>{item.surah_name}</p>
                 <small>{item.surah_name_en} ٠ {item.revelation_place} ٠ آية {item.ayahs_count}</small>
             </span>
-        </a>
+        </button>
     ));
 
     return (

@@ -1,6 +1,12 @@
-import Data from "../API/Data"
+import { useParams, useNavigate } from 'react-router-dom'
+import Data from "../../data/quran"
 
-export default function Surah({ surah }) {
+export default function SurahPage() {
+    const { number } = useParams()
+    const navigate = useNavigate()
+    const surahNumber = Number(number)
+    const surah = Data.find((item) => item.surah_number === surahNumber)
+
     if (!surah) {
         return (
             <main className="mx-auto max-w-325 flex-1 px-4 py-5 sm:px-6 lg:px-8">
@@ -8,12 +14,12 @@ export default function Surah({ surah }) {
                     <h1 className="mb-4 text-2xl font-bold text-(--text-primary)">
                         لم يتم العثور على السورة
                     </h1>
-                    <a
-                        href={import.meta.env.BASE_URL}
-                        className="text-emerald-700 underline dark:text-emerald-300"
+                    <button
+                        onClick={() => navigate('/')}
+                        className="text-emerald-700 underline dark:text-emerald-300 hover:no-underline"
                     >
                         العودة إلى فهرس السور
-                    </a>
+                    </button>
                 </div>
             </main>
         )
@@ -48,32 +54,32 @@ export default function Surah({ surah }) {
                     className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                     {previousSurah ? (
-                        <a
-                            href={`${import.meta.env.BASE_URL}surha.html?number=${previousSurah.surah_number}`}
+                        <button
+                            onClick={() => navigate(`/surah/${previousSurah.surah_number}`)}
                             className="order-2 rounded-lg border border-[#d9d4cd] bg-white px-4 py-2 text-(--text-primary) no-underline shadow-sm transition-colors hover:bg-[#f5f2ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 sm:order-1"
                         >
                             <i className="chev chev-r" />
                             {previousSurah.surah_name}
-                        </a>
+                        </button>
                     ) : (
                         <span className="order-2 sm:order-1" />
                     )}
 
-                    <a
-                        href={import.meta.env.BASE_URL}
+                    <button
+                        onClick={() => navigate('/')}
                         className="order-1 inline-block rounded-lg border border-[#d9d4cd] bg-white px-4 py-2 text-center text-(--text-primary) no-underline shadow-sm transition-colors hover:bg-[#f5f2ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 sm:order-2"
                     >
                         العودة إلى فهرس السور
-                    </a>
+                    </button>
 
                     {nextSurah ? (
-                        <a
-                            href={`${import.meta.env.BASE_URL}surha.html?number=${nextSurah.surah_number}`}
+                        <button
+                            onClick={() => navigate(`/surah/${nextSurah.surah_number}`)}
                             className="order-3 rounded-lg border border-[#d9d4cd] bg-white px-4 py-2 text-left text-(--text-primary) no-underline shadow-sm transition-colors hover:bg-[#f5f2ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                         >
                             {nextSurah.surah_name}
                             <i className="chev chev-l" />
-                        </a>
+                        </button>
                     ) : null}
                 </nav>
             </div>

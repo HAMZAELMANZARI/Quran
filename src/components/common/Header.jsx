@@ -1,5 +1,5 @@
-import quran_sound from '../assets/quran-sound.svg'
-import useDarkMode from './useDarkMode'
+import quran_sound from '../../assets/quran-sound.svg'
+import useDarkMode from '../../hooks/useDarkMode'
 
 export default function Header({ searchTerm, onSearchChange }) {
     const [isDarkMode, toggleDarkMode] = useDarkMode()

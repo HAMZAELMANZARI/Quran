@@ -1,10 +1,11 @@
-import { StrictMode } from 'react'
+import { StrictMode, useState, createContext } from 'react'
 import { createRoot } from 'react-dom/client'
-import './src/css/style.css'
-import App from './src/componants/App'
+import './src/css/tailwind.css'
+import AppRouter from './src/router'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <AppRouter />
   </StrictMode>,
 )
+

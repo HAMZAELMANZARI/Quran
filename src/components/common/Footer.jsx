@@ -1,4 +1,4 @@
-import quran_sound from '../assets/quran-sound.svg'
+import quran_sound from '../../assets/quran-sound.svg'
 
 export default function Footer() {
     return (
