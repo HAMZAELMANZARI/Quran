@@ -1,0 +1,73 @@
+import { describe, it, expect } from 'vitest'
+import { render } from '@testing-library/react'
+import AudioPlayer from '@components/common/AudioPlayer'
+
+describe('AudioPlayer component', () => {
+  it('should render audio element', () => {
+    const { container } = render(
+      <AudioPlayer src="https://example.com/audio.mp3" title="Test Surah" />
+    )
+    const audio = container.querySelector('audio')
+    expect(audio).toBeInTheDocument()
+  })
+
+  it('should set correct audio src', () => {
+    const testSrc = 'https://example.com/test.mp3'
+    const { container } = render(
+      <AudioPlayer src={testSrc} title="Test" />
+    )
+    const audio = container.querySelector('audio')
+    expect(audio).toHaveAttribute('src', testSrc)
+  })
+
+  it('should have controls enabled', () => {
+    const { container } = render(
+      <AudioPlayer src="https://example.com/audio.mp3" title="Test" />
+    )
+    const audio = container.querySelector('audio')
+    expect(audio).toHaveAttribute('controls')
+  })
+
+  it('should update src when prop changes', () => {
+    const { container, rerender } = render(
+      <AudioPlayer src="https://example.com/audio1.mp3" title="Test" />
+    )
+
+    let audio = container.querySelector('audio')
+    expect(audio).toHaveAttribute('src', 'https://example.com/audio1.mp3')
+
+    rerender(<AudioPlayer src="https://example.com/audio2.mp3" title="Test" />)
+    audio = container.querySelector('audio')
+    expect(audio).toHaveAttribute('src', 'https://example.com/audio2.mp3')
+  })
+
+  it('should render with title prop', () => {
+    const testTitle = 'سورة الفاتحة'
+    const { container } = render(
+      <AudioPlayer src="https://example.com/audio.mp3" title={testTitle} />
+    )
+    const audio = container.querySelector('audio')
+    expect(audio).toBeDefined()
+  })
+
+  it('should handle empty src gracefully', () => {
+    const { container } = render(
+      <AudioPlayer src="" title="Test" />
+    )
+    const audio = container.querySelector('audio')
+    expect(audio).toHaveAttribute('src', '')
+  })
+
+  it('should preserve controls attribute on rerender', () => {
+    const { container, rerender } = render(
+      <AudioPlayer src="https://example.com/audio1.mp3" title="Test" />
+    )
+
+    let audio = container.querySelector('audio')
+    expect(audio).toHaveAttribute('controls')
+
+    rerender(<AudioPlayer src="https://example.com/audio2.mp3" title="Test Updated" />)
+    audio = container.querySelector('audio')
+    expect(audio).toHaveAttribute('controls')
+  })
+})
