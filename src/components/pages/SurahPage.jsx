@@ -1,15 +1,31 @@
+import { useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import useSurah from '../../hooks/useSurah'
-import { LAYOUT_CLASSES, LABELS, UI } from '../../utils/constants'
+import useDocumentMeta from '../../hooks/useDocumentMeta'
+import { APP_TITLE, LAYOUT_CLASSES, LABELS, UI } from '../../utils/constants'
 
 export default function SurahPage() {
     const { number } = useParams()
     const navigate = useNavigate()
     const { surah, previous, next } = useSurah(number)
+    const headingRef = useRef(null)
+
+    // Move focus to the heading when navigating between surahs so keyboard
+    // and screen reader users are not left at the top of the page.
+    useEffect(() => {
+        headingRef.current?.focus()
+    }, [number])
+
+    const surahTitle = surah ? `${surah.surah_name} (${surah.surah_name_en}) | Quran Sound` : APP_TITLE
+    const surahDescription = surah
+        ? `استمع إلى سورة ${surah.surah_name} (${surah.surah_name_en}) - ${surah.ayahs_count} آية`
+        : LABELS.SURAH_NOT_FOUND
+
+    useDocumentMeta(surahTitle, surahDescription)
 
     if (!surah) {
         return (
-            <main className={LAYOUT_CLASSES.CONTAINER}>
+            <main id="main-content" tabIndex={-1} className={LAYOUT_CLASSES.CONTAINER}>
                 <div className={LAYOUT_CLASSES.CARD + ' text-center'}>
                     <h1 className="mb-4 text-2xl font-bold text-(--text-primary)">
                         {LABELS.SURAH_NOT_FOUND}
@@ -26,9 +42,9 @@ export default function SurahPage() {
     }
 
     return (
-        <main className={LAYOUT_CLASSES.CONTAINER}>
+        <main id="main-content" tabIndex={-1} className={LAYOUT_CLASSES.CONTAINER}>
             <div className={LAYOUT_CLASSES.CARD}>
-                <h1 className={LAYOUT_CLASSES.MAIN_HEADING}>
+                <h1 ref={headingRef} tabIndex={-1} className={LAYOUT_CLASSES.MAIN_HEADING}>
                     {surah.surah_name}
                 </h1>
 

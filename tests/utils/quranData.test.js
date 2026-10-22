@@ -108,6 +108,12 @@ describe('quranData utilities', () => {
     expect(Array.isArray(firstItem.searchValues)).toBe(true)
   })
 
+  it('should reuse the cached index across calls', () => {
+    // The Quran dataset is static, so the index should be built once
+    // and reused rather than rebuilt on every keystroke.
+    expect(createSearchIndex()).toBe(createSearchIndex())
+  })
+
   // getAllSurahs tests
   it('should return all surahs', () => {
     const all = getAllSurahs()

@@ -1,11 +1,22 @@
 import Data from '../data/quran'
 
 /**
+ * Lazily-built, cached search index.
+ * The Quran dataset is static, so the index is built once and reused
+ * instead of being rebuilt on every keystroke.
+ * @type {Array<{item: Object, searchValues: string[]}>|null}
+ */
+let searchIndexCache = null
+
+/**
  * Create a searchable index of surahs with normalized search values
+ * The index is memoized - subsequent calls return the cached array.
  * @returns {Array} Array of {item, searchValues} objects
  */
 export function createSearchIndex() {
-  return Data.map((item) => ({
+  if (searchIndexCache) return searchIndexCache
+
+  searchIndexCache = Data.map((item) => ({
     item,
     searchValues: [
       item.surah_name.toLocaleLowerCase(),
@@ -14,6 +25,8 @@ export function createSearchIndex() {
       item.revelation_place.toLocaleLowerCase(),
     ],
   }))
+
+  return searchIndexCache
 }
 
 /**
