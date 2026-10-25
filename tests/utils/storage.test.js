@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import * as storage from '@utils/storage'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import * as storage from '@shared/utils/storage'
 
 describe('storage utility', () => {
   beforeEach(() => {
@@ -116,9 +116,15 @@ describe('storage utility', () => {
     })
 
     it('should return default value if JSON is invalid', () => {
-      window.localStorage.setItem('bad-json', 'not valid json')
-      const defaultData = { default: true }
-      expect(storage.getJSON('bad-json', defaultData)).toEqual(defaultData)
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      try {
+        window.localStorage.setItem('bad-json', 'not valid json')
+        const defaultData = { default: true }
+        expect(storage.getJSON('bad-json', defaultData)).toEqual(defaultData)
+        expect(warnSpy).toHaveBeenCalledOnce()
+      } finally {
+        warnSpy.mockRestore()
+      }
     })
 
     it('should handle arrays', () => {

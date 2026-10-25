@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import useDocumentMeta from '@hooks/useDocumentMeta'
+import useDocumentMeta from '@shared/hooks/useDocumentMeta'
 
 describe('useDocumentMeta hook', () => {
   beforeEach(() => {

@@ -173,13 +173,13 @@ Added environment variable entries:
 ### Deployment Scenarios
 ```bash
 # Development
-VITE_DEBUG_MODE=true npm run dev
+VITE_DEBUG_MODE=true pnpm run dev
 
 # Staging
-VITE_API_BASE_URL=https://staging-api.example.com npm run build
+VITE_API_BASE_URL=https://staging-api.example.com pnpm run build
 
 # Production
-VITE_ENABLE_ANALYTICS=true npm run build
+VITE_ENABLE_ANALYTICS=true pnpm run build
 ```
 
 ### Verification

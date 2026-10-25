@@ -40,49 +40,47 @@ Quran Sound is a responsive, modern React web application for browsing and liste
 
 ```
 src/
-├── components/              # React components organized by type
-│   ├── common/             # Reusable components across app
-│   │   ├── Header.jsx      # App header with search and theme toggle
-│   │   ├── Footer.jsx      # App footer
-│   │   ├── SearchBar.jsx   # Search input component
-│   │   └── AudioPlayer.jsx # HTML5 audio player wrapper
-│   ├── pages/              # Page-level components for routes
-│   │   ├── IndexPage.jsx   # Home page (all 114 surahs)
-│   │   └── SurahPage.jsx   # Single surah detail page
-│   ├── ErrorBoundary.jsx   # Error handling component
-│   ├── App.jsx             # Root app component
-│   └── SkipLink.jsx        # Accessibility skip link (future)
+├── app/                     # Application shell and composition root
+│   ├── App.jsx              # Layout: Header + page + Footer
+│   ├── AppRouter.jsx        # BrowserRouter, routes, lazy loading
+│   └── ErrorBoundary.jsx    # Error handling component
 │
-├── hooks/                  # Custom React hooks
-│   ├── useDarkMode.js      # Dark mode with localStorage + system preference
-│   ├── useSurah.js         # Surah fetching and navigation logic
-│   ├── useSearch.js        # Search filtering with memoization
-│   └── useAudio.js         # Audio playback state management
+├── features/                # Feature modules (vertical slices)
+│   ├── quran/               # Quran domain
+│   │   ├── pages/
+│   │   │   ├── IndexPage.jsx    # Home page (all 114 surahs)
+│   │   │   └── SurahPage.jsx    # Single surah detail page
+│   │   ├── components/
+│   │   │   └── SurahCard.jsx    # Memoized surah card
+│   │   ├── hooks/
+│   │   │   └── useSurah.js      # Surah lookup and navigation
+│   │   ├── utils/
+│   │   │   └── quranData.js     # Data access + cached search index
+│   │   └── data/
+│   │       └── quran.js         # 114 surahs with metadata and audio URLs
+│   ├── search/              # Search domain
+│   │   ├── SearchProvider.jsx   # Search term state provider
+│   │   ├── searchContext.js     # Context object and types
+│   │   └── useSearch.js         # Memoized filtering
+│   ├── theme/               # Theme domain
+│   │   ├── useDarkMode.js       # localStorage + system preference
+│   │   └── themeUtils.js        # Theme helpers
+│   └── audio/               # Audio domain
+│       └── useAudio.js          # Playback state (not wired yet)
 │
-├── utils/                  # Pure utility functions
-│   ├── quranData.js        # Data access functions (7 functions)
-│   ├── themeUtils.js       # Theme management utilities (8 functions)
-│   ├── constants.js        # Shared constants (150+ lines)
-│   └── storage.js          # Safe localStorage wrapper
+├── shared/                  # Cross-feature foundation
+│   ├── components/          # Header, Footer, SkipLink
+│   ├── hooks/               # useDocumentMeta
+│   ├── utils/               # constants, storage
+│   ├── config/              # env.js
+│   ├── styles/              # tailwind.css, normalize.css, all.min.css
+│   └── assets/              # quran-sound.svg
 │
-├── context/                # React Context for state management
-│   └── SearchContext.jsx   # Search term state provider
+├── types/                   # TypeScript type definitions
+│   ├── index.ts             # Core interfaces (Surah, SearchResult, etc.)
+│   └── assets.d.ts          # Asset module declarations
 │
-├── config/                 # Configuration management
-│   └── env.js              # Environment variable wrapper
-│
-├── types/                  # TypeScript type definitions
-│   └── index.ts            # Core interfaces (Surah, SearchResult, etc.)
-│
-├── data/                   # Data layer
-│   └── quran.js            # 114 surahs with metadata and audio URLs
-│
-├── css/                    # Stylesheets
-│   └── tailwind.css        # Tailwind configuration and component layers
-│
-├── router.jsx              # React Router configuration
-├── main.jsx                # Application entry point
-└── App.jsx                 # Root component
+└── plan.drawio              # Architecture diagrams (3 pages)
 
 public/
 ├── favicon.svg             # App icon

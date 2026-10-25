@@ -1,8 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './src/css/tailwind.css'
-import AppRouter from './src/router'
-import ErrorBoundary from './src/components/ErrorBoundary'
+import './src/shared/styles/tailwind.css'
+import AppRouter from './src/app/AppRouter'
+import ErrorBoundary from './src/app/ErrorBoundary'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

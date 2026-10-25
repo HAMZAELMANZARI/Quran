@@ -5,7 +5,7 @@ import {
   saveTheme,
   applyTheme,
   getInitialTheme,
-} from '@utils/themeUtils'
+} from '@features/theme/themeUtils'
 
 describe('themeUtils', () => {
   beforeEach(() => {

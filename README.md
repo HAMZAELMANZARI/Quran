@@ -17,6 +17,8 @@ Quran Sound is a responsive, modern web application for browsing and listening t
 
 ## Quick Start
 
+This project uses **pnpm exclusively**. npm, yarn, and other package managers are not supported.
+
 ```bash
 # Install dependencies
 pnpm install
@@ -49,31 +51,37 @@ Complete documentation is available in the `docs/` directory:
 | `pnpm preview` | Preview production build locally |
 | `pnpm lint` | Check code quality with ESLint |
 | `pnpm test` | Run tests with Vitest |
-| `pnpm deploy` | Build and deploy to GitHub Pages |
+| `pnpm run deploy` | Build and deploy to GitHub Pages |
 
 ## Project Structure
 
 ```
 src/
-├── components/          # React components
-│   ├── common/         # Reusable components
-│   ├── pages/          # Page-level components (routes)
+├── app/                 # Application shell
+│   ├── App.jsx          # Layout: Header + page + Footer
+│   ├── AppRouter.jsx    # BrowserRouter, routes, lazy loading
 │   └── ErrorBoundary.jsx
-├── hooks/              # Custom React hooks (useSurah, useSearch, etc.)
-├── utils/              # Utility functions and constants
-├── context/            # React Context (SearchContext)
-├── config/             # Configuration (environment variables)
-├── types/              # TypeScript type definitions
-├── data/               # Data layer (114 surahs)
-├── css/                # Tailwind CSS styles
-├── router.jsx          # React Router configuration
-└── main.jsx            # Application entry point
+├── features/            # Feature modules (vertical slices)
+│   ├── quran/           # pages, components, hooks, utils, data
+│   ├── search/          # SearchProvider, context, useSearch
+│   ├── theme/           # useDarkMode, themeUtils
+│   └── audio/           # useAudio
+├── shared/              # Cross-feature foundation
+│   ├── components/      # Header, Footer, SkipLink
+│   ├── hooks/           # useDocumentMeta
+│   ├── utils/           # constants, storage
+│   ├── config/          # env.js
+│   ├── styles/          # tailwind.css, normalize.css
+│   └── assets/          # quran-sound.svg
+├── types/               # TypeScript definitions
+└── plan.drawio          # Architecture diagrams
 
-docs/                   # Comprehensive documentation
-public/                 # Static assets
-vite.config.js          # Vite configuration
-tsconfig.json           # TypeScript configuration
-.env.example            # Environment variable template
+docs/                    # Comprehensive documentation
+public/                  # Static assets
+scripts/                 # Tooling (pnpm-only install guard)
+vite.config.js           # Vite configuration
+tsconfig.json            # TypeScript configuration
+.env.example             # Environment variable template
 ```
 
 ## Technology Stack
@@ -86,8 +94,9 @@ tsconfig.json           # TypeScript configuration
 
 ## Requirements
 
-- **Node.js** 18+ (Vite 8 compatible)
-- **pnpm** 8+ (recommended) or npm/yarn
+- **Node.js** 22.12+ (Vite 8 and Vitest 5 compatible)
+- **pnpm** 12.11.2 (pinned via `packageManager`; use Corepack to install it)
+- npm and yarn are not supported; dependency installation is blocked for them.
 
 ## Features Detail
 

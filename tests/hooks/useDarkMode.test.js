@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import useDarkMode from '@hooks/useDarkMode'
+import useDarkMode from '@features/theme/useDarkMode'
 
 describe('useDarkMode hook', () => {
   beforeEach(() => {

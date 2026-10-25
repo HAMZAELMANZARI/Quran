@@ -20,9 +20,14 @@ Before you start, ensure you have:
 
 | Software | Version | Check Command |
 |----------|---------|---|
-| **Node.js** | 18+ (Vite 8 compatible) | `node --version` |
-| **pnpm** | 8+ (recommended) | `pnpm --version` |
+| **Node.js** | 22.12+ (Vite 8 and Vitest 5 compatible) | `node --version` |
+| **pnpm** | 12.11.2 (pinned via `packageManager`) | `pnpm --version` |
 | **Git** | Any recent version | `git --version` |
+
+> **pnpm only:** This repository does not support npm or yarn. `pnpm install`
+> enforces the package manager, and competing lockfiles are ignored by Git.
+> If pnpm is not installed, enable Corepack with `corepack enable` and run
+> `corepack prepare pnpm@12.11.2 --activate`.
 
 ### Recommended
 
@@ -45,17 +50,13 @@ cd Quran
 ### 2. Install Dependencies
 
 ```bash
-# Using pnpm (recommended for speed)
 pnpm install
-
-# Or using npm
-npm install
-
-# Or using yarn
-yarn install
 ```
 
 **First time?** This downloads ~500MB of dependencies. Subsequent installs are faster.
+
+Using npm or yarn will fail at the `preinstall` check. Remove any
+`package-lock.json` or `yarn.lock` left by other package managers.
 
 ### 3. Start Development Server
 
@@ -591,7 +592,7 @@ console.log(config.myVariable)
 ## Performance Tips
 
 ### Keep Development Fast
-- Use `pnpm` instead of `npm` (faster)
+- Use pnpm for every dependency and script command
 - Use HMR (automatic reload on save)
 - Check browser DevTools Network tab for slow assets
 

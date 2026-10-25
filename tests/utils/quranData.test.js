@@ -7,7 +7,7 @@ import {
   isValidSurahNumber,
   createSearchIndex,
   getAllSurahs,
-} from '@utils/quranData'
+} from '@features/quran/utils/quranData'
 
 describe('quranData utilities', () => {
   // filterSurahs tests

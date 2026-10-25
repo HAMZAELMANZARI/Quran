@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import IndexPage from '@components/pages/IndexPage'
-import { SearchContext } from '@context/searchContext'
-import { getAllSurahs } from '@utils/quranData'
+import IndexPage from '@features/quran/pages/IndexPage'
+import { SearchContext } from '@features/search/searchContext'
+import { getAllSurahs } from '@features/quran/utils/quranData'
 
 const ALL_SURAHS = getAllSurahs().length
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import { useSurah } from '@hooks/useSurah'
+import { useSurah } from '@features/quran/hooks/useSurah'
 
 describe('useSurah hook', () => {
   it('should fetch surah by number', () => {

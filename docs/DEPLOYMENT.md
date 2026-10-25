@@ -377,13 +377,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: 18
+          version: 12.11.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
           cache: 'pnpm'
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test -- --run
       - run: pnpm run build
       - uses: peaceiris/actions-gh-pages@v3
         with:
