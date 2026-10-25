@@ -41,6 +41,7 @@ Complete documentation is available in the `docs/` directory:
 - **[DEPLOYMENT.md](./docs/DEPLOYMENT.md)** - GitHub Pages deployment guide
 - **[ACCESSIBILITY.md](./docs/ACCESSIBILITY.md)** - WCAG 2.1 compliance and testing
 - **[CONTRIBUTING.md](./docs/CONTRIBUTING.md)** - Contribution guidelines
+- **[map.md](./docs/map.md)** - Complete file-by-file map of the repository
 
 ## Available Commands
 
@@ -51,11 +52,15 @@ Complete documentation is available in the `docs/` directory:
 | `pnpm preview` | Preview production build locally |
 | `pnpm lint` | Check code quality with ESLint |
 | `pnpm test` | Run tests with Vitest |
+| `pnpm test:ui` | Run Vitest with the interactive UI |
+| `pnpm test:coverage` | Run tests and generate a coverage report |
 | `pnpm run deploy` | Build and deploy to GitHub Pages |
 
 ## Project Structure
 
 ```
+main.jsx                 # React entry point (providers + ErrorBoundary)
+index.html               # Vite HTML entry point
 src/
 ├── app/                 # Application shell
 │   ├── App.jsx          # Layout: Header + page + Footer
@@ -65,13 +70,13 @@ src/
 │   ├── quran/           # pages, components, hooks, utils, data
 │   ├── search/          # SearchProvider, context, useSearch
 │   ├── theme/           # useDarkMode, themeUtils
-│   └── audio/           # useAudio
+│   └── audio/           # useAudio (available, not wired yet)
 ├── shared/              # Cross-feature foundation
 │   ├── components/      # Header, Footer, SkipLink
 │   ├── hooks/           # useDocumentMeta
 │   ├── utils/           # constants, storage
 │   ├── config/          # env.js
-│   ├── styles/          # tailwind.css, normalize.css
+│   ├── styles/          # tailwind.css, normalize.css, all.min.css
 │   └── assets/          # quran-sound.svg
 ├── types/               # TypeScript definitions
 └── plan.drawio          # Architecture diagrams
@@ -79,17 +84,22 @@ src/
 docs/                    # Comprehensive documentation
 public/                  # Static assets
 scripts/                 # Tooling (pnpm-only install guard)
+tests/                   # Vitest unit and component tests
 vite.config.js           # Vite configuration
+vitest.config.js         # Vitest configuration
 tsconfig.json            # TypeScript configuration
 .env.example             # Environment variable template
 ```
 
+See [docs/map.md](./docs/map.md) for a file-by-file description of every source, test, and configuration file.
+
 ## Technology Stack
 
 - **React** 19.2.8 - UI framework
-- **React Router** 6.30.6 - Client-side routing
+- **React Router** 7.18.4 - Client-side routing
 - **Vite** 8.3.0 - Build tool and dev server
 - **Tailwind CSS** 4.3.3 - Utility-first styling
+- **Vitest** 5.0.5 + Testing Library - Unit and component tests
 - **TypeScript** - Optional type safety with gradual migration
 
 ## Requirements
@@ -117,7 +127,7 @@ tsconfig.json            # TypeScript configuration
 - Screen reader compatible
 - Semantic HTML structure
 - ARIA labels and roles
-- Touch targets 44x44px minimum
+- Touch targets sized for mobile use
 - High color contrast ratios
 
 ### ⚡ Performance
@@ -138,7 +148,8 @@ tsconfig.json            # TypeScript configuration
 1. **Read [SETUP.md](./docs/SETUP.md)** for environment setup
 2. **Read [ARCHITECTURE.md](./docs/ARCHITECTURE.md)** for system design
 3. **Explore [COMPONENTS.md](./docs/COMPONENTS.md)** for component reference
-4. **See [CONTRIBUTING.md](./docs/CONTRIBUTING.md)** for contribution guidelines
+4. **Browse [map.md](./docs/map.md)** for a file-by-file repository map
+5. **See [CONTRIBUTING.md](./docs/CONTRIBUTING.md)** for contribution guidelines
 
 ## Deployment
 
@@ -180,7 +191,7 @@ See LICENSE file for details.
 ---
 
 **Project Status**: ✅ Active Development  
-**Last Updated**: 2026-10-22  
-**Current Phase**: Phase 8 (Documentation Complete)
+**Last Updated**: 2026-10-25  
+**Current Phase**: Architecture refactor and test migration complete
 
 For detailed project roadmap, see [ARCHITECTURE.md](./docs/ARCHITECTURE.md#future-architecture-considerations)

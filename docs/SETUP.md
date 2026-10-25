@@ -1,8 +1,6 @@
 # Quran Sound - Setup Guide
 
-## Quick Start (3 Commands)
-
-Get the app running in under 5 minutes:
+## Quick Start
 
 ```bash
 pnpm install
@@ -14,89 +12,83 @@ pnpm dev
 
 ## Prerequisites
 
-Before you start, ensure you have:
-
-### Required Software
-
 | Software | Version | Check Command |
-|----------|---------|---|
-| **Node.js** | 22.12+ (Vite 8 and Vitest 5 compatible) | `node --version` |
-| **pnpm** | 12.11.2 (pinned via `packageManager`) | `pnpm --version` |
+|----------|---------|---------------|
+| **Node.js** | `>=22.12.0` | `node --version` |
+| **pnpm** | `>=12.0.0` (pinned `12.11.2`) | `pnpm --version` |
 | **Git** | Any recent version | `git --version` |
 
-> **pnpm only:** This repository does not support npm or yarn. `pnpm install`
-> enforces the package manager, and competing lockfiles are ignored by Git.
-> If pnpm is not installed, enable Corepack with `corepack enable` and run
-> `corepack prepare pnpm@12.11.2 --activate`.
+> **pnpm only.** npm and yarn are not supported. The `preinstall` script
+> (`scripts/check-package-manager.mjs`) aborts installation when the user agent
+> is not pnpm. If pnpm is missing, run:
+>
+> ```bash
+> corepack enable
+> corepack prepare pnpm@12.11.2 --activate
+> ```
 
-### Recommended
+Recommended:
 
-- **Text Editor**: VS Code with ESLint and TypeScript extensions
-- **Browser**: Chrome, Firefox, Safari, or Edge (modern version)
-- **Terminal**: Bash, Zsh, or PowerShell
+- VS Code with ESLint and TypeScript extensions
+- A modern browser (Chrome, Firefox, Safari, Edge)
+- Bash, Zsh, or PowerShell
 
 ---
 
-## Installation Steps
+## Installation
 
-### 1. Clone the Repository
+### 1. Clone
 
 ```bash
-# Clone the project
 git clone https://github.com/HAMZAELMANZARI/Quran.git
 cd Quran
 ```
 
-### 2. Install Dependencies
+### 2. Install dependencies
 
 ```bash
 pnpm install
 ```
 
-**First time?** This downloads ~500MB of dependencies. Subsequent installs are faster.
+Remove any leftover `package-lock.json` or `yarn.lock`; they are git-ignored and
+will not be used.
 
-Using npm or yarn will fail at the `preinstall` check. Remove any
-`package-lock.json` or `yarn.lock` left by other package managers.
-
-### 3. Start Development Server
+### 3. Start the dev server
 
 ```bash
 pnpm dev
 ```
 
-You'll see output like:
+Expected output:
+
 ```
-  VITE v8.3.0  ready in 245 ms
+VITE v8.3.0  ready in ~250 ms
 
-  ➜  Local:   http://localhost:5173/Quran/
-  ➜  press h to show help
+➜  Local:   http://localhost:5173/Quran/
 ```
 
-### 4. Open in Browser
+### 4. Open the app
 
-Click the link or paste `http://localhost:5173/Quran/` into your browser.
+Visit `http://localhost:5173/Quran/`.
 
 ---
 
 ## Environment Setup
 
-### 1. Create .env.local
+### 1. Create a local env file
 
 ```bash
-# Copy the template
 cp .env.example .env.local
 ```
 
-### 2. Configure Variables
-
-Edit `.env.local` with your settings:
+### 2. Configure variables
 
 ```env
 # Application
 VITE_APP_NAME=Quran Sound
 VITE_APP_VERSION=0.0.1
 
-# API Configuration
+# API / audio
 VITE_API_BASE_URL=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
 VITE_AUDIO_CDN=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
 
@@ -108,524 +100,281 @@ VITE_ENABLE_OFFLINE_MODE=true
 VITE_DEBUG_MODE=false
 ```
 
-### 3. Access in Code
+### 3. Access in code
 
 ```javascript
-import config from '@config/env'
+import config from '@shared/config/env'
 
-console.log(config.appName)        // 'Quran Sound'
-console.log(config.isDevelopment)  // true/false
-console.log(config.audioCdn)       // CDN URL
+config.appName        // 'Quran Sound'
+config.audioCdn       // CDN URL
+config.isDevelopment  // true/false
 ```
 
-**Note**: `.env.local` is git-ignored (never committed).
+`.env.local` and `.env.*.local` are git-ignored. Restart the dev server after
+changing environment variables.
 
 ---
 
 ## Available Commands
 
-### Development
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start Vite with HMR |
+| `pnpm build` | Build the production bundle into `dist/` |
+| `pnpm preview` | Preview the production build |
+| `pnpm lint` | Run ESLint |
+| `pnpm test` | Run Vitest in watch mode |
+| `pnpm test -- --run` | Run the suite once (CI style) |
+| `pnpm test:ui` | Open the Vitest UI |
+| `pnpm test:coverage` | Generate a V8 coverage report |
+| `pnpm run deploy` | Build and publish `dist/` to `gh-pages` |
+
+Run the dev server on another port:
 
 ```bash
-# Start dev server (with HMR)
-pnpm dev
-# Opens http://localhost:5173/Quran/
-# Auto-reloads on file changes
-
-# Start dev server on different port
-PORT=3000 pnpm dev
+pnpm dev --port 3000
 ```
 
-### Building
+---
+
+## Project Navigation
+
+### Key files
+
+```
+main.jsx                          # React entry point
+index.html                        # Vite HTML entry point
+src/
+├── app/
+│   ├── App.jsx                   # Layout: SkipLink + Header + children + Footer
+│   ├── AppRouter.jsx             # BrowserRouter, SearchProvider, lazy routes
+│   └── ErrorBoundary.jsx         # Top-level error boundary
+├── features/
+│   ├── quran/
+│   │   ├── pages/IndexPage.jsx   # Home (all surahs)
+│   │   ├── pages/SurahPage.jsx   # Surah detail
+│   │   ├── components/SurahCard.jsx
+│   │   ├── hooks/useSurah.js
+│   │   ├── utils/quranData.js
+│   │   └── data/quran.js         # 114 surah records
+│   ├── search/
+│   │   ├── SearchProvider.jsx
+│   │   ├── searchContext.js
+│   │   └── useSearch.js
+│   ├── theme/
+│   │   ├── useDarkMode.js
+│   │   └── themeUtils.js
+│   └── audio/useAudio.js         # available, not wired yet
+├── shared/
+│   ├── components/               # Header, Footer, SkipLink
+│   ├── hooks/useDocumentMeta.js
+│   ├── utils/                    # constants.js, storage.js
+│   ├── config/env.js
+│   ├── styles/                   # tailwind.css, normalize.css, all.min.css
+│   └── assets/quran-sound.svg
+└── types/                        # TypeScript definitions
+tests/                            # Vitest suite
+docs/                             # Documentation
+scripts/check-package-manager.mjs # pnpm-only guard
+```
+
+See [map.md](./map.md) for a file-by-file description.
+
+### Path aliases
+
+Defined in both `vite.config.js` and `tsconfig.json`:
+
+| Alias | Target |
+|-------|--------|
+| `@/` | `src/` |
+| `@app/` | `src/app/` |
+| `@features/` | `src/features/` |
+| `@shared/` | `src/shared/` |
+| `@types/` | `src/types/` |
+
+Use aliases instead of deep relative paths:
+
+```javascript
+// ✅
+import useSearch from '@features/search/useSearch'
+import { APP_TITLE } from '@shared/utils/constants'
+
+// ❌
+import useSearch from '../../../features/search/useSearch'
+```
+
+---
+
+## First Change Walkthrough
+
+**Change the visible app name**
+
+1. Open `src/shared/utils/constants.js`
+2. Edit `APP_NAME` (or `APP_TITLE`)
+3. Save; Vite HMR reloads the page
+
+**Change the theme default**
+
+1. Open `src/features/theme/useDarkMode.js`
+2. Adjust the initial-state logic
+3. Save and reload
+
+**Add a searchable field**
+
+1. Open `src/features/quran/utils/quranData.js`
+2. Add the value to `createSearchIndex()`'s `searchValues`
+3. Search again — the cached index rebuilds on a full page reload
+
+**Run tests**
 
 ```bash
-# Build for production
+pnpm test -- --run
+pnpm test:coverage
+```
+
+**Build and preview**
+
+```bash
 pnpm build
-# Output: dist/
-
-# Preview production build locally
 pnpm preview
-# Opens http://localhost:5173/Quran/ (production bundle)
-```
-
-### Code Quality
-
-```bash
-# Run ESLint
-pnpm lint
-
-# Run tests (when Phase 9 complete)
-pnpm test
-pnpm test:ui        # Interactive test UI
-pnpm test:coverage  # Coverage report
-```
-
-### Deployment
-
-```bash
-# Build and deploy to GitHub Pages
-pnpm run deploy
-# Deploys dist/ to gh-pages branch
 ```
 
 ---
 
 ## IDE Setup
 
-### VS Code
+### Recommended VS Code extensions
 
-**Recommended Extensions**:
-```
-- ESLint (dbaeumer.vscode-eslint)
-- Prettier (esbenp.prettier-vscode)
-- Tailwind CSS IntelliSense (bradlc.vscode-tailwindcss)
-- ES7+ React/Redux/React-Native snippets (dsznajder.es7-react-js-snippets)
-```
+- ESLint (`dbaeumer.vscode-eslint`)
+- Tailwind CSS IntelliSense (`bradlc.vscode-tailwindcss`)
+- TypeScript/JavaScript language features (built in)
 
-**Settings** (`.vscode/settings.json`):
+### Suggested settings
+
 ```json
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  }
+    "source.fixAll.eslint": "explicit"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
 ```
 
-### TypeScript Support
-
-Path aliases are auto-configured:
-- `@/` → `src/`
-- `@components/` → `src/components/`
-- `@hooks/` → `src/hooks/`
-- `@utils/` → `src/utils/`
-- `@data/` → `src/data/`
-- `@context/` → `src/context/`
-- `@types/` → `src/types/`
-- `@config/` → `src/config/`
-
-IDE will provide autocomplete for these paths.
-
 ---
 
-## Project Navigation
+## Static Analysis and Tests
 
-### Key Files and Their Purpose
+### ESLint
 
-```
-src/
-├── main.jsx                    # Entry point
-├── components/
-│   ├── App.jsx                # Root component
-│   ├── ErrorBoundary.jsx      # Error handling
-│   ├── common/
-│   │   ├── Header.jsx         # App header + search
-│   │   ├── Footer.jsx         # App footer
-│   │   ├── SearchBar.jsx      # Search input
-│   │   └── AudioPlayer.jsx    # Audio player
-│   └── pages/
-│       ├── IndexPage.jsx      # Home (all surahs)
-│       └── SurahPage.jsx      # Surah detail
-├── hooks/
-│   ├── useDarkMode.js         # Dark mode logic
-│   ├── useSurah.js            # Surah fetching
-│   ├── useSearch.js           # Search filtering
-│   └── useAudio.js            # Audio player state
-├── utils/
-│   ├── quranData.js           # Data access (7 functions)
-│   ├── themeUtils.js          # Theme helpers (8 functions)
-│   ├── constants.js           # Shared constants
-│   └── storage.js             # Safe localStorage
-├── context/
-│   └── SearchContext.jsx      # Search state provider
-├── config/
-│   └── env.js                 # Environment config
-├── types/
-│   └── index.ts               # TypeScript interfaces
-├── data/
-│   └── quran.js               # 114 surahs metadata
-├── css/
-│   └── tailwind.css           # Tailwind styles
-├── router.jsx                 # React Router config
-└── main.jsx                   # App entry point
+`eslint.config.js` uses the flat config format with:
 
-Root Level:
-├── index.html                 # HTML entry point
-├── vite.config.js             # Vite configuration
-├── tsconfig.json              # TypeScript config
-├── package.json               # Dependencies
-├── .env.example               # Environment template
-└── .gitignore                 # Git ignore rules
+- `@eslint/js` recommended rules
+- `eslint-plugin-react-hooks`
+- `eslint-plugin-react-refresh`
+- Browser globals
+- Ignores `dist/` and `coverage/`
+
+```bash
+pnpm lint
 ```
 
-### Making Your First Change
+### TypeScript / JSDoc
 
-**Example**: Change the app name
+`tsconfig.json` enables `allowJs` and `checkJs`, so JSDoc annotations in `.js`
+files are type-checked. There is no dedicated `typecheck` script; editors use the
+project `tsconfig.json` directly.
 
-1. Open `src/utils/constants.js`
-2. Find `APP_NAME`
-3. Change `'Quran Sound'` to your name
-4. Save file
-5. Browser auto-reloads (HMR)
-6. Page shows new name
+### Vitest
 
----
+```bash
+pnpm test -- --run     # one-off run
+pnpm test              # watch mode
+pnpm test:coverage     # coverage
+```
 
-## Understanding the Structure
-
-### Component Architecture
-- **pages/**: Full-page components (IndexPage, SurahPage)
-- **common/**: Reusable components (Header, Footer, SearchBar, AudioPlayer)
-- **App.jsx**: Root layout and providers
-- **ErrorBoundary.jsx**: Error handling wrapper
-
-### State Management
-- **SearchContext.jsx**: Global search state
-- **useDarkMode.js**: Dark mode state with persistence
-- **useSearch.js**: Search filtering hook
-- **useSurah.js**: Surah fetching hook
-
-### Data Layer
-- **src/data/quran.js**: 114 surahs (bundled data)
-- **src/utils/quranData.js**: 7 data access functions
-
-### Styling
-- **src/css/tailwind.css**: All styles
-- Tailwind CSS v4 with @layer components
-- CSS variables for theming
-
-### Configuration
-- **vite.config.js**: Build configuration
-- **tsconfig.json**: TypeScript setup
-- **src/config/env.js**: Environment variables
+- Environment: `happy-dom`
+- Setup: `tests/setup.js` (jest-dom + localStorage cleanup)
+- Tests mirror source domains under `tests/components`, `tests/hooks`,
+  `tests/utils`
 
 ---
 
 ## Troubleshooting
 
-### Port 5173 Already in Use
+### Port already in use
 
 ```bash
-# Use different port
-PORT=3000 pnpm dev
+pnpm dev --port 3000
 
-# Or kill process using port (macOS/Linux)
+# or free the port (Linux/macOS)
 lsof -ti:5173 | xargs kill -9
 ```
 
-### Module Not Found Errors
+### `Cannot find module '@features/...'`
 
-**Problem**: `Cannot find module '@hooks/useSearch'`
+- Confirm the alias exists in both `vite.config.js` and `tsconfig.json`
+- Confirm the file exists at the expected path
+- Restart the dev server and reload the IDE window
 
-**Solution**: 
-- Check path aliases in `vite.config.js` and `tsconfig.json` match
-- Verify file exists at correct location
-- IDE may need reload
+### npm/yarn install is blocked
 
-```bash
-# Restart dev server
-pnpm dev
-```
-
-### Import Path Issues
-
-**Problem**: `import useSearch from '../../hooks/useSearch'` doesn't work
-
-**Solution**: Use path aliases instead
-
-```javascript
-// ❌ Don't do this
-import useSearch from '../../hooks/useSearch'
-
-// ✅ Do this
-import useSearch from '@hooks/useSearch'
-```
-
-### TypeScript "Cannot find module" Warning
-
-**Problem**: IDE shows red squiggles on imports
-
-**Solution**:
-1. Ensure `tsconfig.json` has paths configured
-2. Restart IDE/reload window
-3. Run `pnpm dev` again
-
-### Build Fails with "Module not found"
-
-**Problem**: Build succeeds locally but fails on CI/deploy
-
-**Solution**:
-- Check all imports use correct paths
-- Ensure all files exist
-- Run `pnpm build` locally to verify
+This is intentional. Use pnpm:
 
 ```bash
-pnpm build
-pnpm preview  # Test production build
+corepack enable
+corepack prepare pnpm@12.11.2 --activate
+pnpm install
 ```
 
-### Environment Variables Not Loading
+### Environment variables are undefined
 
-**Problem**: `config.appName` is undefined
+- The file must be `.env.local` (or another Vite env file), not `.env`
+- Variables must start with `VITE_`
+- Restart `pnpm dev` after edits
+- Read them through `src/shared/config/env.js`
 
-**Solution**:
-1. Ensure `.env.local` exists and has `VITE_APP_NAME=...`
-2. Restart dev server after changing `.env.local`
-3. Check variable is prefixed with `VITE_`
+### Dark mode toggle does nothing
 
-```bash
-# Check env is being read
-pnpm dev  # Should show no errors
-```
+- Check `useDarkMode.js` is the source of the toggle
+- Verify `document.documentElement` gets the `dark` class
+- Check `src/shared/styles/tailwind.css` is loaded
+- In the browser console: `localStorage.getItem('theme')`
 
-### Dark Mode Not Working
+### Search does not filter
 
-**Problem**: Dark mode toggle doesn't change theme
+- Confirm `SearchProvider` wraps `App` in `AppRouter.jsx`
+- Confirm `IndexPage` calls `useSearch(searchTerm)`
+- Check the console for errors
 
-**Solution**:
-1. Check `useDarkMode.js` is imported correctly
-2. Verify localStorage not disabled in browser
-3. Check CSS file is loaded (`src/css/tailwind.css`)
+### Audio does not play
 
-```bash
-# Check in browser console
-localStorage.getItem('theme')  # Should return 'light' or 'dark'
-```
+- Inspect the `src` on the `<audio>` element (`surah.audio_url`)
+- Verify the CDN is reachable
+- Some browsers block autoplay; press play manually
 
-### Audio Not Playing
+### Tests fail on `localStorage`
 
-**Problem**: Audio player shows but no sound
-
-**Solution**:
-1. Check audio URL in browser console
-2. Verify CDN is accessible
-3. Check browser allows autoplay
-
-```javascript
-// In browser console
-import config from '@config/env'
-console.log(config.audioCdn)  # Should show CDN URL
-```
-
-### Search Not Filtering
-
-**Problem**: Search box appears but doesn't filter
-
-**Solution**:
-1. Check SearchContext is wrapping components
-2. Verify useSearch hook is called in IndexPage
-3. Check browser console for errors
-
-```bash
-# Clear browser cache
-Ctrl+Shift+Delete (Windows/Linux)
-Cmd+Shift+Delete (macOS)
-```
+`tests/setup.js` clears storage before each test. If you add a custom mock,
+reset it with `vi.clearAllMocks()` in `beforeEach`.
 
 ---
 
-## Next Steps After Setup
+## Next Steps
 
-### 1. Read the Architecture
-
-```bash
-# Open in editor
-cat docs/ARCHITECTURE.md
-
-# Or in browser if published
-```
-
-Key concepts:
-- Component hierarchy
-- Data flow
-- State management
-- Routing structure
-
-### 2. Explore Components
-
-```bash
-# Look at key files
-- src/components/pages/IndexPage.jsx (home page)
-- src/components/pages/SurahPage.jsx (surah detail)
-- src/hooks/useSearch.js (search logic)
-- src/utils/quranData.js (data access)
-```
-
-### 3. Make a Small Change
-
-Try one of these:
-
-**Option A**: Change app title
-- Edit `src/utils/constants.js`
-- Find `APP_NAME`
-- Change and save
-- Page reloads automatically
-
-**Option B**: Change dark mode default
-- Edit `src/hooks/useDarkMode.js`
-- Find default theme logic
-- Change and save
-- Reload page
-
-**Option C**: Add a new search field
-- Edit `src/utils/quranData.js`
-- Modify `createSearchIndex()` to include new field
-- Retest search
-- See results update
-
-### 4. Run Tests (Phase 9+)
-
-```bash
-pnpm test           # Run all tests
-pnpm test:ui        # Interactive UI
-pnpm test:coverage  # Coverage report
-```
-
-### 5. Deploy Locally
-
-```bash
-pnpm build          # Create production build
-pnpm preview        # Preview built version
-```
-
----
-
-## Learning Resources
-
-### Official Documentation
-- **[React Docs](https://react.dev)** - React fundamentals
-- **[React Router Docs](https://reactrouter.com)** - Routing
-- **[Tailwind CSS](https://tailwindcss.com)** - Styling
-- **[Vite Docs](https://vitejs.dev)** - Build tool
-- **[TypeScript Handbook](https://www.typescriptlang.org/docs/)** - TypeScript
-
-### Project-Specific
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design
-- **[COMPONENTS.md](./COMPONENTS.md)** - Component reference
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment
-
----
-
-## Common Development Workflows
-
-### Creating a New Component
-
-1. Create file: `src/components/MyComponent.jsx`
-2. Write component code
-3. Import in parent component
-4. Browser hot-reloads automatically
-
-```javascript
-// src/components/MyComponent.jsx
-export default function MyComponent() {
-  return <div>Hello</div>
-}
-
-// In parent:
-import MyComponent from '@components/MyComponent'
-```
-
-### Adding a New Utility Function
-
-1. Create file or add to existing: `src/utils/myUtils.js`
-2. Export function with JSDoc
-3. Import in components/hooks
-
-```javascript
-// src/utils/myUtils.js
-/**
- * Does something useful
- * @param {string} input - Input text
- * @returns {string} Output text
- */
-export function doSomething(input) {
-  return input.toUpperCase()
-}
-
-// Usage in components:
-import { doSomething } from '@utils/myUtils'
-```
-
-### Modifying Styles
-
-All styles are in `src/css/tailwind.css`:
-- Theme variables: lines 5-35
-- Component utilities: @layer components
-- Custom utilities: @layer utilities
-
-```css
-:root {
-  --surface-1: #f5f2ed;
-  /* Change these colors */
-}
-```
-
-### Adding Environment Variables
-
-1. Add to `.env.example`
-2. Add to `.env.local` (user's file)
-3. Access in code via `src/config/env.js`
-
-```env
-# .env.example
-VITE_MY_VARIABLE=default_value
-```
-
-```javascript
-// src/config/env.js
-export const config = {
-  // ... existing config
-  myVariable: import.meta.env.VITE_MY_VARIABLE || 'default',
-}
-
-// Usage:
-import config from '@config/env'
-console.log(config.myVariable)
-```
-
----
-
-## Performance Tips
-
-### Keep Development Fast
-- Use pnpm for every dependency and script command
-- Use HMR (automatic reload on save)
-- Check browser DevTools Network tab for slow assets
-
-### For Production
-- Run `pnpm build` to verify
-- Check bundle size: `pnpm build && du -sh dist/`
-- Use `pnpm preview` to test production version
-
----
-
-## Getting Help
-
-### Check These First
-1. **[SETUP.md](./SETUP.md)** (this file) - Troubleshooting section
-2. **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design
-3. **[COMPONENTS.md](./COMPONENTS.md)** - Component reference
-
-### Search for Issues
-- Check GitHub issues: `github.com/HAMZAELMANZARI/Quran/issues`
-- Look for similar error messages
-
-### Ask for Help
-- Create GitHub issue with:
-  - Error message
-  - Steps to reproduce
-  - Your Node/pnpm versions
-  - OS (Windows/macOS/Linux)
+1. Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system design
+2. Browse [COMPONENTS.md](./COMPONENTS.md) for component APIs
+3. Use [map.md](./map.md) to locate files quickly
+4. Read [CONTRIBUTING.md](./CONTRIBUTING.md) before opening a PR
+5. Review [DEPLOYMENT.md](./DEPLOYMENT.md) when preparing a release
 
 ---
 
 ## Related Documentation
 
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design
-- **[COMPONENTS.md](./COMPONENTS.md)** - Component API
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment
-- **[README.md](../README.md)** - Project overview
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System design
+- **[COMPONENTS.md](./COMPONENTS.md)** — Component API
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** — Production deployment
+- **[ACCESSIBILITY.md](./ACCESSIBILITY.md)** — Accessibility
+- **[map.md](./map.md)** — Repository file map
+- **[README.md](../README.md)** — Project overview

@@ -2,430 +2,270 @@
 
 ## Overview
 
-Quran Sound is built to be accessible to all users, regardless of ability or assistive technology. This document outlines accessibility features, testing procedures, and compliance standards.
-
-**Goal**: WCAG 2.1 Level AA compliance
+Quran Sound aims for **WCAG 2.1 Level AA** compliance. This document describes
+the implemented patterns, how to test them, and the compliance matrix.
 
 ---
 
-## Accessibility Features Implemented
+## Implemented Features
 
-### 1. Semantic HTML Structure
+### 1. Semantic HTML
 
-**Page Structure**:
 ```html
-<body>
-  <header><!-- Navigation, search, theme toggle --></header>
-  <main><!-- Main content --></main>
-  <footer><!-- Footer information --></footer>
-</body>
+<header>  <!-- branding, search, theme toggle -->
+<main id="main-content">  <!-- route content -->
+<nav aria-label="التنقل بين السور">  <!-- surah navigation -->
+<footer>  <!-- links and copyright -->
 ```
 
-**Benefits**:
-- Screen readers understand page structure
-- Better SEO
-- Browser built-in navigation features work
+Screen readers can navigate by landmark, and the document has one `<h1>` per page.
 
-### 2. Aria Labels and Roles
+### 2. ARIA Labels and Roles
 
-**Interactive Elements**:
-```javascript
-// Buttons have descriptive labels
-<button aria-label="استمع إلى سورة الفاتحة">
-  Play Audio
-</button>
+- Search form: `role="search"` with a visually hidden label and an accessible
+  name on the input
+- Theme toggle: `aria-pressed` plus a state-aware `aria-label`
+- Surah cards: `aria-label="استمع إلى سورة {name} ({englishName})"`
+- Surah navigation: `<nav aria-label>` with descriptive buttons
+- Search results: a visually hidden `role="status"` live region announces the
+  result count or the no-results state
 
-// Form controls properly labeled
-<label htmlFor="search">البحث عن السورة</label>
-<input id="search" type="search" />
-
-// Navigation landmark
-<nav aria-label="Navigation between surahs">
-  <button>Previous</button>
-  <button>Next</button>
-</nav>
-```
-
-**Search Results Feedback**:
-```javascript
-<div
-  role="status"
-  aria-live="polite"
-  aria-atomic="true"
->
-  Showing 5 results
-</div>
+```jsx
+<p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+  {count === 0 ? LABELS.NO_RESULTS : `عدد النتائج: ${count}`}
+</p>
 ```
 
 ### 3. Keyboard Navigation
 
-**Full Keyboard Support**:
-- ✅ Tab key navigates all interactive elements
-- ✅ Enter/Space activates buttons
-- ✅ Escape closes modals (when implemented)
-- ✅ Arrow keys for navigation (optional)
-
-**Testing**:
-```bash
-# Test keyboard navigation
-1. Open app in browser
-2. Press Tab repeatedly
-3. Verify focus moves through all buttons/links
-4. Verify focus indicator is visible
-5. Press Enter on buttons to activate
-```
+- Every interactive element is a native `<button>` or `<a>`
+- Tab/Shift+Tab move through the header, cards, navigation, and footer
+- Enter/Space activate buttons
+- The skip link is the first focusable element
+- No keyboard traps are implemented or required
+- Focus indicators use `focus-visible` styles
 
 ### 4. Focus Management
 
-**Visual Indicators**:
-```css
-/* Focus visible on all interactive elements */
-button:focus-visible {
-  outline: 2px solid #4f46e5;
-  outline-offset: 2px;
-}
+- **Skip link** — visually hidden until focused, then appears at the top
+- **Surah navigation** — `SurahPage` focuses the `<h1>` whenever `:number`
+  changes, so keyboard/screen-reader users start at the new content
+- **Visible focus** — buttons and links use `focus-visible:outline-*` or rings
 
-a:focus-visible {
-  outline: 2px solid #4f46e5;
-  outline-offset: 2px;
-}
+```javascript
+useEffect(() => {
+  headingRef.current?.focus()
+}, [number])
 ```
 
-**Focus Trap** (when needed):
-```javascript
-// In modals, focus stays within modal
-// Escape key closes modal
+```jsx
+<h1 ref={headingRef} tabIndex={-1}>...</h1>
 ```
 
 ### 5. Color Contrast
 
-**WCAG AA Standards**:
-- Normal text: 4.5:1 contrast ratio
-- Large text (18pt+): 3:1 contrast ratio
+Theme variables are defined in `src/shared/styles/tailwind.css`.
 
-**Light Theme**:
-- Text: `#1e2d28` on `#f5f2ed` = 8.1:1 ✅
-- Text: `#6b625b` on `#f5f2ed` = 5.2:1 ✅
+**Light theme**
 
-**Dark Theme**:
-- Text: `#d1fae5` on `#0f172a` = 12.3:1 ✅
-- Text: `#cbd5e1` on `#0f172a` = 9.8:1 ✅
+- Primary text `#1e2d28` on surface `#f5f2ed` — high contrast
+- Muted text `#6b625b` on surfaces — meets 4.5:1 for normal text
 
-**Interactive Elements**:
-- Hover states clearly visible
-- Buttons have sufficient contrast
-- Links distinguishable from regular text
+**Dark theme**
 
-### 6. Dark Mode Support
+- Primary text `#d1fae5` on `#0f172a`
+- Muted text `#cbd5e1` on dark surfaces
+- `color-scheme: dark` is set so native controls match
 
-**User Preference Respected**:
-```javascript
-// System preference
-window.matchMedia('(prefers-color-scheme: dark)')
+Verify changes with a contrast analyzer before merging.
 
-// User choice persists
-localStorage.getItem('theme')
+### 6. Dark Mode
 
-// Toggle button in Header
-<button onClick={toggleDarkMode}>
-  🌙 Toggle Theme
-</button>
-```
-
-**Benefits**:
-- Reduces eye strain for night users
-- Saves power on OLED screens
-- Respects system settings
+- `useDarkMode` reads a saved preference, then the system preference
+- The `dark` class on `<html>` switches CSS variables
+- The toggle exposes `aria-pressed` and a descriptive label
+- Preference persists in localStorage; failure to save does not break the toggle
 
 ### 7. Arabic RTL Support
 
-**Bidirectional Text**:
 ```html
 <html lang="ar" dir="rtl">
 ```
 
-**Features**:
-- ✅ Right-to-left text layout
-- ✅ Proper text direction for screen readers
-- ✅ Correct keyboard input (Arabic keyboards)
-- ✅ Proper number direction handling
+- Layout, spacing, and chevron direction are RTL-aware
+- `rtl:` utilities are used where needed (for example Footer spacing)
+- Numbers use the `.num` badge styling and appropriate direction handling
 
-### 8. Text Sizing & Readability
+### 8. Readability and Zoom
 
-**Responsive Text**:
-- Base size: 16px (readable)
-- Headings: 24px, 20px, 18px (clear hierarchy)
-- Small text: 14px (still readable)
-- Line height: 1.4-1.6 (comfortable reading)
+- Base text is readable at default browser size
+- Responsive type scales with breakpoints
+- The viewport meta allows pinch-to-zoom:
+  ```html
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ```
+- Layout reflows at 200% zoom without loss of function
 
-**User Can Zoom**:
-```html
-<meta name="viewport" 
-      content="width=device-width, initial-scale=1.0" />
-```
+### 9. Touch Targets
 
-- Pinch-to-zoom works on mobile
-- Browser zoom works (Ctrl/Cmd + Plus)
-- Text size accessible in browser settings
-
-### 9. Touch Target Size
-
-**Minimum Touch Targets**: 44x44px
-
-**Components**:
-- Buttons: 44px minimum
-- Links: 44px minimum
-- Interactive areas: 44px minimum
-
-**Benefit**: Easy to tap on mobile devices
+- Buttons use padding that aims for 44×44px minimum
+- The theme toggle is `h-9 w-9` (36px) with surrounding spacing; verify on mobile
+  when changing the header layout
+- Surah cards are large grid targets
 
 ### 10. Error Handling
 
-**ErrorBoundary Component**:
-```javascript
-// Catches errors and shows user-friendly message in Arabic
-<ErrorBoundary>
-  <App />
-</ErrorBoundary>
-```
+`ErrorBoundary` provides:
 
-**Error Messages**:
-- Clear, plain language
-- Actionable (e.g., "Reload page" button)
-- Logged for debugging
+- A clear Arabic heading and English explanation
+- The error text (and a stack trace in development only)
+- A reload button
+- A link to report the issue
 
 ---
 
-## Testing for Accessibility
+## Testing
 
-### Automated Testing Tools
+### Automated tools
 
-#### Axe DevTools (Browser Extension)
+| Tool | How to use | Target |
+|------|------------|--------|
+| **Lighthouse** | DevTools → Lighthouse → Analyze page load | Accessibility 95+ |
+| **axe DevTools** | Browser extension → Scan page | 0 critical issues |
+| **WAVE** | wave.webaim.org | Review errors/contrast |
+| **Color Contrast Analyzer** | TPGI tool | 4.5:1 normal text, 3:1 large |
 
-1. **Install**: axe DevTools from Chrome Web Store
-2. **Run**: Click extension icon → "Scan ALL of my page"
-3. **Review**: Check for violations and fixes
-4. **Benchmark**: Aim for 0 critical issues
+Run Lighthouse against the production preview:
 
-#### Lighthouse (Built-in to Chrome)
+```bash
+pnpm build
+pnpm preview
+```
 
-1. **Open** Chrome DevTools (F12)
-2. **Go to** Lighthouse tab
-3. **Click** "Analyze page load"
-4. **Check** Accessibility score (target: 95+)
+### Keyboard checklist
 
-**Test Settings**:
-- Device: Mobile
-- Throttling: Slow 4G
-- Clears storage
-
-#### WAVE (WebAIM)
-
-1. **Visit**: wave.webaim.org
-2. **Enter** site URL
-3. **Review** results
-4. **Check** contrast ratios
-
-### Manual Testing Checklist
-
-#### Keyboard Navigation
-
-- [ ] Tab key navigates forward
-- [ ] Shift+Tab navigates backward
+- [ ] Tab moves forward; Shift+Tab moves backward
 - [ ] Focus is always visible
-- [ ] Focus order is logical
-- [ ] Enter activates buttons
-- [ ] Space activates buttons
+- [ ] Focus order matches visual order
+- [ ] Skip link appears on first Tab and jumps to `#main-content`
+- [ ] Enter and Space activate buttons
 - [ ] No keyboard traps
+- [ ] Surah navigation moves focus to the new heading
 
-#### Screen Reader Testing
+### Screen reader checklist
 
-**Windows**: NVDA (free)
-**macOS**: VoiceOver (built-in)
-**iOS**: VoiceOver (built-in)
-**Android**: TalkBack (built-in)
+Test with NVDA (Windows), VoiceOver (macOS/iOS), or TalkBack (Android).
 
-**Test Steps**:
-1. Enable screen reader
-2. Navigate page top to bottom
-3. Verify all content is readable
-4. Test all interactive elements
-5. Verify labels are descriptive
-6. Check heading structure
+- [ ] Page landmarks are announced
+- [ ] Search input has a name and a visible/hidden label
+- [ ] Result count changes are announced
+- [ ] Each surah card announces its name/metadata
+- [ ] Audio controls are usable
+- [ ] Heading hierarchy is logical
+- [ ] Changing surahs announces the new heading
 
-#### Color Contrast
+### Zoom and mobile checklist
 
-1. **Use** Color Contrast Analyzer tool
-2. **Test** text against backgrounds
-3. **Verify** ratio is 4.5:1+ for normal text
-4. **Check** both light and dark themes
-
-#### Zoom and Magnification
-
-- [ ] Page readable at 200% zoom
+- [ ] Readable and functional at 200% zoom
 - [ ] No horizontal scrolling at 200% zoom
-- [ ] Content reflows properly
-- [ ] All functionality works zoomed
-- [ ] Touch targets accessible zoomed
-
-#### Mobile Accessibility
-
-- [ ] Touch targets 44x44px minimum
+- [ ] Touch targets are easy to hit
+- [ ] Portrait and landscape both work
 - [ ] Pinch-to-zoom works
-- [ ] Text readable without zoom
-- [ ] Portrait and landscape work
-- [ ] Screen reader works (iOS VoiceOver / Android TalkBack)
-- [ ] Orientation changes don't break layout
-
-### Accessibility Audit Checklist
-
-**Before Launch**:
-- [ ] Axe DevTools: 0 violations
-- [ ] Lighthouse Accessibility: 95+
-- [ ] Manual keyboard nav: All working
-- [ ] Screen reader: Page readable
-- [ ] Color contrast: WCAG AA met
-- [ ] Zoom: Works at 200%
-- [ ] Mobile: All features accessible
-- [ ] Error handling: Clear messages
+- [ ] Screen reader works on mobile
 
 ---
 
-## Accessibility Patterns Used
+## Patterns Used
 
-### Pattern 1: Semantic Landmarks
+### Semantic landmarks
 
-```javascript
-<header>
-  {/* Navigation, search */}
-</header>
-
-<main>
-  {/* Main content */}
-</main>
-
-<nav>
-  {/* Navigation links */}
-</nav>
-
-<footer>
-  {/* Footer content */}
-</footer>
+```jsx
+<header>...</header>
+<main id="main-content">...</main>
+<nav aria-label="...">...</nav>
+<footer>...</footer>
 ```
 
-**Benefit**: Screen reader users can jump between sections
+### Descriptive labels
 
-### Pattern 2: Descriptive Labels
+```jsx
+<button aria-label="استمع إلى سورة الفاتحة (Al-Fatihah)">...</button>
 
-```javascript
-// ✅ Good
-<button aria-label="استمع إلى سورة الفاتحة">
-  Play
+<button aria-pressed={isDarkMode} aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
+  ...
 </button>
-
-// ❌ Bad
-<button>Play</button>
 ```
 
-### Pattern 3: Form Labels
+### Form labeling
 
-```javascript
-// ✅ Good
-<label htmlFor="search">البحث عن السورة</label>
-<input id="search" />
-
-// ❌ Bad
-<input placeholder="Search" />
+```jsx
+<form role="search" onSubmit={(event) => event.preventDefault()}>
+  <label className="relative block">
+    <span className="sr-only">Search surahs</span>
+    <input type="search" aria-label="Search surahs by name or number" />
+  </label>
+</form>
 ```
 
-### Pattern 4: ARIA Live Regions
+### Live regions
 
-```javascript
-// Announce search results to screen readers
-<div role="status" aria-live="polite" aria-atomic="true">
-  Found 5 surahs matching "الفاتحة"
-</div>
+```jsx
+<p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+  عدد النتائج: 12
+</p>
 ```
 
-### Pattern 5: Skip Links
+### Skip link
 
-```javascript
-// Allow skipping to main content
-<a href="#main-content" className="sr-only focus:not-sr-only">
-  Skip to main content
+```jsx
+<a href="#main-content" className="sr-only focus:not-sr-only ...">
+  تخطَّ إلى المحتوى الرئيسي
 </a>
-
-<main id="main-content">
-  {/* Content */}
-</main>
 ```
 
-### Pattern 6: Heading Hierarchy
+### Heading hierarchy
 
-```javascript
-// ✅ Good - logical hierarchy
-<h1>Quran Sound</h1>        {/* Page title */}
-<h2>Surahs</h2>              {/* Section title */}
-<h3>Surah 1: Al-Fatihah</h3> {/* Subsection */}
-
-// ❌ Bad - skipping levels
-<h1>Quran Sound</h1>
-<h3>Surah Details</h3>  {/* Missing h2 */}
+```jsx
+<h1>{LABELS.SURAH_INDEX}</h1>       // one per page
+// Cards use text, not additional headings
 ```
 
 ---
 
-## Components and Accessibility
-
-### IndexPage
-
-**Accessibility Features**:
-- Semantic list of buttons (each is a surah)
-- Descriptive aria-labels on each button
-- Keyboard navigable grid
-- Search updates aria-live region
-
-**Screen Reader Experience**:
-```
-"Quran Surahs, list of 114 items
-Button, Al-Fatihah, number 1, Makkah, 7 ayahs
-Button, Al-Baqarah, number 2, Madinah, 286 ayahs
-..."
-```
-
-### SurahPage
-
-**Accessibility Features**:
-- Semantic heading hierarchy
-- Audio player with native controls
-- Navigation buttons with labels
-- Focus management on page load
-
-**Screen Reader Experience**:
-```
-"Heading level 1, Al-Fatihah
-Paragraph, Al-Fatihah (Makkah, 7 ayahs)
-Button, Play Audio
-Button, Previous Surah (Inactive at surah 1)
-Button, Next Surah (Al-Baqarah)
-Button, Back to Index"
-```
-
-### AudioPlayer
-
-**Accessibility Features**:
-- Native HTML5 audio controls
-- Keyboard accessible (built-in)
-- Volume control keyboard accessible
-- Time display announced
+## Component Accessibility Notes
 
 ### Header
 
-**Accessibility Features**:
-- Navigation landmarks
-- Search form properly labeled
-- Theme toggle button labeled
-- Keyboard accessible
+- Search form is a landmark (`role="search"`)
+- Input has an `aria-label` and a hidden `<span>` label
+- Theme toggle has `aria-pressed` and a state-aware label
+- Icons are `aria-hidden="true"`
+
+### IndexPage
+
+- `<main id="main-content" tabIndex={-1}>` for the skip link target
+- Live region for search result counts
+- Cards are native buttons in a grid
+- Empty state is plain text inside the grid
+
+### SurahCard
+
+- Native `<button>` with a descriptive `aria-label`
+- Nearby text (number, names, metadata) is readable by screen readers
+- Hover/focus states are visible
+
+### SurahPage
+
+- One `<h1>`; focused on route change
+- Native `<audio controls>` for playback
+- Navigation buttons include the destination surah name
+- Invalid numbers render a clear not-found state with a back button
+
+### Footer
+
+- Links have visible text (no icon-only links)
+- External links are normal anchors; add `rel="noopener noreferrer"` if you open
+  them in a new tab
 
 ---
 
@@ -433,170 +273,70 @@ Button, Back to Index"
 
 | Guideline | Level | Status | Notes |
 |-----------|-------|--------|-------|
-| Perceivable Text | A | ✅ | All text readable |
-| Perceivable Images | A | ✅ | Descriptive alt text |
-| Perceivable Audio | A | ✅ | Captions (future) |
-| Operable Keyboard | A | ✅ | Full keyboard support |
-| Operable Timing | A | ✅ | No time limits |
-| Understandable Language | A | ✅ | Clear, simple language |
-| Understandable Input | A | ✅ | Error messages |
-| Robust Code | A | ✅ | Valid HTML/CSS |
-| Color Contrast (AA) | AA | ✅ | 4.5:1+ met |
-| Resize Text (AA) | AA | ✅ | 200% zoom works |
-| Motion (AAA) | AAA | ⏳ | Planned |
-| Audio Description (AAA) | AAA | ⏳ | Future enhancement |
+| Non-text content / images | A | ✅ | Logo has alt text |
+| Audio-only content | A | ⏳ | Recitation audio has no transcript/captions |
+| Info and relationships | A | ✅ | Semantic landmarks and headings |
+| Meaningful sequence | A | ✅ | DOM order matches visual order |
+| Sensory characteristics | A | ✅ | No reliance on color/shape alone |
+| Keyboard | A | ✅ | All controls are native focusable elements |
+| No keyboard trap | A | ✅ | No traps |
+| Bypass blocks | A | ✅ | Skip link |
+| Page titled | A | ✅ | `useDocumentMeta` sets title |
+| Focus order | A | ✅ | Matches visual order |
+| Link purpose | A | ✅ | Descriptive link text |
+| Language of page | A | ✅ | `lang="ar"` |
+| On focus / on input | A | ✅ | No unexpected context changes |
+| Error identification | A | ✅ | Not-found and error screens |
+| Name, role, value | A | ✅ | Native controls + ARIA where needed |
+| Contrast (minimum) | AA | ✅ | Theme variables meet 4.5:1 (verify changes) |
+| Resize text | AA | ✅ | Works at 200% zoom |
+| Reflow | AA | ✅ | Responsive layout |
+| Focus visible | AA | ✅ | `focus-visible` styles |
+| Pointer gestures | A | ✅ | No complex gestures |
+| Motion | AAA | ⏳ | No reduced-motion media query yet |
+| Audio description | AAA | ⏳ | Not applicable to recitation-only audio |
 
 ---
 
-## Future Accessibility Improvements
+## Future Improvements
 
-### Phase 10+
-
-- [ ] Audio descriptions for complex content
-- [ ] Transcripts for audio content
-- [ ] High contrast mode
-- [ ] Reduced motion support
-- [ ] Voice control support
-- [ ] Better search results announcement
-- [ ] Customizable font sizes
+- [ ] Add `prefers-reduced-motion` support for transitions
+- [ ] Add a high-contrast mode
+- [ ] Provide transcript/caption options for audio
+- [ ] Allow customizable font size
+- [ ] Improve result-count announcement copy in both languages
+- [ ] Audit 36px controls (theme toggle) against the 44px target
+- [ ] Add automated axe checks to CI
 
 ---
 
-## Accessibility Resources
+## Resources
 
-### Standards & Guidelines
-- **[WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)** - Official standards
-- **[WebAIM](https://webaim.org/)** - Accessibility resources
-- **[MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/Accessibility)** - A11y reference
-
-### Tools
-- **[Axe DevTools](https://www.deque.com/axe/devtools/)** - Automated testing
-- **[WAVE](https://wave.webaim.org/)** - Web accessibility evaluation
-- **[Color Contrast Analyzer](https://www.tpgi.com/color-contrast-checker/)** - Contrast testing
-- **[Lighthouse](https://developers.google.com/web/tools/lighthouse)** - Performance & a11y audit
-
-### Screen Readers
-- **[NVDA](https://www.nvaccess.org/)** - Free Windows/Linux
-- **[JAWS](https://www.freedomscientific.com/products/software/jaws/)** - Paid (many free trials)
-- **[VoiceOver](https://www.apple.com/voiceover/)** - Built-in macOS/iOS
-- **[TalkBack](https://support.google.com/accessibility/android/answer/6283677)** - Built-in Android
-
----
-
-## Testing Procedures
-
-### Weekly Testing
-
-```bash
-# Run Lighthouse
-1. Open Chrome DevTools (F12)
-2. Go to Lighthouse
-3. Click "Analyze page load"
-4. Check Accessibility score (target: 95+)
-
-# Run Axe
-1. Install Axe DevTools extension
-2. Click extension icon
-3. Scan page
-4. Review violations
-```
-
-### Monthly Accessibility Audit
-
-1. Full keyboard navigation test
-2. Screen reader testing (VoiceOver/NVDA/TalkBack)
-3. Color contrast verification
-4. Zoom and magnification testing
-5. Mobile accessibility testing
-6. Automated tool scans
-7. Document findings
-8. Create issues for failures
-
-### Before Each Release
-
-- [ ] Lighthouse Accessibility ≥ 95
-- [ ] Axe violations = 0
-- [ ] Keyboard navigation ✅
-- [ ] Screen reader tested ✅
-- [ ] Color contrast verified ✅
-- [ ] 200% zoom tested ✅
-
----
-
-## Accessibility Statement
-
-**Sample**: Add to README.md
-
-```
-## Accessibility
-
-Quran Sound is committed to accessibility for all users. 
-The app is designed to meet WCAG 2.1 Level AA standards.
-
-### Features
-- Full keyboard navigation
-- Screen reader compatible
-- Dark mode for eye strain reduction
-- High color contrast
-- Arabic RTL support
-- Mobile accessible
-
-### Report Issues
-Found an accessibility issue? 
-Please report it: [Create Issue](https://github.com/HAMZAELMANZARI/Quran/issues)
-
-### Accessibility Resources
-- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+- [WCAG 2.1 Quick Reference](https://www.w3.org/WAI/WCAG21/quickref/)
 - [WebAIM](https://webaim.org/)
-```
+- [MDN Accessibility](https://developer.mozilla.org/en-US/docs/Web/Accessibility)
+- [axe DevTools](https://www.deque.com/axe/devtools/)
+- [WAVE](https://wave.webaim.org/)
+- [Lighthouse](https://developers.google.com/web/tools/lighthouse)
+- [NVDA](https://www.nvaccess.org/), [VoiceOver](https://www.apple.com/voiceover/),
+  [TalkBack](https://support.google.com/accessibility/android/answer/6283677)
+
+---
+
+## Reporting Issues
+
+Found an accessibility issue? Open an issue:
+<https://github.com/HAMZAELMANZARI/Quran/issues>
+
+Include the page/route, the assistive technology used, steps to reproduce, and
+the expected behavior.
 
 ---
 
 ## Related Documentation
 
-- **[SETUP.md](./SETUP.md)** - Development environment
-- **[COMPONENTS.md](./COMPONENTS.md)** - Component API
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design
-- **[README.md](../README.md)** - Project overview
-
----
-
-## Accessibility Contacts
-
-### Get Help
-- **WebAIM**: webaim@lists.uw.edu
-- **WCAG Issues**: w3c@w3.org
-- **Screen Reader Help**: Vendor support channels
-
-### Contribute
-- Test with assistive technologies
-- Report issues found
-- Suggest improvements
-- Help with translations
-
----
-
-## Summary
-
-✅ **Implemented**:
-- Semantic HTML
-- Keyboard navigation
-- Screen reader support
-- Color contrast (WCAG AA)
-- Focus management
-- Dark mode
-- Arabic RTL
-- Error handling
-
-⏳ **Planned**:
-- Audio descriptions
-- Captions
-- High contrast mode
-- Motion preferences
-
-📊 **Current Status**: **WCAG 2.1 Level AA Compliant**
-
-**Lighthouse Accessibility Score**: 95+
-**Axe Violations**: 0 critical
-**Keyboard Navigation**: 100%
-**Color Contrast**: WCAG AA met
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System design
+- **[COMPONENTS.md](./COMPONENTS.md)** — Component API
+- **[SETUP.md](./SETUP.md)** — Development environment
+- **[map.md](./map.md)** — Repository file map
+- **[README.md](../README.md)** — Project overview

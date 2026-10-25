@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document provides a complete reference for all React components in the Quran Sound application. Each component includes its purpose, props interface, usage examples, and integration points.
+This document describes every React component in the application: its purpose,
+props, hooks, behavior, and where it fits in the tree.
 
 ---
 
@@ -10,728 +11,475 @@ This document provides a complete reference for all React components in the Qura
 
 | Component | File Path | Type | Purpose |
 |-----------|-----------|------|---------|
-| App | `src/components/App.jsx` | Root | Application layout and wrapper |
-| ErrorBoundary | `src/components/ErrorBoundary.jsx` | Utility | Error handling and fallback UI |
-| Header | `src/components/common/Header.jsx` | Common | Navigation, search, theme toggle |
-| Footer | `src/components/common/Footer.jsx` | Common | App information |
-| SearchBar | `src/components/common/SearchBar.jsx` | Common | Search input component |
-| AudioPlayer | `src/components/common/AudioPlayer.jsx` | Common | HTML5 audio player wrapper |
-| IndexPage | `src/components/pages/IndexPage.jsx` | Page | Home page (all 114 surahs) |
-| SurahPage | `src/components/pages/SurahPage.jsx` | Page | Single surah detail view |
+| `AppRouter` | `src/app/AppRouter.jsx` | Root | Router, providers, lazy routes |
+| `App` | `src/app/App.jsx` | Layout | Skip link, header, page slot, footer |
+| `ErrorBoundary` | `src/app/ErrorBoundary.jsx` | Utility | Catches render errors and shows fallback UI |
+| `SkipLink` | `src/shared/components/SkipLink.jsx` | Common | Keyboard "skip to content" link |
+| `Header` | `src/shared/components/Header.jsx` | Common | Branding, search form, theme toggle |
+| `Footer` | `src/shared/components/Footer.jsx` | Common | Links, branding, copyright |
+| `SurahCard` | `src/features/quran/components/SurahCard.jsx` | Feature | Memoized surah card button |
+| `IndexPage` | `src/features/quran/pages/IndexPage.jsx` | Page | Surah grid + search results |
+| `SurahPage` | `src/features/quran/pages/SurahPage.jsx` | Page | Surah detail + audio + navigation |
+
+> There are no separate `SearchBar` or `AudioPlayer` components. The search
+> input lives directly in `Header`, and `SurahPage` uses a native
+> `<audio controls>` element.
 
 ---
 
-## Page Components
+## Root Components
 
-### IndexPage
+### AppRouter
 
-**File**: `src/components/pages/IndexPage.jsx`
+**File**: `src/app/AppRouter.jsx`
 
-**Purpose**: Display all 114 surahs in a responsive grid with search filtering
-
-**Props**: None (receives SearchContext)
-
-**State**: 
-- `searchTerm` - from SearchContext (string)
-- `filteredData` - from useSearch hook (Surah[])
-
-**Hooks Used**:
-- `useContext(SearchContext)` - get search term
-- `useSearch(searchTerm)` - filter surahs
-- `useNavigate()` - navigate to surah detail
-
-**Features**:
-- Responsive grid (2 cols mobile → 6 cols desktop)
-- Search filtering across 4 fields
-- Keyboard accessible surah cards
-- Click cards to view detail
-
-**Example Usage**:
-```javascript
-import IndexPage from '@components/pages/IndexPage'
-
-// In router configuration:
-<Route path="/" element={<IndexPage />} />
-```
-
-**Related**:
-- SearchBar component (in Header)
-- SearchContext (provides search term)
-- useSearch hook (filters data)
-
----
-
-### SurahPage
-
-**File**: `src/components/pages/SurahPage.jsx`
-
-**Purpose**: Display single surah with metadata, audio player, and navigation
-
-**Props**: None (receives route params)
-
-**Route Params**:
-- `number` - Surah number (1-114) from URL path
-
-**State**:
-- `surah` - Current surah object or null
-- `previous` - Previous surah or null
-- `next` - Next surah or null
-
-**Hooks Used**:
-- `useParams()` - get surah number from URL
-- `useSurah(number)` - fetch surah and navigation
-- `useNavigate()` - navigate between surahs
-
-**Features**:
-- Surah name (Arabic + English)
-- Metadata (revelation place, ayah count)
-- HTML5 audio player
-- Previous/Next navigation buttons
-- Back to Index button
-- Responsive layout
-
-**Example Usage**:
-```javascript
-import SurahPage from '@components/pages/SurahPage'
-
-// In router configuration:
-<Route path="/surah/:number" element={<SurahPage />} />
-
-// Navigate to surah:
-const navigate = useNavigate()
-navigate(`/surah/1`)
-```
-
-**Related**:
-- AudioPlayer component
-- useSurah hook (fetches data)
-- useNavigate hook (routing)
-
----
-
-## Common Components
-
-### Header
-
-**File**: `src/components/common/Header.jsx`
-
-**Purpose**: App header with branding, search bar, and theme toggle
+**Purpose**: Composition root for routing, global search state, and lazy pages.
 
 **Props**: None
 
-**State**: 
-- `isDark` - from useDarkMode hook (boolean)
+**Responsibilities**:
 
-**Hooks Used**:
-- `useDarkMode()` - manage dark mode
-- `useContext(SearchContext)` - get/set search term
+- Creates `BrowserRouter` with `basename="/Quran/"`
+- Wraps the UI in `SearchProvider`
+- Renders `App` with the matched route as `children`
+- Lazy-loads `IndexPage` and `SurahPage`
+- Shows an Arabic loading fallback while a route chunk loads
+- Redirects unknown routes to `/`
 
-**Features**:
-- App logo and branding
-- SearchBar component integration
-- Dark mode toggle button
-- RTL Arabic interface
-- Sticky positioning
+**Routes**:
 
-**Example Usage**:
+| Path | Element |
+|------|---------|
+| `/` | `<IndexPage />` |
+| `/surah/:number` | `<SurahPage />` |
+| `*` | `<Navigate to="/" replace />` |
+
+**Example**:
+
 ```javascript
-// Typically wrapped in main App:
-<Header />
+// main.jsx
+<ErrorBoundary>
+  <AppRouter />
+</ErrorBoundary>
 ```
 
-**Related**:
-- SearchBar component (child)
-- useDarkMode hook
-- SearchContext
+---
+
+### App
+
+**File**: `src/app/App.jsx`
+
+**Purpose**: Page layout and shared chrome.
+
+**Props**:
+
+```javascript
+{
+  children: ReactNode  // Active route element
+}
+```
+
+**Hooks**:
+
+- `useContext(SearchContext)` — reads `searchTerm` and `setSearchTerm`
+
+**Renders**:
+
+```jsx
+<div className="flex min-h-screen flex-col">
+  <SkipLink />
+  <Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+  {children}
+  <Footer />
+</div>
+```
+
+**Side effects**: Imports `tailwind.css` and `normalize.css`.
+
+---
+
+### ErrorBoundary
+
+**File**: `src/app/ErrorBoundary.jsx`
+
+**Purpose**: Catch render/lifecycle errors and show a recoverable fallback.
+
+**Props**:
+
+```javascript
+{
+  children: ReactNode
+}
+```
+
+**State**:
+
+- `hasError` — whether the fallback should render
+- `error` — the caught error
+- `errorInfo` — React component stack
+
+**Behavior**:
+
+- `getDerivedStateFromError` switches to the fallback UI
+- `componentDidCatch` logs the error and stores `errorInfo`
+- Reload button resets state and calls `window.location.reload()`
+- Stack trace is shown only in development (`import.meta.env.DEV`)
+- Includes a link to the GitHub issue tracker
+
+**Does not catch**: async errors, event-handler errors, or errors thrown by the
+boundary itself.
+
+**Example**:
+
+```javascript
+// main.jsx
+<ErrorBoundary>
+  <AppRouter />
+</ErrorBoundary>
+```
+
+---
+
+## Shared Components
+
+### SkipLink
+
+**File**: `src/shared/components/SkipLink.jsx`
+
+**Purpose**: Allow keyboard and screen-reader users to jump straight to the main
+content.
+
+**Props**: None
+
+**Behavior**:
+
+- Renders `<a href="#main-content">`
+- Visually hidden with `sr-only`
+- Becomes visible on focus with `focus:not-sr-only`
+- Arabic label: `تخطَّ إلى المحتوى الرئيسي`
+
+**Requirement**: Each page's `<main>` must have `id="main-content"`.
+
+---
+
+### Header
+
+**File**: `src/shared/components/Header.jsx`
+
+**Purpose**: Branding, search input, and theme toggle.
+
+**Props**:
+
+```javascript
+{
+  searchTerm: string,
+  onSearchChange: (value: string) => void
+}
+```
+
+**Hooks**:
+
+- `useDarkMode()` — returns `[isDarkMode, toggleDarkMode]`
+
+**Features**:
+
+- Logo and "Quran-sound" wordmark
+- Responsive search form with a visually hidden label and accessible name
+- `type="search"` input, `role="search"` form, submit prevented
+- Theme toggle with `aria-pressed` and a descriptive `aria-label`
+- Inline SVG icons for search and theme (no icon component dependency)
+
+**Example**:
+
+```javascript
+<Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+```
 
 ---
 
 ### Footer
 
-**File**: `src/components/common/Footer.jsx`
+**File**: `src/shared/components/Footer.jsx`
 
-**Purpose**: Application footer with information and links
-
-**Props**: None
-
-**State**: None
-
-**Features**:
-- App version info
-- Links/credits
-- Arabic + English text
-
-**Example Usage**:
-```javascript
-// Typically in App layout:
-<Footer />
-```
-
----
-
-### SearchBar
-
-**File**: `src/components/common/SearchBar.jsx`
-
-**Purpose**: Search input component for filtering surahs
-
-**Props**:
-```javascript
-{
-  value: string,           // Current search term
-  onChange: (term) => {},  // Callback when search changes
-  placeholder: string      // Input placeholder text
-}
-```
-
-**State**: None (controlled component)
-
-**Features**:
-- Controlled input (value + onChange)
-- Case-insensitive search
-- Searches 4 fields:
-  1. Arabic surah name
-  2. English surah name
-  3. Surah number
-  4. Revelation place
-- RTL Arabic keyboard support
-- Clear button functionality
-
-**Example Usage**:
-```javascript
-import SearchBar from '@components/common/SearchBar'
-import { SearchContext } from '@context/SearchContext'
-
-export function Header() {
-  const { searchTerm, setSearchTerm } = useContext(SearchContext)
-  
-  return (
-    <SearchBar
-      value={searchTerm}
-      onChange={setSearchTerm}
-      placeholder="ابحث عن السورة"
-    />
-  )
-}
-```
-
-**Related**:
-- SearchContext (manages state)
-- useSearch hook (performs filtering)
-
----
-
-### AudioPlayer
-
-**File**: `src/components/common/AudioPlayer.jsx`
-
-**Purpose**: Wrapper for HTML5 audio player with controls
-
-**Props**:
-```javascript
-{
-  src: string,           // Audio URL
-  title?: string,        // Surah name for accessibility
-  onTimeUpdate?: (time) => {}  // Optional callback
-}
-```
-
-**State**: 
-- `isPlaying` - from useAudio hook (boolean)
-- `currentTime` - from useAudio hook (number)
-- `duration` - from useAudio hook (number)
-
-**Hooks Used**:
-- `useAudio(src)` - manage audio state
-
-**Features**:
-- Play/pause controls
-- Volume control
-- Progress bar
-- Time display
-- Keyboard accessible
-- Error handling
-
-**Example Usage**:
-```javascript
-import AudioPlayer from '@components/common/AudioPlayer'
-
-export function SurahPage() {
-  const { surah } = useSurah(number)
-  
-  return (
-    <AudioPlayer
-      src={surah.audio_url}
-      title={surah.surah_name}
-    />
-  )
-}
-```
-
-**Related**:
-- useAudio hook (manages playback state)
-- Surah data type (audio_url property)
-
----
-
-## Utility Components
-
-### ErrorBoundary
-
-**File**: `src/components/ErrorBoundary.jsx`
-
-**Purpose**: Catch React errors and show fallback UI
-
-**Props**:
-```javascript
-{
-  children: ReactNode  // Components to wrap
-}
-```
-
-**State**:
-- `hasError` - boolean
-- `error` - Error object
-
-**Features**:
-- Catches render errors in child components
-- Shows Arabic error message
-- Provides reload button
-- Logs errors to console
-- Prevents white screen of death
-
-**Example Usage**:
-```javascript
-import ErrorBoundary from '@components/ErrorBoundary'
-
-function App() {
-  return (
-    <ErrorBoundary>
-      <div className="app">
-        {/* App components */}
-      </div>
-    </ErrorBoundary>
-  )
-}
-```
-
-**Error Handling**:
-```javascript
-// Catches errors like:
-- Component render errors
-- Lifecycle method errors
-- Constructor errors
-- Event handler errors (with error boundaries in v18+)
-
-// Does NOT catch:
-- Async errors (use try/catch or error boundaries from promises)
-- Event handlers (use try/catch)
-- Server-side rendering errors
-- Errors in the error boundary itself
-```
-
-**Related**:
-- React Error Boundaries documentation
-
----
-
-### App (Root Component)
-
-**File**: `src/components/App.jsx`
-
-**Purpose**: Root application component with layout and providers
+**Purpose**: Footer navigation and branding.
 
 **Props**: None
 
-**Providers**:
-- ErrorBoundary - wraps entire app
-- SearchProvider - provides search context
-- Router - React Router configuration
+**Behavior**:
 
-**Layout**:
-```
-ErrorBoundary
-  └─ SearchProvider
-      └─ Router
-          ├─ Header
-          ├─ Router outlet (IndexPage or SurahPage)
-          └─ Footer
-```
-
-**Example Code**:
-```javascript
-import ErrorBoundary from './ErrorBoundary'
-import { SearchProvider } from '@context/SearchContext'
-import AppRouter from '../router'
-
-export default function App() {
-  return (
-    <ErrorBoundary>
-      <SearchProvider>
-        <AppRouter />
-      </SearchProvider>
-    </ErrorBoundary>
-  )
-}
-```
-
-**Related**:
-- ErrorBoundary component
-- SearchContext provider
-- Router configuration
+- Logo and wordmark
+- Links: About, Privacy Policy, Licensing, Contact
+- Dynamic copyright year (`© 2026`)
+- Responsive flex layout
 
 ---
 
-## Component Patterns
+## Feature Components
 
-### Controlled Components
+### SurahCard
 
-**SearchBar** is a controlled component:
+**File**: `src/features/quran/components/SurahCard.jsx`
+
+**Purpose**: Render one surah as a keyboard-accessible button.
+
+**Props**:
+
 ```javascript
-<SearchBar
-  value={searchTerm}
-  onChange={setSearchTerm}
-  placeholder="Search..."
-/>
+{
+  item: Surah,                    // Surah record
+  onSelect: (number: number) => void
+}
 ```
 
-**Pattern**: Parent manages state, component receives value + callback
+**Optimization**: Wrapped in `React.memo` so only changed cards re-render while
+typing in the search box.
 
-### Hook Integration
+**Renders**:
 
-**All page components use custom hooks**:
+- Surah number badge (`.num`)
+- Arabic name
+- English name, revelation place, ayah count
+- `aria-label`: `استمع إلى سورة {surah_name} ({surah_name_en})`
+
+**Example**:
+
 ```javascript
-// IndexPage
-const filteredData = useSearch(searchTerm)
+<SurahCard item={surah} onSelect={handleSelect} />
+```
 
-// SurahPage
+---
+
+### IndexPage
+
+**File**: `src/features/quran/pages/IndexPage.jsx`
+
+**Purpose**: Display the searchable grid of all 114 surahs.
+
+**Props**: None
+
+**Hooks**:
+
+- `useContext(SearchContext)` — current search term
+- `useSearch(searchTerm)` — memoized filtered list
+- `useNavigate()` — route to a selected surah
+- `useCallback()` — stable `handleSelect`
+- `useDocumentMeta(title, description)` — page metadata
+
+**Features**:
+
+- Main heading from `LABELS.SURAH_INDEX`
+- Responsive grid: 2 → 3 → 4 → 5 → 6 columns
+- Empty-state message when nothing matches
+- `role="status"` live region announcing the result count / no-results state
+- Renders memoized `SurahCard` children
+
+**Structure**:
+
+```jsx
+<main id="main-content" tabIndex={-1}>
+  <div className={LAYOUT_CLASSES.CARD}>
+    <h1>{LABELS.SURAH_INDEX}</h1>
+    <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+      {/* result count */}
+    </p>
+    <section className={LAYOUT_CLASSES.SURAH_GRID}>
+      {surahs.length > 0 ? surahs : <p>{LABELS.NO_RESULTS}</p>}
+    </section>
+  </div>
+</main>
+```
+
+---
+
+### SurahPage
+
+**File**: `src/features/quran/pages/SurahPage.jsx`
+
+**Purpose**: Show a single surah with metadata, audio, and navigation.
+
+**Props**: None
+
+**Route params**: `number` — surah number from `/surah/:number`
+
+**Hooks**:
+
+- `useParams()` — reads `number`
+- `useNavigate()` — previous/next/back navigation
+- `useSurah(number)` — resolves the surah and adjacent records
+- `useDocumentMeta(title, description)` — route-specific metadata
+- `useRef` + `useEffect` — focus the heading when `number` changes
+
+**Features**:
+
+- Arabic heading, English name, revelation place, ayah count
+- Native HTML5 `<audio controls preload="none">` with `surah.audio_url`
+- Previous/next buttons (RTL-aware order and chevrons)
+- Back-to-index button
+- Not-found screen with a back button for invalid numbers
+- Heading receives focus on navigation for keyboard/screen-reader users
+
+**Example flow**:
+
+```javascript
+const { number } = useParams()
 const { surah, previous, next } = useSurah(number)
-
-// Header
-const [isDark, toggleDarkMode] = useDarkMode()
+navigate(`/surah/${next.surah_number}`)
+navigate('/')
 ```
-
-**Pattern**: Hooks encapsulate logic, components consume results
-
-### Context Integration
-
-**Components access global state via Context**:
-```javascript
-const { searchTerm, setSearchTerm } = useContext(SearchContext)
-```
-
-**Pattern**: Avoid prop drilling, use Context for application state
-
-### Error Boundaries
-
-**ErrorBoundary wraps app tree**:
-```javascript
-<ErrorBoundary>
-  <App />
-</ErrorBoundary>
-```
-
-**Pattern**: Single error boundary at root catches all errors
 
 ---
 
-## Component Composition Examples
+## Component Composition
 
-### Example 1: Complete Index Page Flow
+### Index page flow
 
 ```javascript
-// User navigates to home (/)
-// Router renders IndexPage
 function IndexPage() {
   const navigate = useNavigate()
   const { searchTerm } = useContext(SearchContext)
   const filteredData = useSearch(searchTerm)
-  
-  // filteredData is 114 surahs or filtered subset
-  const surahs = filteredData.map((item) => (
-    <button
-      key={item.surah_number}
-      onClick={() => navigate(`/surah/${item.surah_number}`)}
-    >
-      <span>{item.surah_number}</span>
-      <span>{item.surah_name}</span>
-      <small>{item.surah_name_en}</small>
-    </button>
+
+  const handleSelect = useCallback((number) => {
+    navigate(`/surah/${number}`)
+  }, [navigate])
+
+  return filteredData.map((item) => (
+    <SurahCard key={item.surah_number} item={item} onSelect={handleSelect} />
   ))
-  
-  return (
-    <main>
-      <h1>Quran Surahs</h1>
-      <section>{surahs}</section>
-    </main>
-  )
 }
 ```
 
-### Example 2: Complete Surah Page Flow
+### Surah page flow
 
 ```javascript
-// User clicks surah 1
-// Router renders SurahPage with :number = 1
 function SurahPage() {
   const { number } = useParams()
-  const navigate = useNavigate()
   const { surah, previous, next } = useSurah(number)
-  
-  if (!surah) {
-    return <div>Surah not found</div>
-  }
-  
+
+  if (!surah) return <NotFound />
   return (
-    <main>
-      <h1>{surah.surah_name}</h1>
-      <p>{surah.surah_name_en}</p>
-      
-      <AudioPlayer src={surah.audio_url} title={surah.surah_name} />
-      
-      <nav>
-        {previous && (
-          <button onClick={() => navigate(`/surah/${previous.surah_number}`)}>
-            Previous
-          </button>
-        )}
-        <button onClick={() => navigate('/')}>Back</button>
-        {next && (
-          <button onClick={() => navigate(`/surah/${next.surah_number}`)}>
-            Next
-          </button>
-        )}
-      </nav>
-    </main>
+    <>
+      <h1 tabIndex={-1}>{surah.surah_name}</h1>
+      <audio controls src={surah.audio_url} />
+      {previous && <button>{previous.surah_name}</button>}
+      {next && <button>{next.surah_name}</button>}
+    </>
   )
 }
 ```
 
-### Example 3: Search Flow with Context
+### Search flow
 
 ```javascript
-// User types in Header SearchBar
-function Header() {
-  const { searchTerm, setSearchTerm } = useContext(SearchContext)
-  
-  return (
-    <header>
-      <SearchBar
-        value={searchTerm}
-        onChange={setSearchTerm}  // Updates context
-        placeholder="Search..."
-      />
-    </header>
-  )
-}
+// Header writes to context
+<Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
-// IndexPage automatically updates
-function IndexPage() {
-  const { searchTerm } = useContext(SearchContext)  // Gets updated value
-  const filteredData = useSearch(searchTerm)         // Filters based on new term
-  
-  return (
-    <main>
-      {filteredData.map(surah => (
-        <button key={surah.surah_number}>
-          {surah.surah_name}
-        </button>
-      ))}
-    </main>
-  )
-}
+// The provider owns the state
+<SearchContext.Provider value={{ searchTerm, setSearchTerm }}>
+
+// IndexPage consumes and filters
+const { searchTerm } = useContext(SearchContext)
+const filteredData = useSearch(searchTerm)
 ```
 
 ---
 
-## Best Practices
+## Component Tree
 
-### 1. Use Custom Hooks for Business Logic
-✅ **Good**:
-```javascript
-const { surah, previous, next } = useSurah(number)
 ```
-
-❌ **Avoid**:
-```javascript
-const surah = Data.find(s => s.surah_number === number)
-const index = Data.findIndex(...)
-```
-
-### 2. Use Context for Global State
-✅ **Good**:
-```javascript
-const { searchTerm, setSearchTerm } = useContext(SearchContext)
-```
-
-❌ **Avoid**:
-```javascript
-<SearchBar searchTerm={prop1} setSearchTerm={prop2} ... />
-// With many layers of prop drilling
-```
-
-### 3. Memoize Expensive Computations
-✅ **Good**:
-```javascript
-const filteredData = useSearch(searchTerm)  // Uses useMemo internally
-```
-
-❌ **Avoid**:
-```javascript
-const filtered = filterSurahs(searchTerm)  // Called on every render
-```
-
-### 4. Keep Components Focused
-✅ **Good**:
-```javascript
-// IndexPage - just displays, uses hooks
-// SurahPage - just displays, uses hooks
-// SearchBar - just input, no logic
-```
-
-❌ **Avoid**:
-```javascript
-// One giant component doing everything
-```
-
-### 5. Use ErrorBoundary at Root
-✅ **Good**:
-```javascript
-<ErrorBoundary>
-  <App />
-</ErrorBoundary>
-```
-
-❌ **Avoid**:
-```javascript
-// No error handling
+main.jsx
+└── StrictMode
+    └── ErrorBoundary
+        └── AppRouter
+            └── BrowserRouter (basename="/Quran/")
+                └── SearchProvider
+                    └── App
+                        ├── SkipLink
+                        ├── Header
+                        │   ├── logo
+                        │   ├── search form
+                        │   └── theme toggle
+                        ├── Suspense
+                        │   └── Routes
+                        │       ├── "/" → IndexPage
+                        │       │   └── SurahCard × N
+                        │       └── "/surah/:number" → SurahPage
+                        │           ├── native <audio>
+                        │           └── navigation buttons
+                        └── Footer
 ```
 
 ---
 
-## Creating New Components
+## Patterns and Conventions
 
-### Template for New Component
+### Controlled input
 
-```javascript
-// src/components/MyComponent.jsx
-import { useContext } from 'react'
-import { SearchContext } from '@context/SearchContext'
+`Header` is controlled by `SearchProvider`; it receives `searchTerm` and
+`onSearchChange` and never keeps a local copy.
 
-export default function MyComponent({ prop1, prop2 }) {
-  // 1. Hooks first
-  const { searchTerm } = useContext(SearchContext)
-  
-  // 2. Logic/calculations
-  const result = someCalculation(prop1)
-  
-  // 3. Event handlers
-  const handleClick = () => {
-    // ...
-  }
-  
-  // 4. JSX return
-  return (
-    <div>
-      <button onClick={handleClick}>{prop1}</button>
-      <p>{result}</p>
-    </div>
-  )
-}
-```
+### Hooks over inline logic
 
-### Export Pattern
+Business logic lives in hooks (`useSearch`, `useSurah`, `useDarkMode`,
+`useDocumentMeta`) and pure utilities (`quranData`, `themeUtils`, `storage`).
+Components focus on rendering.
 
-```javascript
-// Option 1: Named export (preferred for utilities)
-export function MyComponent() { ... }
+### Context for shared state
 
-// Option 2: Default export (used for pages and main components)
-export default function MyComponent() { ... }
+Only the search term is global. Everything else is derived from route params or
+local hook state.
 
-// Import:
-import MyComponent from '@components/MyComponent'
-import { MyComponent } from '@components/MyComponent'
-```
+### Memoization
+
+- `useMemo` inside `useSearch` and `useSurah`
+- `useCallback` for the card selection handler
+- `React.memo` for `SurahCard`
+
+### Accessibility
+
+- Semantic `<header>`, `<main>`, `<nav>`, `<footer>`
+- Skip link targeting `#main-content`
+- Live region for search result counts
+- Focus management on surah navigation
+- Visible `focus-visible` styles
+- Descriptive Arabic/English ARIA labels
 
 ---
 
-## Component Testing Patterns
+## Testing Components
 
-### Testing Page Components
+Tests live in `tests/components/` and use Testing Library with MemoryRouter when
+routing is involved.
 
 ```javascript
-// src/components/pages/IndexPage.test.jsx
 import { render, screen } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
-import { SearchProvider } from '@context/SearchContext'
-import IndexPage from './IndexPage'
+import { MemoryRouter } from 'react-router-dom'
+import IndexPage from '@features/quran/pages/IndexPage'
+import { SearchContext } from '@features/search/searchContext'
 
-test('displays all 114 surahs', () => {
-  render(
-    <BrowserRouter>
-      <SearchProvider>
-        <IndexPage />
-      </SearchProvider>
-    </BrowserRouter>
-  )
-  
-  const surah1 = screen.getByText('الفاتحة')
-  expect(surah1).toBeInTheDocument()
-})
+render(
+  <MemoryRouter>
+    <SearchContext.Provider value={{ searchTerm: '', setSearchTerm: vi.fn() }}>
+      <IndexPage />
+    </SearchContext.Provider>
+  </MemoryRouter>
+)
 ```
 
-### Testing Common Components
+Run with:
 
-```javascript
-// src/components/common/SearchBar.test.jsx
-import { render, screen, fireEvent } from '@testing-library/react'
-import SearchBar from './SearchBar'
-
-test('calls onChange when typing', () => {
-  const onChange = jest.fn()
-  render(
-    <SearchBar
-      value=""
-      onChange={onChange}
-      placeholder="Search..."
-    />
-  )
-  
-  const input = screen.getByRole('searchbox')
-  fireEvent.change(input, { target: { value: 'الفاتحة' } })
-  
-  expect(onChange).toHaveBeenCalledWith('الفاتحة')
-})
+```bash
+pnpm test -- --run
+pnpm test:coverage
 ```
 
 ---
 
 ## Related Documentation
 
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design and data flow
-- **[SETUP.md](./SETUP.md)** - Development environment
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment
-- **[README.md](../README.md)** - Project overview
-
----
-
-## Component Tree Visualization
-
-```
-App
-├── ErrorBoundary
-│   └── SearchProvider
-│       └── BrowserRouter
-│           ├── Header
-│           │   └── SearchBar
-│           ├── Routes
-│           │   ├── Route: "/" → IndexPage
-│           │   │   └── Surah cards (buttons)
-│           │   └── Route: "/surah/:number" → SurahPage
-│           │       ├── AudioPlayer
-│           │       └── Navigation buttons
-│           └── Footer
-```
-
-All components are located in `src/components/` with subdirectories for organization.
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System design and data flow
+- **[SETUP.md](./SETUP.md)** — Development environment
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** — Production deployment
+- **[ACCESSIBILITY.md](./ACCESSIBILITY.md)** — Accessibility details
+- **[map.md](./map.md)** — File-by-file repository map
+- **[README.md](../README.md)** — Project overview

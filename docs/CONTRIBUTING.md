@@ -1,122 +1,97 @@
 # Quran Sound - Contributing Guide
 
-## Welcome Contributors! 👋
+## Welcome
 
-Thank you for your interest in contributing to Quran Sound! This guide will help you get started with development, understand our workflow, and submit high-quality contributions.
+Thanks for contributing to Quran Sound. This guide covers the workflow, coding
+standards, and expectations for changes.
 
----
-
-## Code of Conduct
-
-We are committed to providing a welcoming and inclusive environment. Please read and follow our [Code of Conduct](../CODE_OF_CONDUCT.md).
-
-**In Short**:
-- Be respectful and inclusive
-- Welcome all backgrounds and experience levels
-- Focus on constructive feedback
-- No harassment or discrimination
+Please also read the [Code of Conduct](../CODE_OF_CONDUCT.md).
 
 ---
 
-## How to Contribute
+## Ways to Contribute
 
-### Reporting Issues
+### Report issues
 
-Found a bug or have a feature request?
+1. Search existing issues first
+2. Open a new issue with:
+   - A clear title
+   - What you expected vs. what happened
+   - Steps to reproduce
+   - Browser/OS/Node/pnpm versions
+   - Screenshots or error output when useful
 
-1. **Check existing issues** first to avoid duplicates
-2. **Create a new issue** with:
-   - Clear, descriptive title
-   - Detailed description of the problem
-   - Steps to reproduce (for bugs)
-   - Your environment (OS, browser, versions)
-   - Screenshots/error messages if applicable
+### Suggest features
 
-### Contributing Code
+Open an issue describing the use case, the proposed behavior, and any
+alternatives considered.
 
-1. **Fork** the repository
-2. **Create a feature branch** (see naming conventions below)
-3. **Make your changes** following code standards
-4. **Write or update tests** as needed
-5. **Commit** with clear messages
-6. **Push** to your fork
-7. **Submit a Pull Request**
+### Improve documentation
 
-### Improving Documentation
+Documentation lives in `docs/`. Keep links working and update related documents
+in the same PR.
 
-Documentation improvements are always welcome!
+### Submit code
 
-1. Create issue or PR with improvements
-2. Follow documentation standards
-3. Include examples where helpful
-4. Update related documents
-5. Test links and code examples
+1. Fork the repository
+2. Create a branch (see naming below)
+3. Make focused changes
+4. Add or update tests
+5. Run lint, tests, and a production build
+6. Commit with a clear message
+7. Open a pull request
 
 ---
 
 ## Development Workflow
 
-### 1. Setup Development Environment
+### Setup
 
 ```bash
-# Clone your fork
 git clone https://github.com/YOUR_USERNAME/Quran.git
 cd Quran
-
-# Install dependencies
 pnpm install
-
-# Start development server
 pnpm dev
-
-# Open http://localhost:5173/Quran/
+# http://localhost:5173/Quran/
 ```
 
-See [SETUP.md](./SETUP.md) for detailed instructions.
+See [SETUP.md](./SETUP.md) for details. This project uses **pnpm only**.
 
-### 2. Create Feature Branch
+### Branch naming
 
-**Branch Naming Convention**:
 ```
-feature/description        # New features
-bugfix/description         # Bug fixes
-docs/description          # Documentation
-refactor/description      # Code refactoring
-chore/description         # Maintenance tasks
-test/description          # Testing improvements
-perf/description          # Performance improvements
+feature/description
+bugfix/description
+docs/description
+refactor/description
+chore/description
+test/description
+perf/description
 ```
 
-**Examples**:
+Examples:
+
 ```bash
 git checkout -b feature/add-ayah-search
 git checkout -b bugfix/audio-not-loading
-git checkout -b docs/add-api-guide
+git checkout -b docs/update-map
 ```
 
-### 3. Make Your Changes
+### Verify before committing
 
-**Follow code standards** (see below)
-
-**Write tests** for new features:
-```bash
-pnpm test
-```
-
-**Verify code quality**:
 ```bash
 pnpm lint
-```
-
-**Test locally**:
-```bash
+pnpm test -- --run
 pnpm build
 pnpm preview
 ```
 
-### 4. Commit with Clear Messages
+---
 
-**Commit Message Format**:
+## Commit Messages
+
+Format:
+
 ```
 <type>: <subject>
 
@@ -125,526 +100,318 @@ pnpm preview
 <footer>
 ```
 
-**Types**:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation
-- `refactor`: Code refactoring
-- `test`: Test additions/changes
-- `chore`: Build, dependency updates
-- `perf`: Performance improvements
+Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`.
 
-**Examples**:
+Examples:
+
 ```bash
 git commit -m "feat: add ayah-level search
 
-- Implement search filtering at ayah level
-- Add new useAyahSearch hook
-- Update SearchContext to include ayah results
-- Add tests for new functionality"
+- Add ayah filtering utility
+- Expose results through useSearch
+- Add unit tests"
 
-git commit -m "fix: audio not loading on iOS
+git commit -m "fix: audio player not resetting between surahs
 
-- Fix CORS headers for audio CDN
-- Test on multiple iOS versions
-- Fallback to alternative audio source"
-
-git commit -m "docs: add API integration guide
-
-- Document current bundled data approach
-- Outline future API migration path
-- Include code examples"
-```
-
-### 5. Push and Create Pull Request
-
-```bash
-# Push to your fork
-git push -u origin feature/your-feature-name
-
-# Go to GitHub and create Pull Request
+- Reset playback state when src changes
+- Add regression test"
 ```
 
 ---
 
-## Pull Request Process
+## Pull Requests
 
-### Before Submitting
+### Checklist
 
-**Checklist**:
-- [ ] Branch created from `main` (or appropriate base branch)
-- [ ] Changes follow code standards
-- [ ] Tests written/updated
-- [ ] All tests pass locally (`pnpm test`)
-- [ ] Linting passes (`pnpm lint`)
+- [ ] Branch is based on the latest `main`
+- [ ] Change is focused (avoid unrelated refactors)
+- [ ] Lint passes (`pnpm lint`)
+- [ ] Tests pass (`pnpm test -- --run`)
 - [ ] Build succeeds (`pnpm build`)
-- [ ] Documentation updated if needed
+- [ ] Tests added/updated for behavior changes
+- [ ] Documentation updated when behavior or APIs change
+- [ ] Accessibility considered
 - [ ] No console errors/warnings
-- [ ] Commits have clear messages
 
-### PR Description Template
+### PR description template
 
 ```markdown
 ## Description
-Briefly describe what this PR does.
+Brief summary of the change.
 
-## Type of Change
-- [ ] Bug fix (non-breaking)
-- [ ] New feature (non-breaking)
+## Type of change
+- [ ] Bug fix
+- [ ] New feature
 - [ ] Breaking change
-- [ ] Documentation update
+- [ ] Documentation
+- [ ] Refactor / chore
 
-## Related Issues
-Closes #123 (if applicable)
+## Related issues
+Closes #123
 
 ## Changes
-- Specific change 1
-- Specific change 2
-- Specific change 3
+- ...
+- ...
 
 ## Testing
-How did you test these changes?
+How you verified the change.
 
-## Screenshots (if applicable)
-Include screenshots for UI changes
-
-## Checklist
-- [ ] Tests pass locally
-- [ ] Linting passes
-- [ ] Build succeeds
-- [ ] Documentation updated
-- [ ] No breaking changes (or documented if yes)
+## Screenshots (UI changes)
 ```
 
-### Review Process
+### Review
 
-1. **Maintainers review** your PR
-2. **Tests run** automatically (when CI configured)
-3. **Feedback provided** on code quality/approach
-4. **Changes requested** (if needed)
-5. **Approve and merge** when ready
-
-**Response Time**: Usually 1-3 days
+Maintainers review for correctness, readability, tests, accessibility, and
+consistency with the existing architecture. Address feedback in new commits;
+avoid force-pushing over review history unless asked.
 
 ---
 
 ## Coding Standards
 
-### JavaScript/React Style
+### File organization
 
-**File Organization**:
 ```javascript
-// 1. Imports (React first, then external, then local)
-import { useContext } from 'react'
+// 1. External imports
+import { useCallback, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { SearchContext } from '@context/SearchContext'
 
-// 2. Component definition
-export default function MyComponent({ prop1, prop2 }) {
-  // 3. Hooks
-  const { searchTerm } = useContext(SearchContext)
+// 2. Internal aliased imports
+import { SearchContext } from '@features/search/searchContext'
+import useSearch from '@features/search/useSearch'
+import { LAYOUT_CLASSES } from '@shared/utils/constants'
+
+// 3. Component / function
+export default function MyComponent({ value }) {
+  // Hooks
   const navigate = useNavigate()
-  
-  // 4. State/calculations
-  const result = computeSomething(prop1)
-  
-  // 5. Event handlers
-  const handleClick = () => {
-    navigate('/')
-  }
-  
-  // 6. Effects (if needed)
-  useEffect(() => {
-    // ...
-  }, [])
-  
-  // 7. JSX return
-  return (
-    <div>
-      <button onClick={handleClick}>{result}</button>
-    </div>
-  )
+
+  // Derived values / handlers
+  const handleClick = useCallback(() => navigate('/'), [navigate])
+
+  // JSX
+  return <button onClick={handleClick}>{value}</button>
 }
 ```
 
-**Naming Conventions**:
+### Naming
+
+| Kind | Convention | Example |
+|------|------------|---------|
+| Components | PascalCase file/name | `SurahCard.jsx` |
+| Hooks | camelCase with `use` | `useSurah.js` |
+| Utilities | camelCase | `quranData.js` |
+| Constants | UPPER_SNAKE_CASE | `APP_TITLE` |
+| Booleans | `is`/`has` prefix | `isDarkMode` |
+| Handlers | `handle` prefix | `handleSelect` |
+
+### Imports
+
+Use the configured aliases:
+
 ```javascript
-// Files
-MyComponent.jsx        // Components (PascalCase)
-useMyHook.js          // Hooks (camelCase with 'use' prefix)
-myUtils.js            // Utilities (camelCase)
-MY_CONSTANT.js        // Constants (UPPER_CASE)
+// ✅
+import useSurah from '@features/quran/hooks/useSurah'
+import { APP_TITLE } from '@shared/utils/constants'
 
-// Variables
-const userName = 'John'      // camelCase
-const isActive = true        // Boolean with 'is' prefix
-const handleClick = () => {} // Event handlers with 'handle' prefix
-const fetchData = async () => {} // Async functions with verb
-
-// React Components
-<MyComponent />              // PascalCase
-<MyComponent prop="value" /> // Props camelCase
+// ❌ deep relative traversal
+import useSurah from '../../../features/quran/hooks/useSurah'
 ```
 
-### JSDoc Comments
+Aliases are declared in `vite.config.js`, `vitest.config.js`, and
+`tsconfig.json`; keep them in sync.
 
-**For functions**:
+### JSDoc
+
+Add JSDoc to non-obvious functions and hook return shapes:
+
 ```javascript
 /**
- * Filters surahs by search term
- * @param {string} searchTerm - User search input
- * @returns {Array<Surah>} Filtered surah list
+ * Filter surahs by search term.
+ * @param {string} searchTerm
+ * @returns {import('../data/quran').Surah[]}
  */
 export function filterSurahs(searchTerm) {
   // ...
 }
 ```
 
-**For components**:
-```javascript
-/**
- * Displays single surah with metadata and audio player
- * @component
- * @example
- * return <SurahPage />
- */
-export default function SurahPage() {
-  // ...
-}
-```
+### React patterns
 
-### CSS/Tailwind
+- Keep business logic in hooks and pure utilities
+- Memoize expensive work (`useMemo`, `useCallback`, `React.memo`)
+- Prefer native elements (`<button>`, `<a>`, `<audio>`) for accessibility
+- Use the shared constants for UI text and layout classes
+- Do not add global state unless it is genuinely cross-feature
 
-**Use Tailwind utilities** instead of custom CSS:
-```javascript
-// ✅ Good
-<div className="flex items-center gap-4 mb-6">
-  <h1 className="text-2xl font-bold">Title</h1>
-</div>
+### Styling
 
-// ❌ Avoid custom CSS
-<div className="my-custom-container">
-  <h1 className="my-custom-title">Title</h1>
-</div>
-```
-
-**Component styles** go in `@layer components`:
-```css
-@layer components {
-  .num {
-    @apply flex-none inline-block;
-    min-width: 34px;
-    height: 34px;
-  }
-}
-```
+- Prefer Tailwind utilities in `className`
+- Use the theme CSS variables (`--surface-*`, `--text-*`, `--border-*`) instead
+  of hard-coded colors where possible
+- Shared component utilities live in `@layer components` in
+  `src/shared/styles/tailwind.css`
+- Support both light and dark themes (`dark:` variants / variables)
 
 ---
 
 ## Project Structure
 
-Key locations:
 ```
 src/
-├── components/        # React components
-│   ├── common/       # Reusable components
-│   ├── pages/        # Page-level components
-│   └── App.jsx, ErrorBoundary.jsx
-├── hooks/            # Custom React hooks
-├── utils/            # Utility functions
-├── context/          # React Context
-├── config/           # Configuration
-├── types/            # TypeScript types
-├── data/             # Data layer
-├── css/              # Styles
-└── router.jsx, main.jsx
-
-docs/                 # Documentation
-tests/                # Tests (Phase 9+)
+├── app/          # Router, layout, error boundary
+├── features/     # Feature slices (quran, search, theme, audio)
+├── shared/       # Cross-feature components, hooks, utils, config, styles
+└── types/        # TypeScript definitions
+tests/            # Vitest suite mirroring source domains
+docs/             # Documentation
+scripts/          # Tooling (pnpm guard)
 ```
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for details.
+See [ARCHITECTURE.md](./ARCHITECTURE.md) and [map.md](./map.md).
 
 ---
 
 ## Testing
 
-### Running Tests
+### Commands
 
 ```bash
-# Run all tests
-pnpm test
-
-# Watch mode (re-run on changes)
-pnpm test --watch
-
-# Interactive UI
-pnpm test:ui
-
-# Coverage report
-pnpm test:coverage
+pnpm test              # watch mode
+pnpm test -- --run     # one-off run
+pnpm test:ui           # interactive UI
+pnpm test:coverage     # V8 coverage
 ```
 
-### Writing Tests
+### Guidelines
 
-**Test file location**: `tests/` directory with same structure as `src/`
+- Tests live in `tests/components`, `tests/hooks`, or `tests/utils`
+- Test behavior, not implementation details
+- Cover edge cases (empty search, invalid surah number, storage failures)
+- Use Testing Library queries by role/label where possible
+- Mock browser APIs (matchMedia, localStorage) rather than networking
+- Keep tests deterministic
 
-**Example test**:
+Example:
+
 ```javascript
-// tests/utils/search.test.js
 import { describe, it, expect } from 'vitest'
-import { filterSurahs } from '@utils/search'
+import { filterSurahs } from '@features/quran/utils/quranData'
 
 describe('filterSurahs', () => {
-  it('should filter surahs by Arabic name', () => {
+  it('filters by Arabic name', () => {
     const results = filterSurahs('الفاتحة')
-    expect(results).toHaveLength(1)
     expect(results[0].surah_number).toBe(1)
   })
 
-  it('should be case-insensitive', () => {
-    const results1 = filterSurahs('fatihah')
-    const results2 = filterSurahs('FATIHAH')
-    expect(results1).toEqual(results2)
+  it('is case-insensitive', () => {
+    expect(filterSurahs('fatihah')).toEqual(filterSurahs('FATIHAH'))
   })
 })
 ```
 
-**Testing guidelines**:
-- Test behavior, not implementation
-- Use descriptive test names
-- Test edge cases
-- Mock external dependencies
-- Keep tests focused and fast
+---
+
+## Documentation
+
+Update documentation when you change:
+
+- User-visible behavior → `README.md` and/or `docs/`
+- Architecture or data flow → `docs/ARCHITECTURE.md`
+- Components or props → `docs/COMPONENTS.md`
+- Setup/commands/aliases → `docs/SETUP.md`
+- Deployment → `docs/DEPLOYMENT.md`
+- Accessibility → `docs/ACCESSIBILITY.md`
+- File layout → `docs/map.md`
+
+Guidelines:
+
+- Use clear language and working code examples
+- Keep relative links valid
+- Update related docs in the same PR
+- Update the "Last Updated" date in the README when appropriate
 
 ---
 
-## Documentation Standards
+## Accessibility Requirements
 
-### When to Update Documentation
+Every UI change should consider:
 
-- ✅ New features
-- ✅ API changes
-- ✅ Configuration updates
-- ✅ Dependency updates
-- ✅ Bug fixes (if user-visible)
+- [ ] Keyboard accessible
+- [ ] Accessible name/role for controls
+- [ ] Visible focus state
+- [ ] Color contrast (light and dark)
+- [ ] Touch target size
+- [ ] No unexpected focus loss
+- [ ] Screen-reader-friendly announcements for dynamic results
 
-### Documentation Locations
+See [ACCESSIBILITY.md](./ACCESSIBILITY.md).
 
-- **Features**: Update README.md
-- **Architecture**: Update ARCHITECTURE.md
-- **Components**: Update COMPONENTS.md
-- **Setup**: Update SETUP.md
-- **Deployment**: Update DEPLOYMENT.md
-- **Changes**: Add to CHANGELOG.md
+---
 
-### Writing Documentation
+## Performance Requirements
 
-- Use clear, simple language
-- Include code examples
-- Link to related docs
-- Update table of contents
-- Test links and code
+- Avoid unnecessary re-renders (memoize cards, callbacks, derived data)
+- Keep route-level code splitting intact
+- Do not import the full surah dataset into unrelated features
+- Avoid adding heavy dependencies for small features
+- Check bundle output after dependency changes (`pnpm build`)
+- Keep the search index cached rather than rebuilt per keystroke
 
 ---
 
 ## Git Workflow
 
-### Keep Your Fork Updated
+### Keep your fork current
 
 ```bash
-# Add upstream remote
 git remote add upstream https://github.com/HAMZAELMANZARI/Quran.git
-
-# Fetch latest changes
 git fetch upstream
-
-# Rebase your branch
 git rebase upstream/main
-
-# Push updated branch
-git push -f origin feature/your-feature
+git push --force-with-lease origin feature/your-feature
 ```
 
-### Squash Commits (if needed)
+### Squash fixups
 
 ```bash
-# Rebase interactive
 git rebase -i upstream/main
-
-# Mark commits to squash with 's'
-# Save and resolve conflicts
-
-# Force push
-git push -f origin feature/your-feature
+# mark fixup commits with "s" / "f"
 ```
 
 ---
 
-## Code Review Checklist
+## Releases
 
-**For reviewers**:
-- [ ] Code follows standards
-- [ ] Tests are adequate
-- [ ] Documentation is complete
-- [ ] No breaking changes (or documented)
-- [ ] Performance acceptable
-- [ ] Accessibility considered
-- [ ] Security implications checked
+The project follows [Semantic Versioning](https://semver.org/).
 
-**For authors** (before requesting review):
-- [ ] Self-review your code
-- [ ] Run tests locally
-- [ ] Run linter
-- [ ] Build succeeds
-- [ ] Verify in browser
-
----
-
-## Performance Considerations
-
-### When Contributing
-
-- ✅ Memoize expensive computations
-- ✅ Avoid unnecessary re-renders
-- ✅ Use code splitting for large features
-- ✅ Minimize bundle size
-- ✅ Check Lighthouse scores
-
-**Example**:
-```javascript
-// ✅ Good - memoized
-const filteredData = useSearch(searchTerm)
-
-// ❌ Bad - recalculates every render
-const filtered = searchTerm 
-  ? filterSurahs(searchTerm) 
-  : allSurahs
-```
-
----
-
-## Accessibility Checklist
-
-Every PR should consider:
-- [ ] Keyboard accessible
-- [ ] Screen reader compatible
-- [ ] Color contrast adequate
-- [ ] No motion traps
-- [ ] Touch targets 44x44px+
-- [ ] Focus visible
-
-See [ACCESSIBILITY.md](./ACCESSIBILITY.md) for details.
-
----
-
-## Deployment and Releases
-
-### Version Numbering
-
-We follow [Semantic Versioning](https://semver.org/):
-- `MAJOR.MINOR.PATCH` (e.g., `1.2.3`)
-- MAJOR: Breaking changes
-- MINOR: New features
-- PATCH: Bug fixes
-
-### Release Process
-
-1. **Update** version in `package.json`
-2. **Update** CHANGELOG.md
-3. **Create** release commit
-4. **Tag** with version
-5. **Deploy** to production
-
-```bash
-# Tag release
-git tag v1.2.3
-git push origin v1.2.3
-
-# Deploy
-pnpm run deploy
-```
+1. Update the version in `package.json`
+2. Update `README.md` / docs if needed
+3. Commit the release
+4. Tag it:
+   ```bash
+   git tag v1.2.3
+   git push origin v1.2.3
+   ```
+5. Deploy:
+   ```bash
+   pnpm run deploy
+   ```
 
 ---
 
 ## Getting Help
 
-### Questions?
-
-- **Discussions**: GitHub Discussions (if enabled)
-- **Issues**: Ask in issue comments
-- **Slack/Discord**: Team chat (if available)
-
-### Resources
-
-- [SETUP.md](./SETUP.md) - Development environment
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - System design
-- [COMPONENTS.md](./COMPONENTS.md) - Component API
-- [README.md](../README.md) - Project overview
+- Read [SETUP.md](./SETUP.md), [ARCHITECTURE.md](./ARCHITECTURE.md), and
+  [COMPONENTS.md](./COMPONENTS.md)
+- Search existing issues
+- Open an issue with a minimal reproduction and environment details
 
 ---
 
 ## Recognition
 
-### Contributors are valued!
-
-- Your contributions will be recognized
-- Consider adding yourself to CONTRIBUTORS.md
-- Your GitHub profile in maintainers list
-- Mention in release notes
-
----
-
-## Community Guidelines
-
-### Be Respectful
-- Listen to others' perspectives
-- Assume good intent
-- Provide constructive feedback
-- Respect time differences across timezones
-
-### Stay Focused
-- Keep discussions on-topic
-- Use appropriate channels
-- Search before asking
-- Be concise
-
-### Help Others
-- Answer questions when you can
-- Share knowledge
-- Welcome new contributors
-- Review PRs thoughtfully
-
----
-
-## Contributor License Agreement (CLA)
-
-By contributing, you agree that:
-- Your contributions are your own original work
-- You grant a non-exclusive license to use your work
-- The project can include your work in any medium
-
-No CLA signature required for this project.
-
----
-
-## Questions & Support
-
-**Before asking**, check:
-- [ ] SETUP.md for environment issues
-- [ ] ARCHITECTURE.md for design questions
-- [ ] Existing issues for your question
-- [ ] Documentation for your feature
-
-**Then** create an issue or ask in discussions.
-
----
-
-## Thank You! 🙏
-
-We appreciate your interest in contributing to Quran Sound. Whether it's code, documentation, bug reports, or ideas—all contributions help make this project better.
-
-Happy coding! 🚀
+Contributors are credited in release notes and the repository history. Thanks for
+helping improve Quran Sound.
 
 ---
 
@@ -656,26 +423,18 @@ git clone https://github.com/YOUR_USERNAME/Quran.git
 cd Quran
 pnpm install
 
-# Development
-pnpm dev              # Start dev server
-pnpm lint             # Check code
-pnpm test             # Run tests
-pnpm build            # Build for prod
+# Develop
+pnpm dev
+pnpm lint
+pnpm test -- --run
+pnpm build
 
-# Git workflow
+# Branch and commit
 git checkout -b feature/description
-# Make changes
 git commit -m "feat: description"
 git push origin feature/description
-# Create Pull Request on GitHub
-
-# Cleanup
-git checkout main
-git pull upstream main
-git branch -d feature/description
 ```
 
 ---
 
-**Last Updated**: 2026-10-22
-**Contributors Welcome**: ✨
+**Last Updated**: 2026-10-25

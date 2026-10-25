@@ -2,376 +2,318 @@
 
 ## Overview
 
-Quran Sound is deployed to **GitHub Pages** at the `/Quran/` subdirectory. This guide covers the deployment process, configuration, and troubleshooting.
+Quran Sound deploys to **GitHub Pages** at the `/Quran/` subdirectory.
 
 **Deployment URL**: `https://{username}.github.io/Quran/`
+
+The build is produced by Vite (`pnpm build`) and published with `gh-pages`
+(`pnpm run deploy`).
 
 ---
 
 ## Prerequisites
 
-Before deploying, ensure:
+Before deploying:
 
-- ✅ Local build succeeds: `pnpm build`
-- ✅ Repository has GitHub Pages enabled
-- ✅ Main branch is up to date
-- ✅ All tests pass (when available)
+- Local build succeeds (`pnpm build`)
+- Tests and lint pass (`pnpm test -- --run`, `pnpm lint`)
+- The repository has GitHub Pages available
+- The default branch is up to date
+- Node.js `>=22.12.0` and pnpm `>=12.0.0` are installed
 
 ---
 
 ## Quick Deploy
 
-### One-Command Deployment
-
 ```bash
 pnpm run deploy
 ```
 
-This command:
-1. Runs `pnpm build` to create production bundle
-2. Pushes `dist/` folder to `gh-pages` branch
-3. GitHub Pages automatically serves the content
+This runs the `predeploy` script first:
 
-**Time**: ~1-2 minutes
+1. `pnpm run build` → creates `dist/`
+2. `gh-pages -d dist` → pushes `dist/` to the `gh-pages` branch
+3. GitHub Pages serves the new commit
+
+Typical duration: 1–2 minutes (plus GitHub Pages propagation).
 
 ---
 
 ## GitHub Pages Configuration
 
-### Repository Setup
+### Repository setup
 
-1. **Enable GitHub Pages**:
-   - Go to repository Settings
-   - Navigate to Pages (left sidebar)
-   - Source: Deploy from a branch
-   - Branch: `gh-pages` (created automatically by `pnpm run deploy`)
-   - Folder: `/ (root)`
-   - Save
+1. Open **Settings → Pages**
+2. Source: **Deploy from a branch**
+3. Branch: `gh-pages`, folder `/ (root)`
+4. Save
 
-2. **Verify Base Path**:
-   - Your site will be at: `https://{username}.github.io/Quran/`
-   - Vite config must have: `base: "/Quran/"`
-   - Already configured ✅
+### Base path
 
-### Custom Domain (Optional)
+The site is served from a subdirectory, so two settings must stay aligned:
 
-If you want `https://yourdomain.com/`:
+- `vite.config.js` → `base: "/Quran/"`
+- `src/app/AppRouter.jsx` → `<BrowserRouter basename="/Quran/">`
 
-1. Add `CNAME` file to `public/CNAME`:
+If the repository name changes, update both values.
+
+### Custom domain (optional)
+
+1. Add `public/CNAME` containing your domain:
    ```
    yourdomain.com
    ```
-
-2. Configure DNS records with your registrar
-
-3. GitHub Pages will use your custom domain
+2. Configure DNS with your registrar
+3. Rebuild and redeploy
 
 ---
 
 ## Deployment Process
 
-### Local Deployment (Testing)
-
-Test deployment locally before pushing to production:
+### 1. Verify locally
 
 ```bash
-# Build production version
+pnpm lint
+pnpm test -- --run
 pnpm build
-
-# Preview production build locally
 pnpm preview
-
-# Opens http://localhost:5173/Quran/
 ```
+
+`pnpm preview` serves the production bundle at the configured
+`http://localhost:4173/Quran/` (Vite's default preview port).
 
 Verify:
-- ✅ All 114 surahs display
-- ✅ Search filtering works
-- ✅ Audio plays
-- ✅ Navigation works
-- ✅ Dark mode works
-- ✅ No console errors
 
-### Production Deployment
+- All 114 surahs render
+- Search filters by Arabic name, English name, number, and revelation place
+- Audio plays from the CDN
+- Previous/next navigation and back button work
+- Dark mode persists across reloads
+- No console errors
 
-```bash
-# Deploy to GitHub Pages
-pnpm run deploy
-
-# Monitor deployment (1-2 minutes)
-# Check: https://{username}.github.io/Quran/
-```
-
-### Behind the Scenes
+### 2. Deploy
 
 ```bash
 pnpm run deploy
-  ├─ pnpm build
-  │   └─ Creates dist/ folder with:
-  │       ├─ index.html
-  │       ├─ assets/main-*.js
-  │       ├─ assets/main-*.css
-  │       └─ assets/favicon.svg
-  │
-  └─ gh-pages -d dist
-      └─ Pushes dist/ to gh-pages branch
-          └─ GitHub Pages serves it
 ```
+
+### 3. Confirm
+
+Open `https://{username}.github.io/Quran/` and re-check the same list.
+
+### What happens behind the scenes
+
+```
+pnpm run deploy
+├─ predeploy: pnpm run build
+│   └─ dist/
+│       ├─ index.html
+│       ├─ favicon.svg
+│       └─ assets/
+│           ├─ main-*.js
+│           ├─ main-*.css
+│           ├─ IndexPage-*.js
+│           └─ SurahPage-*.js
+└─ gh-pages -d dist
+    └─ pushes dist/ to the gh-pages branch
+```
+
+Only `index.html` is a Rollup entry. `surha.html` at the repository root is a
+legacy standalone shell and is **not** included in the build.
 
 ---
 
-## Build Process Explained
+## Build Details
 
-### What `pnpm build` Does
+### Command
 
 ```bash
 pnpm build
 ```
 
-Output:
-```
-vite v8.3.0 building client environment for production...
-transforming...
-✓ 34 modules transformed.
-rendering chunks...
-computing gzip size...
+### Optimization performed by Vite/Tailwind
 
-dist/index.html                         0.71 kB │ gzip:  0.44 kB
-dist/assets/quran-sound-*.svg          10.06 kB │ gzip:  4.48 kB
-dist/assets/main-*.css                 21.45 kB │ gzip:  5.37 kB
-dist/assets/IndexPage-*.js              1.14 kB │ gzip:  0.62 kB
-dist/assets/SurahPage-*.js              2.13 kB │ gzip:  0.96 kB
-dist/assets/main-*.js                 247.56 kB │ gzip: 78.48 kB
+| Optimization | Effect |
+|--------------|--------|
+| Minification | JS/CSS compressed |
+| Tree shaking | Unused imports removed |
+| Route splitting | `IndexPage` and `SurahPage` become separate chunks |
+| CSS purging | Only used Tailwind utilities are emitted |
+| Asset hashing | Long-term caching via hashed filenames |
+| GZIP | GitHub Pages serves compressed assets |
 
-✓ built in 215ms
-```
-
-### Optimization Steps
-
-1. **Code Minification**: JavaScript compressed
-2. **CSS Purging**: Unused Tailwind classes removed
-3. **Tree Shaking**: Unused imports removed
-4. **Code Splitting**: Routes split into separate chunks
-5. **GZIP Compression**: Assets compressed (shown in output)
+Exact sizes vary by dependency and code changes; check the Vite build output
+rather than relying on fixed numbers.
 
 ---
 
 ## Environment-Specific Configuration
 
-### Development Environment
+Vite loads `.env`, `.env.local`, and mode-specific files. `.env.local` is
+git-ignored and intended for machine-specific values.
+
+### Development
 
 ```env
-# .env.local (user creates from .env.example)
 VITE_DEBUG_MODE=true
 VITE_ENABLE_ANALYTICS=false
-VITE_AUDIO_CDN=https://dev-cdn.example.com
-```
-
-**Features**:
-- Debug mode enabled (console logs)
-- Analytics disabled
-- Local/test URLs
-
-### Production Environment
-
-```env
-# .env.local (production deployment)
-VITE_DEBUG_MODE=false
-VITE_ENABLE_ANALYTICS=true
 VITE_AUDIO_CDN=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
 ```
 
-**Features**:
-- Debug mode disabled
-- Analytics enabled
-- Production CDN
-- Production audio URLs
+### Production
 
-### Switching Environments
+```env
+VITE_DEBUG_MODE=false
+VITE_ENABLE_ANALYTICS=false
+VITE_AUDIO_CDN=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
+```
+
+> `pnpm run deploy` reads the environment available in the shell where it runs.
+> If you need different deployment values, create the appropriate env file (or
+> export the variables) before building.
+
+### Switching environments
 
 ```bash
 # Development
-cp .env.development .env.local
 pnpm dev
 
-# Staging
-cp .env.staging .env.local
-pnpm build && pnpm preview
+# Staging/preview
+pnpm build
+pnpm preview
 
 # Production
-cp .env.production .env.local
 pnpm run deploy
 ```
 
 ---
 
-## Monitoring Deployment
+## Monitoring
 
-### Check Deployment Status
+### Check deployment status
 
-1. **GitHub Actions** (if configured):
-   - Go to repository Actions tab
-   - Check workflow status
-   - View build logs if failed
-
-2. **GitHub Pages Status**:
-   - Go to Settings → Pages
-   - Check "Your site is live at..."
-   - View deployment history
-
-3. **Manual Verification**:
-   ```bash
-   # Check site is accessible
-   curl https://{username}.github.io/Quran/
-   
-   # Should return HTML content
-   ```
-
-### View Deployment History
+1. **Settings → Pages** — shows the live URL and deployment history
+2. **Actions** — workflow runs, if you add a CI workflow
+3. **Manual check**:
 
 ```bash
-# See gh-pages branch history
-git log --oneline gh-pages
+curl -I https://{username}.github.io/Quran/
+# HTTP/2 200
+# content-type: text/html
+```
 
-# Latest deployments listed
+### Inspect the published branch
+
+```bash
+git log --oneline gh-pages
 ```
 
 ---
 
-## Rollback Procedures
+## Rollback
 
-### Rollback to Previous Version
-
-If deployment has issues, revert:
+### Option 1 — Revert the source commit and redeploy
 
 ```bash
-# Option 1: Revert to previous commit
 git revert HEAD
 pnpm run deploy
+```
 
-# Option 2: Rebuild and redeploy
-git checkout <previous-commit>
+### Option 2 — Rebuild from a known-good commit
+
+```bash
+git checkout <good-commit>
+pnpm install
 pnpm run deploy
+```
 
-# Option 3: Manual gh-pages branch revert
+### Option 3 — Reset the `gh-pages` branch
+
+```bash
 git checkout gh-pages
-git log --oneline  # Find good commit
-git reset --hard <commit-hash>
+git log --oneline          # find a good commit
+git reset --hard <commit>
 git push origin gh-pages --force-with-lease
 ```
 
-**Time**: ~2 minutes
+Rollback time: ~2 minutes.
 
 ---
 
-## Troubleshooting Deployment
+## Troubleshooting
 
-### Issue: 404 Error After Deploy
+### 404 after deploy
 
-**Problem**: Site shows 404 error
+**Causes**: wrong base path, missing assets, or a failed build.
 
-**Causes**:
-- Base path mismatch (should be `/Quran/`)
-- Assets not loading
-- Build failed silently
+1. Confirm `base: "/Quran/"` in `vite.config.js`
+2. Confirm `basename="/Quran/"` in `AppRouter.jsx`
+3. Run `pnpm build` locally and inspect `dist/`
+4. Check the browser console/Network tab
+5. Redeploy
 
-**Solution**:
-1. Check `vite.config.js`: `base: "/Quran/"`
-2. Run `pnpm build` locally and verify output
-3. Check browser console for errors
-4. Redeploy: `pnpm run deploy`
+### Styles missing
 
-### Issue: Styles Not Loading
-
-**Problem**: Page loads but no CSS styling
-
-**Causes**:
-- CSS file not built
-- Base path issue
-- Cache problem
-
-**Solution**:
 ```bash
-# Clear browser cache
-Ctrl+Shift+Delete (Windows/Linux)
-Cmd+Shift+Delete (macOS)
-
-# Verify build includes CSS
 pnpm build
-ls -la dist/assets/*.css
-
-# Redeploy if missing
-pnpm run deploy
+ls dist/assets/*.css
 ```
 
-### Issue: Assets Not Found (404)
+If no CSS is emitted, check that `tailwind.css` is imported (it is imported by
+`main.jsx` and `App.jsx`). Clear the browser cache and redeploy.
 
-**Problem**: Browser console shows 404 for .js or .css files
+### Assets 404
 
-**Causes**:
-- Asset paths incorrect
-- Base path configuration missing
+- Asset URLs should start with `/Quran/`
+- Verify the base path and repository name match
+- Check that `dist/` was published, not the repository root
 
-**Solution**:
-1. Open browser DevTools (F12)
-2. Check Network tab
-3. Verify paths are correct (should start with `/Quran/`)
-4. Check `vite.config.js` base path
-5. Rebuild and redeploy
+### Build fails
 
-### Issue: Build Fails
-
-**Problem**: `pnpm build` produces errors
-
-**Causes**:
-- Syntax errors in code
-- Missing dependencies
-- Configuration issues
-
-**Solution**:
 ```bash
-# Check for errors
-pnpm build
-
-# Verify dependencies
 pnpm install
-
-# Check syntax
 pnpm lint
-
-# Try again
+pnpm test -- --run
 pnpm build
 ```
 
-### Issue: Blank Page
+Common causes: syntax errors, missing imports, or an alias that exists in one
+config but not the other. Keep `vite.config.js`, `vitest.config.js`, and
+`tsconfig.json` aliases in sync.
 
-**Problem**: Site loads but shows nothing
+### Blank page
 
-**Causes**:
-- React failed to mount
-- JavaScript error
-- Wrong base path
+1. Open DevTools → Console
+2. Look for a failed module or React render error
+3. Confirm `index.html` loads `main.jsx`
+4. Confirm `ErrorBoundary`/`AppRouter` mount without errors
 
-**Solution**:
-1. Open browser DevTools (F12)
-2. Check Console tab for errors
-3. Check Network tab for failed requests
-4. Verify `index.html` loads
-5. Check `src/main.jsx` for mount errors
+### Routing 404 on refresh
+
+GitHub Pages has no SPA fallback by default. In-app navigation works, but a hard
+refresh on `/Quran/surah/2` can 404. Options:
+
+- Keep the hash-free routing and add a `404.html` redirect copy of
+  `index.html`, or
+- Switch to `HashRouter`, or
+- Use a host with SPA rewrites
+
+If you add `404.html`, document the approach here and in the build step.
 
 ---
 
-## GitHub Actions CI/CD (Future)
-
-Automated deployment workflow:
+## Optional GitHub Actions CI/CD
 
 ```yaml
-# .github/workflows/deploy.yml (example)
+# .github/workflows/deploy.yml
 name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
   deploy:
@@ -384,203 +326,103 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
       - run: pnpm test -- --run
-      - run: pnpm run build
+      - run: pnpm build
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
 ```
 
-Benefits:
-- ✅ Automatic deployment on push to main
-- ✅ Runs tests before deploy
-- ✅ Prevents broken code from deploying
-- ✅ History of all deployments
+Benefits: automatic deploys, tests before publishing, and a deployment history.
 
 ---
 
-## Performance Optimization
+## Performance
 
-### Deployment Performance
+### Lighthouse
 
-Check Lighthouse scores:
+1. `pnpm build && pnpm preview`
+2. Open Chrome DevTools → Lighthouse
+3. Analyze the production preview
+4. Target: Performance 90+, Accessibility 95+, Best Practices 95+, SEO 95+
 
-1. **Build Production Version**:
-   ```bash
-   pnpm build
-   pnpm preview
-   ```
+### Tips
 
-2. **Open Chrome DevTools**:
-   - Press F12
-   - Go to Lighthouse tab
-   - Click "Analyze page load"
-
-3. **Target Scores**:
-   - Performance: 90+
-   - Accessibility: 95+
-   - Best Practices: 95+
-   - SEO: 95+
-
-### Performance Tips
-
-**For Developers**:
-- Keep bundle size small
-- Use code splitting (already done)
-- Memoize expensive computations (already done)
-- Lazy load images (future)
-
-**For Deployment**:
-- Enable GZIP compression (GitHub Pages does this)
-- Use CDN for audio files (already done)
-- Cache assets with service workers (future)
+- Keep route chunks small
+- Keep the bundled Quran dataset as the single source of truth
+- Load audio from the CDN on demand
+- Avoid adding large runtime dependencies
+- Re-check bundle output after dependency changes
 
 ---
 
 ## Security Checklist
 
-Before deploying to production:
-
-- [ ] No hardcoded secrets in code
-- [ ] Environment variables for sensitive data
-- [ ] `.env.local` is git-ignored
-- [ ] HTTPS is enabled (GitHub Pages provides this)
-- [ ] Content Security Policy headers configured
-- [ ] No console.log() statements with sensitive data
-- [ ] Validate all user input
-- [ ] Use HTTPS for all API calls
+- [ ] No secrets committed (only `VITE_*` public values)
+- [ ] `.env.local` and `.env.*.local` are git-ignored
+- [ ] HTTPS is provided by GitHub Pages
+- [ ] External links use `rel="noopener noreferrer"` where applicable
+- [ ] No sensitive data in `console.log`
+- [ ] User input is only used for client-side filtering
+- [ ] Audio/API origins are trusted
 
 ---
 
 ## Deployment Checklist
 
-Before running `pnpm run deploy`:
+**Code quality**
 
-**Code Quality**:
-- [ ] All tests pass: `pnpm test`
-- [ ] No linting errors: `pnpm lint`
-- [ ] Local build succeeds: `pnpm build`
-- [ ] Production preview works: `pnpm preview`
+- [ ] `pnpm lint` passes
+- [ ] `pnpm test -- --run` passes
+- [ ] `pnpm build` succeeds
+- [ ] `pnpm preview` works
 
-**Functionality**:
+**Functionality**
+
 - [ ] All 114 surahs display
-- [ ] Search filtering works
-- [ ] Audio player works
-- [ ] Navigation works (back/forward buttons)
-- [ ] Dark mode works
+- [ ] Search and empty state work
+- [ ] Audio plays
+- [ ] Previous/next/back navigation works
+- [ ] Dark mode persists
+- [ ] Keyboard navigation and skip link work
 - [ ] No console errors
-- [ ] Mobile responsive
+- [ ] Mobile layout is responsive
 
-**Environment**:
-- [ ] `.env.local` has production config
-- [ ] Analytics enabled (if applicable)
-- [ ] Debug mode disabled
-- [ ] Correct API URLs
+**Configuration**
 
-**Documentation**:
-- [ ] CHANGELOG.md updated
-- [ ] Version number updated
-- [ ] README.md updated if needed
+- [ ] `base` and `basename` still match the repository path
+- [ ] Correct CDN/audio URLs
+- [ ] Debug mode disabled in production
+- [ ] Version number updated if releasing
 
-**Final**:
-- [ ] All files committed to git
-- [ ] Main branch is up to date
-- [ ] No uncommitted changes
+**Final**
+
+- [ ] Changes committed and pushed
+- [ ] `pnpm run deploy` completed
+- [ ] Live URL verified
 
 ---
 
-## Deployment Timeline
+## Timeline
 
-| Task | Duration | Notes |
-|------|----------|-------|
-| Local build | 30 sec | `pnpm build` |
-| Local preview | 1 min | `pnpm preview` |
-| Manual testing | 5 min | Verify all features |
-| Deploy | 1-2 min | `pnpm run deploy` |
-| GitHub Pages update | 30 sec | Automatic |
-| Total | ~8-10 min | End to end |
-
----
-
-## Monitoring Live Site
-
-### Daily Checks
-
-```bash
-# Check site is accessible
-curl -I https://{username}.github.io/Quran/
-
-# Should return:
-# HTTP/2 200
-# Content-Type: text/html
-```
-
-### Weekly Checks
-
-- Monitor error reports (if applicable)
-- Check Lighthouse scores
-- Test all features in browser
-- Check analytics (if enabled)
-
-### Monthly Checks
-
-- Review deployment history
-- Audit security
-- Update dependencies
-- Check performance metrics
+| Task | Duration |
+|------|----------|
+| Local build | ~30 sec |
+| Local preview/manual QA | ~5 min |
+| Deploy | 1–2 min |
+| GitHub Pages propagation | ~30 sec |
+| **Total** | **~8–10 min** |
 
 ---
 
 ## Related Documentation
 
-- **[SETUP.md](./SETUP.md)** - Development environment
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design
-- **[COMPONENTS.md](./COMPONENTS.md)** - Component reference
-- **[README.md](../README.md)** - Project overview
-
----
-
-## Quick Reference
-
-```bash
-# Common commands
-pnpm install          # Install dependencies
-pnpm dev              # Start dev server
-pnpm build            # Build for production
-pnpm preview          # Preview production build
-pnpm lint             # Check code quality
-pnpm test             # Run tests
-pnpm run deploy       # Deploy to GitHub Pages
-
-# Check deployment
-https://{username}.github.io/Quran/
-
-# Rollback
-git checkout gh-pages
-git log --oneline
-git reset --hard <commit>
-git push origin gh-pages --force-with-lease
-
-# Monitor
-- GitHub Actions tab (if configured)
-- Settings → Pages (deployment status)
-- Lighthouse scores in DevTools
-```
-
----
-
-## Summary
-
-**Deployment Process**:
-1. ✅ Make changes locally
-2. ✅ Run tests and build locally
-3. ✅ Commit to main branch
-4. ✅ Run `pnpm run deploy`
-5. ✅ Monitor site at `https://{username}.github.io/Quran/`
-
-**Time Required**: ~10 minutes total
-
-**Rollback Time**: ~2 minutes if needed
+- **[SETUP.md](./SETUP.md)** — Development environment
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System design
+- **[COMPONENTS.md](./COMPONENTS.md)** — Component reference
+- **[map.md](./map.md)** — Repository file map
+- **[README.md](../README.md)** — Project overview
