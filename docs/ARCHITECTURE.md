@@ -53,7 +53,7 @@ support, dark mode, and search across all 114 surahs.
 ├── src/
 │   ├── app/                     # Application shell and composition root
 │   │   ├── App.jsx              # Layout: SkipLink + Header + children + Footer
-│   │   ├── AppRouter.jsx        # BrowserRouter, SearchProvider, routes, lazy pages
+│   │   ├── AppRouter.jsx        # BrowserRouter, data/search providers, lazy pages
 │   │   └── ErrorBoundary.jsx    # Class-based error boundary with fallback UI
 │   │
 │   ├── features/                # Feature modules (vertical slices)
@@ -63,12 +63,15 @@ support, dark mode, and search across all 114 surahs.
 │   │   │   │   └── SurahPage.jsx    # Single surah detail page
 │   │   │   ├── components/
 │   │   │   │   └── SurahCard.jsx    # Memoized surah card button
+│   │   │   ├── api/
+│   │   │   │   └── itqanApi.js      # Runtime fetch + validation from Itqan
 │   │   │   ├── hooks/
+│   │   │   │   ├── useQuranData.js  # Reads the shared Quran data context
 │   │   │   │   └── useSurah.js      # Surah lookup and adjacent navigation
 │   │   │   ├── utils/
-│   │   │   │   └── quranData.js     # Data access + cached search index
-│   │   │   └── data/
-│   │   │       └── quran.js         # 114 surahs with metadata and audio URLs
+│   │   │   │   └── quranData.js     # Pure lookup/search helpers
+│   │   │   ├── QuranDataProvider.jsx # useEffect fetch + loading/error state
+│   │   │   └── quranDataContext.js   # Quran data context object
 │   │   ├── search/              # Search domain
 │   │   │   ├── SearchProvider.jsx   # Search term state provider
 │   │   │   ├── searchContext.js     # Context object + JSDoc value type
@@ -102,7 +105,9 @@ support, dark mode, and search across all 114 surahs.
 │
 ├── tests/                       # Vitest suite
 │   ├── setup.js                 # jest-dom + localStorage cleanup
-│   ├── components/              # ErrorBoundary, IndexPage, SkipLink
+│   ├── api/                     # Itqan API fetch/validation tests
+│   ├── components/              # ErrorBoundary, IndexPage, provider, SkipLink
+│   ├── fixtures/                # Deterministic 114-surah fixture
 │   ├── hooks/                   # useDarkMode, useDocumentMeta, useSurah
 │   └── utils/                   # quranData, storage, themeUtils
 │
@@ -121,8 +126,8 @@ support, dark mode, and search across all 114 surahs.
 
 - Composition root: providers, router, layout, and the top-level error boundary.
 - `App.jsx` is a layout component that receives the active route as `children`.
-- `AppRouter.jsx` owns `BrowserRouter`, `SearchProvider`, lazy page imports, and
-  the `Suspense` loading fallback.
+- `AppRouter.jsx` owns `BrowserRouter`, `QuranDataProvider`, `SearchProvider`,
+  lazy page imports, and the `Suspense` loading fallback.
 
 **`src/features/`**
 
@@ -157,8 +162,9 @@ main.jsx
     └── ErrorBoundary                 # catches render errors from everything below
         └── AppRouter
             └── BrowserRouter (basename="/Quran/")
-                └── SearchProvider    # owns searchTerm state
-                    └── App           # layout
+                └── QuranDataProvider # fetches surahs, owns loading/error/retry
+                    └── SearchProvider # owns searchTerm state
+                        └── App       # layout
                         ├── SkipLink
                         ├── Header
                         │   └── inline search <form> + theme toggle
@@ -183,8 +189,10 @@ main.jsx
   → imports AppRouter and ErrorBoundary
   → renders <ErrorBoundary><AppRouter /></ErrorBoundary> inside StrictMode
   → AppRouter creates BrowserRouter with basename="/Quran/"
+  → QuranDataProvider starts a useEffect fetch of the Itqan recitation
   → SearchProvider initializes searchTerm = ''
   → App reads SearchContext and renders Header/search/Footer around children
+  → pages render loading/error states until the surah list resolves
 ```
 
 ### 2. Home Page (IndexPage)
@@ -196,9 +204,11 @@ Router matches "/" → lazy IndexPage renders
   ↓
 IndexPage:
   - reads searchTerm from SearchContext
+  - reads { surahs, isLoading, error, retry } from QuranDataContext
+  - shows a loading state or an error with retry
   - calls useSearch(searchTerm)
-  - useSearch memoizes filterSurahs(searchTerm)
-  - filterSurahs uses a lazily built, cached search index
+  - useSearch memoizes filterSurahs(surahs, searchTerm)
+  - filterSurahs caches a normalized search index per surah array
   ↓
 Maps the filtered surahs to memoized SurahCard buttons
   - click → handleSelect(number) → navigate(`/surah/${number}`)
@@ -215,7 +225,9 @@ Router matches "/surah/:number" → lazy SurahPage renders
 SurahPage:
   - reads :number with useParams()
   - calls useSurah(number)
-  - useSurah memoizes getSurahByNumber + getAdjacentSurahs
+  - useSurah reads the shared surah list and memoizes
+    getSurahByNumber + getAdjacentSurahs
+  - shows loading/error/not-found states as needed
   - sets document title/description with useDocumentMeta
   ↓
 Displays:
@@ -234,7 +246,7 @@ onChange → onSearchChange(value) → SearchProvider.setSearchTerm
   ↓
 SearchContext consumers re-render (App → Header and IndexPage)
   ↓
-useSearch(searchTerm) → filterSurahs(searchTerm)
+useSearch(searchTerm) → filterSurahs(surahs, searchTerm)
   - searches Arabic name, English name, number, revelation place
   - case-insensitive, substring match
   - cached index avoids rebuilding on every keystroke
@@ -264,7 +276,32 @@ Tailwind `dark:` utilities and CSS variables update the UI
 
 ## State Management
 
-### 1. SearchContext (application state)
+### 1. QuranDataContext (application data)
+
+**Files**: `src/features/quran/quranDataContext.js`,
+`src/features/quran/QuranDataProvider.jsx`,
+`src/features/quran/hooks/useQuranData.js`
+
+```javascript
+const [state, setState] = useState({
+  surahs: [],
+  isLoading: true,
+  error: null,
+})
+
+// useEffect calls fetchSurahs({ signal }) and updates state
+<QuranDataContext.Provider value={{ ...state, retry }}>
+  {children}
+</QuranDataContext.Provider>
+```
+
+**Consumers**:
+
+- `useSearch` — filters the shared `surahs` array
+- `useSurah` — resolves the current and adjacent surahs
+- `IndexPage` / `SurahPage` — render loading, error, and retry states
+
+### 2. SearchContext (application state)
 
 **Files**: `src/features/search/searchContext.js`,
 `src/features/search/SearchProvider.jsx`
@@ -284,7 +321,7 @@ const [searchTerm, setSearchTerm] = useState('')
 
 Context avoids prop drilling between the header and the page.
 
-### 2. useDarkMode (feature state)
+### 3. useDarkMode (feature state)
 
 **File**: `src/features/theme/useDarkMode.js`
 
@@ -297,7 +334,7 @@ const [isDarkMode, toggleDarkMode] = useDarkMode()
 - Updates `document.documentElement` `dark` class
 - Subscribes to `prefers-color-scheme` changes until the user makes a choice
 
-### 3. Local component state
+### 4. Local component state
 
 - `ErrorBoundary`: `hasError`, `error`, `errorInfo`
 - `IndexPage`, `SurahPage`, `Header`, `Footer`: no local state beyond hooks
@@ -311,17 +348,19 @@ const [isDarkMode, toggleDarkMode] = useDarkMode()
 
 ```javascript
 <BrowserRouter basename="/Quran/">
-  <SearchProvider>
-    <App>
-      <Suspense fallback={<LoadingFallback />}>
-        <Routes>
-          <Route path="/" element={<IndexPage />} />
-          <Route path="/surah/:number" element={<SurahPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
-    </App>
-  </SearchProvider>
+  <QuranDataProvider>
+    <SearchProvider>
+      <App>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/" element={<IndexPage />} />
+            <Route path="/surah/:number" element={<SurahPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </App>
+    </SearchProvider>
+  </QuranDataProvider>
 </BrowserRouter>
 ```
 
@@ -359,10 +398,11 @@ Browser back/forward works through the History API managed by React Router.
 const { surah, previous, next, isValid, isLoading, error } = useSurah(number)
 ```
 
-- Looks up a surah by number (1–114)
+- Looks up a surah by number (1–114) from the shared fetched list
 - Returns adjacent surahs for navigation
 - Validates the number and reports an error for invalid input
-- Memoized; `isLoading` is always `false` because data is bundled
+- Exposes the provider's `isLoading` and fetch error state
+- Memoized against the surah list and route number
 
 ### `useSearch`
 
@@ -372,7 +412,7 @@ const { surah, previous, next, isValid, isLoading, error } = useSurah(number)
 const filteredSurahs = useSearch(searchTerm)
 ```
 
-- Memoizes `filterSurahs(searchTerm)` on the search term
+- Memoizes `filterSurahs(surahs, searchTerm)` on the data and search term
 - Returns the full list for an empty term
 - Delegates matching logic to `quranData.js`
 
@@ -419,16 +459,17 @@ const { audioRef, isPlaying, currentTime, duration, error, play, pause, seek } =
 **File**: `src/features/quran/utils/quranData.js`
 
 ```javascript
-createSearchIndex()       // lazily build and cache searchable values
-filterSurahs(term)        // filter across 4 fields
-getSurahByNumber(num)     // single surah or null
-getSurahIndex(num)        // array position or -1
-getAdjacentSurahs(num)    // { previous, next }
-getAllSurahs()            // copy of all 114 surahs
-isValidSurahNumber(num)   // integer check for 1–114
+createSearchIndex(surahs)       // build and cache searchable values per array
+filterSurahs(surahs, term)      // filter across 4 fields
+getSurahByNumber(surahs, num)   // single surah or null
+getSurahIndex(surahs, num)      // array position or -1
+getAdjacentSurahs(surahs, num)  // { previous, next }
+getAllSurahs(surahs)            // copy of the provided surah array
+isValidSurahNumber(num)         // integer check for 1–114
 ```
 
-**Data source**: `src/features/quran/data/quran.js`.
+**Data source**: `src/features/quran/api/itqanApi.js`, fetched at runtime from
+`https://api.cms.itqan.dev` and shared by `QuranDataProvider`.
 
 ### `themeUtils.js`
 
@@ -488,7 +529,8 @@ running without a `window` object.
 ```env
 VITE_APP_NAME=Quran Sound
 VITE_APP_VERSION=0.0.1
-VITE_API_BASE_URL=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
+VITE_API_BASE_URL=https://api.cms.itqan.dev
+VITE_ITQAN_RECITATION_ID=28
 VITE_AUDIO_CDN=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
 VITE_ENABLE_ANALYTICS=false
 VITE_ENABLE_OFFLINE_MODE=true
@@ -500,9 +542,11 @@ VITE_DEBUG_MODE=false
 ```javascript
 import config from '@shared/config/env'
 
-config.appName          // 'Quran Sound'
-config.audioCdn         // default R2 CDN
-config.isDevelopment    // import.meta.env.DEV
+config.appName            // 'Quran Sound'
+config.apiBaseUrl         // 'https://api.cms.itqan.dev'
+config.itqanRecitationId  // '28'
+config.audioCdn           // optional audio CDN URL
+config.isDevelopment      // import.meta.env.DEV
 ```
 
 `env.js` is the only module that reads `import.meta.env` directly. It also uses
@@ -624,12 +668,12 @@ styles folder but is not currently imported by the app.
 ## Performance Optimizations
 
 1. **Route code splitting** — `React.lazy()` for `IndexPage` and `SurahPage`
-2. **Memoized search index** — built once in `quranData.js` and cached
+2. **Memoized search index** — built once per fetched surah array and cached
 3. **Memoized filtering** — `useSearch` uses `useMemo`
 4. **Stable card callback** — `IndexPage` uses `useCallback` for `onSelect`
 5. **Memoized cards** — `SurahCard` is wrapped in `React.memo`
-6. **Bundled data** — all 114 surahs ship with the app (no data API request)
-7. **On-demand audio** — audio is fetched from the CDN when played
+6. **Single data request** — one paginated Itqan request loads all 114 surahs
+7. **On-demand audio** — audio is fetched from the API-provided URL when played
 8. **Purged CSS** — Tailwind includes only used utilities
 9. **Local storage** — theme reads/writes avoid network calls
 
@@ -652,6 +696,13 @@ styles folder but is not currently imported by the app.
 The safe storage wrapper catches read/write/remove failures, logs a warning, and
 returns a fallback value so the app keeps working.
 
+### Data loading errors
+
+- `fetchSurahs` throws on non-2xx responses, malformed envelopes, or invalid
+  surah data
+- `QuranDataProvider` stores the error and exposes `retry()`
+- `IndexPage` and `SurahPage` show an error message with retry and back actions
+
 ### Invalid routes and surahs
 
 - Unknown routes redirect to `/` with `<Navigate replace />`
@@ -671,7 +722,8 @@ prepared to track `error` state and reset playback on source changes.
 
 | Area | Files |
 |------|-------|
-| Components | `tests/components/ErrorBoundary.test.jsx`, `IndexPage.test.jsx`, `SkipLink.test.jsx` |
+| API | `tests/api/itqanApi.test.js` |
+| Components | `tests/components/ErrorBoundary.test.jsx`, `IndexPage.test.jsx`, `QuranDataProvider.test.jsx`, `SkipLink.test.jsx` |
 | Hooks | `tests/hooks/useDarkMode.test.js`, `useDocumentMeta.test.js`, `useSurah.test.js` |
 | Utilities | `tests/utils/quranData.test.js`, `storage.test.js`, `themeUtils.test.js` |
 
@@ -708,9 +760,9 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for the full procedure.
 
 ### API integration
 
-1. Current: bundled records in `src/features/quran/data/quran.js`
-2. Future: swap data access behind `quranData.js` / hooks for API calls
-3. Add caching and offline support as needed
+1. Current: runtime fetch from the Itqan CMS API in `api/itqanApi.js`
+2. Shared loading/error/retry state via `QuranDataProvider`
+3. Future: add response caching and offline support as needed
 
 ### Feature expansion
 

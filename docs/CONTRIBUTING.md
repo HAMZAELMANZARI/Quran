@@ -108,7 +108,7 @@ Examples:
 git commit -m "feat: add ayah-level search
 
 - Add ayah filtering utility
-- Expose results through useSearch
+- Expose results through useSearch and the shared surah data
 - Add unit tests"
 
 git commit -m "fix: audio player not resetting between surahs
@@ -228,10 +228,11 @@ Add JSDoc to non-obvious functions and hook return shapes:
 ```javascript
 /**
  * Filter surahs by search term.
+ * @param {import('@types/index').Surah[]} surahs
  * @param {string} searchTerm
- * @returns {import('../data/quran').Surah[]}
+ * @returns {import('@types/index').Surah[]}
  */
-export function filterSurahs(searchTerm) {
+export function filterSurahs(surahs, searchTerm) {
   // ...
 }
 ```
@@ -285,11 +286,14 @@ pnpm test:coverage     # V8 coverage
 
 ### Guidelines
 
-- Tests live in `tests/components`, `tests/hooks`, or `tests/utils`
+- Tests live in `tests/api`, `tests/components`, `tests/hooks`, or `tests/utils`
+- Reuse the deterministic surah fixture from `tests/fixtures/surahs.js`
 - Test behavior, not implementation details
 - Cover edge cases (empty search, invalid surah number, storage failures)
 - Use Testing Library queries by role/label where possible
-- Mock browser APIs (matchMedia, localStorage) rather than networking
+- Mock browser APIs (matchMedia, localStorage) as needed
+- Stub `fetch` in API tests or mock `itqanApi` in provider tests; never hit
+  the real network from the test suite
 - Keep tests deterministic
 
 Example:
@@ -297,15 +301,16 @@ Example:
 ```javascript
 import { describe, it, expect } from 'vitest'
 import { filterSurahs } from '@features/quran/utils/quranData'
+import { SURAHS } from '../fixtures/surahs'
 
 describe('filterSurahs', () => {
   it('filters by Arabic name', () => {
-    const results = filterSurahs('الفاتحة')
+    const results = filterSurahs(SURAHS, 'الفاتحة')
     expect(results[0].surah_number).toBe(1)
   })
 
   it('is case-insensitive', () => {
-    expect(filterSurahs('fatihah')).toEqual(filterSurahs('FATIHAH'))
+    expect(filterSurahs(SURAHS, 'fatihah')).toEqual(filterSurahs(SURAHS, 'FATIHAH'))
   })
 })
 ```

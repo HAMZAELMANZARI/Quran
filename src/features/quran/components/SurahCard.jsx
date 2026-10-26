@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { LAYOUT_CLASSES, UI } from '@shared/utils/constants'
 
 /**
- * @typedef {import('@features/quran/data/quran').Surah} Surah
+ * @typedef {import('@types/index').Surah} Surah
  * @typedef {Object} SurahCardProps
  * @property {Surah} item
  * @property {(number: number) => void} onSelect

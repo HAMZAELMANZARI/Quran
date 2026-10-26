@@ -72,7 +72,7 @@ and what it is responsible for.
 index.html
   → <script type="module" src="main.jsx">
   → main.jsx: createRoot(#root).render(<StrictMode><ErrorBoundary><AppRouter/></ErrorBoundary></StrictMode>)
-  → AppRouter: BrowserRouter(basename="/Quran/") → SearchProvider → App → Routes
+  → AppRouter: BrowserRouter(basename="/Quran/") → QuranDataProvider → SearchProvider → App → Routes
 ```
 
 ---
@@ -112,7 +112,7 @@ Application shell and composition root.
 | File | Responsibility | Key exports |
 |------|----------------|-------------|
 | `App.jsx` | Layout: reads `SearchContext`, renders `SkipLink`, `Header`, route `children`, and `Footer`. Imports global styles. | default `App` |
-| `AppRouter.jsx` | Creates `BrowserRouter` (`basename="/Quran/"`), wraps in `SearchProvider`, lazy-loads pages, defines routes, shows a loading fallback, redirects unknown routes. | default `AppRouter` |
+| `AppRouter.jsx` | Creates `BrowserRouter` (`basename="/Quran/"`), wraps in `QuranDataProvider` and `SearchProvider`, lazy-loads pages, defines routes, shows a loading fallback, redirects unknown routes. | default `AppRouter` |
 | `ErrorBoundary.jsx` | Class error boundary; catches render errors, logs them, shows a bilingual fallback with reload and issue-report links; stack trace only in dev. | default `ErrorBoundary` |
 
 ### Routes defined in `AppRouter.jsx`
@@ -133,14 +133,17 @@ Vertical slices. Each feature owns its own pages/components/hooks/utils/data.
 
 | File | Responsibility | Key exports |
 |------|----------------|-------------|
-| `data/quran.js` | Static dataset of all 114 surahs: number, Arabic/English name, audio URL, duration, size, revelation order/place, ayah count, timings. | default `Data` |
-| `utils/quranData.js` | Data access and search. Lazily builds and caches a normalized search index. | `createSearchIndex`, `filterSurahs`, `getSurahByNumber`, `getSurahIndex`, `getAdjacentSurahs`, `getAllSurahs`, `isValidSurahNumber` |
+| `api/itqanApi.js` | Fetches the configured Itqan recitation at runtime, paginates, normalizes, validates all 114 surahs, and returns the sorted list. | `fetchSurahs` (named + default) |
+| `QuranDataProvider.jsx` | Fetches once on mount via `useEffect`, owns `{ surahs, isLoading, error, retry }`, and shares it through context. | `QuranDataProvider` (named + default) |
+| `quranDataContext.js` | Creates the Quran data context and documents its value shape. | `QuranDataContext` |
+| `utils/quranData.js` | Pure lookup/search helpers over the fetched surah array. Caches a normalized search index per array with a `WeakMap`. | `createSearchIndex`, `filterSurahs`, `getSurahByNumber`, `getSurahIndex`, `getAdjacentSurahs`, `getAllSurahs`, `isValidSurahNumber` |
+| `hooks/useQuranData.js` | Reads the shared Quran data context. | `useQuranData` (named + default) |
 | `hooks/useSurah.js` | Resolves a surah and its neighbors from a route param; validates input; memoized. | `useSurah` (named + default) |
 | `components/SurahCard.jsx` | Memoized button for one surah; number badge, names, metadata, ARIA label; calls `onSelect(number)`. | default `SurahCard` |
-| `pages/IndexPage.jsx` | Home page: reads search term, filters via `useSearch`, sets document meta, renders the responsive grid, empty state, live result count, and cards. | default `IndexPage` |
-| `pages/SurahPage.jsx` | Detail page: reads `:number`, resolves via `useSurah`, sets meta, renders heading/metadata/audio/prev-next/back; focuses heading on change; not-found state. | default `SurahPage` |
+| `pages/IndexPage.jsx` | Home page: reads search term, filters via `useSearch`, sets document meta, renders loading/error/retry states, the responsive grid, empty state, live result count, and cards. | default `IndexPage` |
+| `pages/SurahPage.jsx` | Detail page: reads `:number`, resolves via `useSurah`, sets meta, renders loading/error/not-found states, heading/metadata/audio/prev-next/back; focuses heading on change. | default `SurahPage` |
 
-**Data shape** (`quran.js`, also typed in `src/types/index.ts`):
+**Data shape** (returned by `api/itqanApi.js`, typed in `src/types/index.ts`):
 
 ```javascript
 {
@@ -156,7 +159,7 @@ Vertical slices. Each feature owns its own pages/components/hooks/utils/data.
 |------|----------------|-------------|
 | `searchContext.js` | Creates the React context and documents its value shape. | `SearchContext` |
 | `SearchProvider.jsx` | Owns `searchTerm` state and provides `{ searchTerm, setSearchTerm }`. | `SearchProvider` |
-| `useSearch.js` | Memoizes `filterSurahs(searchTerm)` and returns the filtered surah array. | `useSearch` (named + default) |
+| `useSearch.js` | Reads the shared surah list, memoizes `filterSurahs(surahs, searchTerm)`, and returns the filtered surah array. | `useSearch` (named + default) |
 
 ### src/features/theme
 
@@ -202,7 +205,7 @@ Cross-feature, reusable foundation.
 
 | File | Responsibility | Key exports |
 |------|----------------|-------------|
-| `env.js` | Single access point for `import.meta.env` with defaults, feature flags, and environment booleans. | `config` (named + default) |
+| `env.js` | Single access point for `import.meta.env` with defaults for the Itqan API base URL, recitation id, audio CDN, feature flags, and environment booleans. | `config` (named + default) |
 
 ### src/shared/styles
 
@@ -248,8 +251,11 @@ Vitest + Testing Library suite. Mirrors source domains.
 | File | Covers |
 |------|--------|
 | `setup.js` | Imports `@testing-library/jest-dom`; clears localStorage and mocks before each test. |
+| `fixtures/surahs.js` | Generates a deterministic 114-surah test fixture and API response helper. |
 | `components/ErrorBoundary.test.jsx` | Renders children normally; shows fallback on error; reload behavior. |
-| `components/IndexPage.test.jsx` | Heading, surah rendering, search filtering, empty state, live results, navigation. |
+| `api/itqanApi.test.js` | Successful 114-surah fetch, incomplete/duplicate data, HTTP errors, malformed responses. |
+| `components/IndexPage.test.jsx` | Heading, surah rendering, search filtering, empty/loading/error states, live results, retry. |
+| `components/QuranDataProvider.test.jsx` | useEffect fetching, loading, error, and retry behavior. |
 | `components/SkipLink.test.jsx` | Link target, hidden-until-focus classes, Arabic label. |
 | `hooks/useDarkMode.test.js` | Initial state, toggle, persistence, DOM class updates. |
 | `hooks/useDocumentMeta.test.js` | Title/description updates and restoration. |
@@ -325,7 +331,7 @@ These are produced locally and are git-ignored:
 | Theme toggle behavior | `src/features/theme/useDarkMode.js` |
 | Search matching logic | `src/features/quran/utils/quranData.js` |
 | Search state plumbing | `src/features/search/*` |
-| Surah metadata / audio URLs | `src/features/quran/data/quran.js` |
+| Surah metadata / audio URLs | `src/features/quran/api/itqanApi.js` (runtime Itqan API) |
 | Home page layout | `src/features/quran/pages/IndexPage.jsx` |
 | Surah detail layout | `src/features/quran/pages/SurahPage.jsx` |
 | Header/search/toggle UI | `src/shared/components/Header.jsx` |

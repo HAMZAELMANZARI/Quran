@@ -84,9 +84,9 @@ pnpm preview
 
 Verify:
 
-- All 114 surahs render
+- The Itqan API request succeeds and all 114 surahs render
 - Search filters by Arabic name, English name, number, and revelation place
-- Audio plays from the CDN
+- Audio plays from the URL returned by the API
 - Previous/next navigation and back button work
 - Dark mode persists across reloads
 - No console errors
@@ -155,6 +155,8 @@ git-ignored and intended for machine-specific values.
 ### Development
 
 ```env
+VITE_API_BASE_URL=https://api.cms.itqan.dev
+VITE_ITQAN_RECITATION_ID=28
 VITE_DEBUG_MODE=true
 VITE_ENABLE_ANALYTICS=false
 VITE_AUDIO_CDN=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
@@ -163,6 +165,8 @@ VITE_AUDIO_CDN=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
 ### Production
 
 ```env
+VITE_API_BASE_URL=https://api.cms.itqan.dev
+VITE_ITQAN_RECITATION_ID=28
 VITE_DEBUG_MODE=false
 VITE_ENABLE_ANALYTICS=false
 VITE_AUDIO_CDN=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
@@ -353,8 +357,9 @@ Benefits: automatic deploys, tests before publishing, and a deployment history.
 ### Tips
 
 - Keep route chunks small
-- Keep the bundled Quran dataset as the single source of truth
-- Load audio from the CDN on demand
+- Keep the Itqan API response as the single source of truth
+- Keep the API request to one paginated call and validate 114 surahs
+- Load audio from the returned URL on demand
 - Avoid adding large runtime dependencies
 - Re-check bundle output after dependency changes
 
@@ -368,7 +373,8 @@ Benefits: automatic deploys, tests before publishing, and a deployment history.
 - [ ] External links use `rel="noopener noreferrer"` where applicable
 - [ ] No sensitive data in `console.log`
 - [ ] User input is only used for client-side filtering
-- [ ] Audio/API origins are trusted
+- [ ] `api.cms.itqan.dev` and `storage.cms.itqan.dev` are trusted origins
+- [ ] No Itqan API key is bundled; the app only uses public reads
 
 ---
 
@@ -383,9 +389,10 @@ Benefits: automatic deploys, tests before publishing, and a deployment history.
 
 **Functionality**
 
-- [ ] All 114 surahs display
+- [ ] Itqan API request succeeds and all 114 surahs display
+- [ ] Loading, error, and retry states behave correctly
 - [ ] Search and empty state work
-- [ ] Audio plays
+- [ ] Audio plays from the API-provided URL
 - [ ] Previous/next/back navigation works
 - [ ] Dark mode persists
 - [ ] Keyboard navigation and skip link work
@@ -395,7 +402,9 @@ Benefits: automatic deploys, tests before publishing, and a deployment history.
 **Configuration**
 
 - [ ] `base` and `basename` still match the repository path
-- [ ] Correct CDN/audio URLs
+- [ ] `VITE_API_BASE_URL` points to `https://api.cms.itqan.dev`
+- [ ] `VITE_ITQAN_RECITATION_ID` is the intended recitation (`28` by default)
+- [ ] Audio URLs resolve and play
 - [ ] Debug mode disabled in production
 - [ ] Version number updated if releasing
 

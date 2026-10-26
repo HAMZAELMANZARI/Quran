@@ -74,6 +74,7 @@ export interface AppConfig {
   appName: string
   appVersion: string
   apiBaseUrl: string
+  itqanRecitationId: string
   audioCdn: string
   enableAnalytics: boolean
   enableOfflineMode: boolean

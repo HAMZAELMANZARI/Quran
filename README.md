@@ -1,6 +1,6 @@
 # Quran Sound
 
-Quran Sound is a responsive, modern web application for browsing and listening to Quran recitations. Built with React, React Router, and Tailwind CSS, it provides a bilingual (Arabic/English) interface with RTL support, dark mode, and comprehensive search functionality across all 114 surahs.
+Quran Sound is a responsive, modern web application for browsing and listening to Quran recitations. Built with React, React Router, and Tailwind CSS, it provides a bilingual (Arabic/English) interface with RTL support, dark mode, and comprehensive search functionality across all 114 surahs. Surah metadata and audio URLs are fetched at runtime from the [Itqan CMS API](https://api.cms.itqan.dev).
 
 ## ✨ Features
 
@@ -64,10 +64,10 @@ index.html               # Vite HTML entry point
 src/
 ├── app/                 # Application shell
 │   ├── App.jsx          # Layout: Header + page + Footer
-│   ├── AppRouter.jsx    # BrowserRouter, routes, lazy loading
+│   ├── AppRouter.jsx    # BrowserRouter, data/search providers, lazy loading
 │   └── ErrorBoundary.jsx
 ├── features/            # Feature modules (vertical slices)
-│   ├── quran/           # pages, components, hooks, utils, data
+│   ├── quran/           # pages, components, hooks, utils, API, data provider
 │   ├── search/          # SearchProvider, context, useSearch
 │   ├── theme/           # useDarkMode, themeUtils
 │   └── audio/           # useAudio (available, not wired yet)
@@ -109,6 +109,13 @@ See [docs/map.md](./docs/map.md) for a file-by-file description of every source,
 - npm and yarn are not supported; dependency installation is blocked for them.
 
 ## Features Detail
+
+### 📡 Runtime Data
+- One paginated request to the Itqan CMS API on mount
+- `QuranDataProvider` shares the 114 validated surahs with all pages
+- Loading, error, and retry states for the surah grid and detail page
+- Audio URLs come from the API and play on demand
+- Configurable through `VITE_API_BASE_URL` and `VITE_ITQAN_RECITATION_ID`
 
 ### 🔍 Search Across 4 Fields
 - Arabic surah name

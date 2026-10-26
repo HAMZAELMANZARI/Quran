@@ -12,6 +12,7 @@ props, hooks, behavior, and where it fits in the tree.
 | Component | File Path | Type | Purpose |
 |-----------|-----------|------|---------|
 | `AppRouter` | `src/app/AppRouter.jsx` | Root | Router, providers, lazy routes |
+| `QuranDataProvider` | `src/features/quran/QuranDataProvider.jsx` | Provider | Runtime Itqan fetch, loading/error/retry state |
 | `App` | `src/app/App.jsx` | Layout | Skip link, header, page slot, footer |
 | `ErrorBoundary` | `src/app/ErrorBoundary.jsx` | Utility | Catches render errors and shows fallback UI |
 | `SkipLink` | `src/shared/components/SkipLink.jsx` | Common | Keyboard "skip to content" link |
@@ -33,14 +34,15 @@ props, hooks, behavior, and where it fits in the tree.
 
 **File**: `src/app/AppRouter.jsx`
 
-**Purpose**: Composition root for routing, global search state, and lazy pages.
+**Purpose**: Composition root for routing, global Quran data, search state, and
+lazy pages.
 
 **Props**: None
 
 **Responsibilities**:
 
 - Creates `BrowserRouter` with `basename="/Quran/"`
-- Wraps the UI in `SearchProvider`
+- Wraps the UI in `QuranDataProvider`, then `SearchProvider`
 - Renders `App` with the matched route as `children`
 - Lazy-loads `IndexPage` and `SurahPage`
 - Shows an Arabic loading fallback while a route chunk loads
@@ -62,6 +64,56 @@ props, hooks, behavior, and where it fits in the tree.
   <AppRouter />
 </ErrorBoundary>
 ```
+
+---
+
+### QuranDataProvider
+
+**File**: `src/features/quran/QuranDataProvider.jsx`
+
+**Purpose**: Fetch surah metadata and audio URLs from the Itqan CMS API once on
+mount and share the result with the whole app.
+
+**Props**:
+
+```javascript
+{
+  children: ReactNode
+}
+```
+
+**Hooks**:
+
+- `useEffect` — calls `fetchSurahs({ signal })` and aborts on unmount
+- `useState` — owns `{ surahs, isLoading, error }`
+- `useCallback` — `retry()` resets state and increments the request id
+- `useMemo` — stabilizes the context value
+
+**Context value**:
+
+```javascript
+{
+  surahs,    // validated Surah[]
+  isLoading, // boolean
+  error,     // string | null
+  retry,     // () => void
+}
+```
+
+**Behavior**:
+
+- Starts in the loading state
+- Validates that the response contains all 114 unique surahs and required fields
+- Shows the first page immediately through `IndexPage` once data resolves
+- Exposes a retry action when the request fails
+- Does not cache across full page reloads
+
+**Data layer**:
+
+- `src/features/quran/api/itqanApi.js` — `fetchSurahs()` performs the paginated
+  request and normalization
+- `src/features/quran/quranDataContext.js` — context object
+- `src/features/quran/hooks/useQuranData.js` — typed context accessor
 
 ---
 
@@ -253,13 +305,14 @@ typing in the search box.
 
 **File**: `src/features/quran/pages/IndexPage.jsx`
 
-**Purpose**: Display the searchable grid of all 114 surahs.
+**Purpose**: Display the searchable grid of all 114 surahs fetched from Itqan.
 
 **Props**: None
 
 **Hooks**:
 
 - `useContext(SearchContext)` — current search term
+- `useQuranData()` — `{ isLoading, error, retry }` from the shared data provider
 - `useSearch(searchTerm)` — memoized filtered list
 - `useNavigate()` — route to a selected surah
 - `useCallback()` — stable `handleSelect`
@@ -267,6 +320,8 @@ typing in the search box.
 
 **Features**:
 
+- Loading state with an animated spinner and Arabic status text
+- Error state with a retry button
 - Main heading from `LABELS.SURAH_INDEX`
 - Responsive grid: 2 → 3 → 4 → 5 → 6 columns
 - Empty-state message when nothing matches
@@ -278,13 +333,17 @@ typing in the search box.
 ```jsx
 <main id="main-content" tabIndex={-1}>
   <div className={LAYOUT_CLASSES.CARD}>
-    <h1>{LABELS.SURAH_INDEX}</h1>
-    <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-      {/* result count */}
-    </p>
-    <section className={LAYOUT_CLASSES.SURAH_GRID}>
-      {surahs.length > 0 ? surahs : <p>{LABELS.NO_RESULTS}</p>}
-    </section>
+    {isLoading ? <Spinner /> : error ? <ErrorWithRetry /> : (
+      <>
+        <h1>{LABELS.SURAH_INDEX}</h1>
+        <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+          {/* result count */}
+        </p>
+        <section className={LAYOUT_CLASSES.SURAH_GRID}>
+          {surahs.length > 0 ? surahs : <p>{LABELS.NO_RESULTS}</p>}
+        </section>
+      </>
+    )}
   </div>
 </main>
 ```
@@ -306,23 +365,32 @@ typing in the search box.
 - `useParams()` — reads `number`
 - `useNavigate()` — previous/next/back navigation
 - `useSurah(number)` — resolves the surah and adjacent records
+- `useQuranData()` — `retry()` for a failed data request
 - `useDocumentMeta(title, description)` — route-specific metadata
-- `useRef` + `useEffect` — focus the heading when `number` changes
+- `useRef` + `useEffect` — focus the heading when the route or surah changes
 
 **Features**:
 
+- Loading state while the surah list is being fetched
+- Error state with retry and back-to-index actions
+- Not-found screen with a back button for invalid or missing numbers
 - Arabic heading, English name, revelation place, ayah count
 - Native HTML5 `<audio controls preload="none">` with `surah.audio_url`
 - Previous/next buttons (RTL-aware order and chevrons)
 - Back-to-index button
-- Not-found screen with a back button for invalid numbers
-- Heading receives focus on navigation for keyboard/screen-reader users
+- Heading receives focus after the surah resolves
 
 **Example flow**:
 
 ```javascript
 const { number } = useParams()
-const { surah, previous, next } = useSurah(number)
+const { surah, previous, next, isValid, isLoading, error } = useSurah(number)
+
+if (!isValid) return <NotFound />
+if (isLoading) return <Loading />
+if (error) return <ErrorWithRetry />
+if (!surah) return <NotFound />
+
 navigate(`/surah/${next.surah_number}`)
 navigate('/')
 ```
@@ -337,11 +405,15 @@ navigate('/')
 function IndexPage() {
   const navigate = useNavigate()
   const { searchTerm } = useContext(SearchContext)
+  const { isLoading, error, retry } = useQuranData()
   const filteredData = useSearch(searchTerm)
 
   const handleSelect = useCallback((number) => {
     navigate(`/surah/${number}`)
   }, [navigate])
+
+  if (isLoading) return <Loading />
+  if (error) return <ErrorWithRetry onRetry={retry} />
 
   return filteredData.map((item) => (
     <SurahCard key={item.surah_number} item={item} onSelect={handleSelect} />
@@ -354,9 +426,14 @@ function IndexPage() {
 ```javascript
 function SurahPage() {
   const { number } = useParams()
-  const { surah, previous, next } = useSurah(number)
+  const { surah, previous, next, isValid, isLoading, error } = useSurah(number)
+  const { retry } = useQuranData()
 
+  if (!isValid) return <NotFound />
+  if (isLoading) return <Loading />
+  if (error) return <ErrorWithRetry onRetry={retry} />
   if (!surah) return <NotFound />
+
   return (
     <>
       <h1 tabIndex={-1}>{surah.surah_name}</h1>
@@ -368,16 +445,25 @@ function SurahPage() {
 }
 ```
 
-### Search flow
+### Data and search flow
 
 ```javascript
-// Header writes to context
+// AppRouter mounts the data provider
+<QuranDataProvider>
+  <SearchProvider>
+    <App />
+  </SearchProvider>
+</QuranDataProvider>
+
+// QuranDataProvider fetches once on mount
+useEffect(() => {
+  fetchSurahs({ signal })
+}, [requestId])
+
+// Header writes the search term to context
 <Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
-// The provider owns the state
-<SearchContext.Provider value={{ searchTerm, setSearchTerm }}>
-
-// IndexPage consumes and filters
+// IndexPage filters the shared surah list
 const { searchTerm } = useContext(SearchContext)
 const filteredData = useSearch(searchTerm)
 ```
@@ -392,21 +478,24 @@ main.jsx
     └── ErrorBoundary
         └── AppRouter
             └── BrowserRouter (basename="/Quran/")
-                └── SearchProvider
-                    └── App
-                        ├── SkipLink
-                        ├── Header
-                        │   ├── logo
-                        │   ├── search form
-                        │   └── theme toggle
-                        ├── Suspense
-                        │   └── Routes
-                        │       ├── "/" → IndexPage
-                        │       │   └── SurahCard × N
-                        │       └── "/surah/:number" → SurahPage
-                        │           ├── native <audio>
-                        │           └── navigation buttons
-                        └── Footer
+                └── QuranDataProvider
+                    └── SearchProvider
+                        └── App
+                            ├── SkipLink
+                            ├── Header
+                            │   ├── logo
+                            │   ├── search form
+                            │   └── theme toggle
+                            ├── Suspense
+                            │   └── Routes
+                            │       ├── "/" → IndexPage
+                            │       │   ├── loading / error / retry
+                            │       │   └── SurahCard × N
+                            │       └── "/surah/:number" → SurahPage
+                            │           ├── loading / error / not-found
+                            │           ├── native <audio>
+                            │           └── navigation buttons
+                            └── Footer
 ```
 
 ---
@@ -426,14 +515,24 @@ Components focus on rendering.
 
 ### Context for shared state
 
-Only the search term is global. Everything else is derived from route params or
-local hook state.
+The search term and the fetched surah list are global. Loading, error, and retry
+state live in `QuranDataProvider`; route-specific values are derived from
+`useParams`.
 
 ### Memoization
 
 - `useMemo` inside `useSearch` and `useSurah`
-- `useCallback` for the card selection handler
+- `WeakMap` search-index cache keyed by the fetched surah array
+- `useCallback` for the card selection handler and retry action
 - `React.memo` for `SurahCard`
+
+### Data loading
+
+- `useEffect` in `QuranDataProvider` starts the request on mount
+- `AbortController` cancels the request on unmount or retry
+- `fetchSurahs` validates 114 unique surahs before publishing data
+- `IndexPage` and `SurahPage` render loading and error states instead of
+  assuming the data is already present
 
 ### Accessibility
 

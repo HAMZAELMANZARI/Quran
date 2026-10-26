@@ -5,6 +5,7 @@
  * @typedef {'Quran Sound'} AppName
  * @typedef {string} AppVersion
  * @typedef {string} APIBaseUrl
+ * @typedef {string} ItqanRecitationId
  * @typedef {string} AudioCdn
  * @typedef {boolean} EnableAnalytics
  * @typedef {boolean} EnableOfflineMode
@@ -18,6 +19,7 @@
  *   appName: AppName,
  *   appVersion: AppVersion,
  *   apiBaseUrl: APIBaseUrl,
+ *   itqanRecitationId: ItqanRecitationId,
  *   audioCdn: AudioCdn,
  *   enableAnalytics: EnableAnalytics,
  *   enableOfflineMode: EnableOfflineMode,
@@ -33,7 +35,8 @@ export const config = {
   appVersion: import.meta.env?.VITE_APP_VERSION || '0.0.1',
 
   // API and CDN configuration
-  apiBaseUrl: import.meta.env?.VITE_API_BASE_URL || 'https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev',
+  apiBaseUrl: import.meta.env?.VITE_API_BASE_URL || 'https://api.cms.itqan.dev',
+  itqanRecitationId: import.meta.env?.VITE_ITQAN_RECITATION_ID || '28',
   audioCdn: import.meta.env?.VITE_AUDIO_CDN || 'https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev',
 
   // Feature flags
