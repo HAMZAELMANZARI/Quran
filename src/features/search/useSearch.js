@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { filterSurahs } from '@features/quran/utils/quranData'
+import { useQuranData } from '@features/quran/hooks/useQuranData'
 
 /**
  * Custom hook for searching and filtering surahs
@@ -12,18 +13,14 @@ import { filterSurahs } from '@features/quran/utils/quranData'
  * - Revelation place (Makkah/Madinah)
  *
  * @param {string} searchTerm - Search query string
- * @returns {Array<{item: Object}>} Filtered array of surah objects
- */
-/**
- * @param {string} searchTerm - Search query string
- * @returns {import('../data/quran').Surah[]} Filtered array of surah objects
+ * @returns {import('@types/index').Surah[]} Filtered array of surah objects
  */
 export function useSearch(searchTerm = '') {
-  const filteredResults = useMemo(() => {
-    return filterSurahs(searchTerm)
-  }, [searchTerm])
+  const { surahs } = useQuranData()
 
-  return filteredResults
+  return useMemo(() => {
+    return filterSurahs(surahs, searchTerm)
+  }, [surahs, searchTerm])
 }
 
 export default useSearch

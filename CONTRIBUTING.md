@@ -42,10 +42,14 @@ that standard.
 - Keep your changes focused and scoped to a single concern.
 - Write clear commit messages.
 - Update documentation when behavior or setup changes.
+- Keep runtime API behavior covered by tests. The app fetches surah data from
+  the Itqan API in `src/features/quran/api/itqanApi.js`; mock the network in
+  tests instead of calling the real endpoint.
 - Run the relevant validation checks before submitting:
 
   ```sh
   pnpm lint
+  pnpm test -- --run
   pnpm build
   ```
 

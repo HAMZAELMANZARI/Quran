@@ -1,23 +1,34 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import IndexPage from '@features/quran/pages/IndexPage'
 import { SearchContext } from '@features/search/searchContext'
-import { getAllSurahs } from '@features/quran/utils/quranData'
+import { QuranDataContext } from '@features/quran/quranDataContext'
+import { SURAHS } from '../fixtures/surahs'
 
-const ALL_SURAHS = getAllSurahs().length
+const ALL_SURAHS = SURAHS.length
 
-/**
- * Render IndexPage with a given search term.
- */
-function renderIndexPage(searchTerm = '') {
-  return render(
+function renderIndexPage(searchTerm = '', dataOverrides = {}) {
+  const retry = vi.fn()
+  const data = {
+    surahs: SURAHS,
+    isLoading: false,
+    error: null,
+    retry,
+    ...dataOverrides,
+  }
+
+  const result = render(
     <MemoryRouter>
-      <SearchContext.Provider value={{ searchTerm, setSearchTerm: vi.fn() }}>
-        <IndexPage />
-      </SearchContext.Provider>
+      <QuranDataContext.Provider value={data}>
+        <SearchContext.Provider value={{ searchTerm, setSearchTerm: vi.fn() }}>
+          <IndexPage />
+        </SearchContext.Provider>
+      </QuranDataContext.Provider>
     </MemoryRouter>
   )
+
+  return { ...result, retry }
 }
 
 describe('IndexPage component', () => {
@@ -68,5 +79,18 @@ describe('IndexPage component', () => {
   it('should label each surah card for screen readers', () => {
     renderIndexPage('الفاتحة')
     expect(screen.getByLabelText(/استمع إلى سورة الفاتحة/)).toBeInTheDocument()
+  })
+
+  it('should show a loading state while fetching', () => {
+    renderIndexPage('', { isLoading: true, surahs: [] })
+    expect(screen.getByRole('status')).toHaveTextContent('جاري التحميل...')
+  })
+
+  it('should show a retry action when loading fails', () => {
+    const { retry } = renderIndexPage('', { isLoading: false, surahs: [], error: 'Network error' })
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('تعذر تحميل بيانات السور')
+    fireEvent.click(screen.getByRole('button', { name: 'إعادة المحاولة' }))
+    expect(retry).toHaveBeenCalledTimes(1)
   })
 })

@@ -104,6 +104,11 @@ export const LABELS = {
   SURAH_NOT_FOUND: 'لم يتم العثور على السورة',
   AUDIO_NOT_SUPPORTED: 'متصفحك لا يدعم تشغيل الصوت',
 
+  // Data Loading
+  DATA_LOAD_ERROR: 'تعذر تحميل بيانات السور',
+  DATA_LOAD_ERROR_DETAIL: 'يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.',
+  RETRY: 'إعادة المحاولة',
+
   // Theme
   SWITCH_TO_LIGHT: 'Switch to light mode',
   SWITCH_TO_DARK: 'Switch to dark mode',

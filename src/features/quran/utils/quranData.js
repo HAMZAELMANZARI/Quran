@@ -1,110 +1,119 @@
-import Data from '../data/quran'
+import { QURAN_TOTAL_SURAHS } from '@shared/utils/constants'
 
 /**
+ * @typedef {import('@types/index').Surah} Surah
  * @typedef {Object} SearchItem
- * @property {Object} item - The surah item object
+ * @property {Surah} item - The surah item object
  * @property {string[]} searchValues - Array of searchable values
  */
 
 /**
- * Lazily-built, cached search index.
- * The Quran dataset is static, so the index is built once and reused
- * instead of being rebuilt on every keystroke.
- * @type {Array<SearchItem>|null}
+ * Lazily-built, cached search indexes keyed by surah array.
+ * @type {WeakMap<Surah[], Array<SearchItem>>}
  */
-let searchIndexCache = null
+const searchIndexCache = new WeakMap()
 
 /**
- * Create a searchable index of surahs with normalized search values
- * The index is memoized - subsequent calls return the cached array.
+ * Create a searchable index of surahs with normalized search values.
+ * @param {Surah[]} surahs
  * @returns {Array<SearchItem>} Array of {item, searchValues} objects
  */
-export function createSearchIndex() {
-  if (searchIndexCache) return searchIndexCache
+export function createSearchIndex(surahs) {
+  if (!Array.isArray(surahs)) return []
+
+  const cached = searchIndexCache.get(surahs)
+  if (cached) return cached
 
   /** @type {Array<SearchItem>} */
-  searchIndexCache = Data.map((item) => ({
+  const index = surahs.map((item) => ({
     item,
     searchValues: [
-      /** @type {string} */(item.surah_name).toLocaleLowerCase(),
-      /** @type {string} */(item.surah_name_en).toLocaleLowerCase(),
-      /** @type {number} */(item.surah_number).toString(),
-      /** @type {string} */(item.revelation_place).toLocaleLowerCase(),
+      item.surah_name.toLocaleLowerCase(),
+      item.surah_name_en.toLocaleLowerCase(),
+      item.surah_number.toString(),
+      item.revelation_place.toLocaleLowerCase(),
     ],
   }))
 
-  return searchIndexCache
+  searchIndexCache.set(surahs, index)
+
+  return index
 }
 
 /**
- * Filter surahs by search term across multiple fields
- * Searches: Arabic name, English name, number, revelation place
- * @param {string} searchTerm - Search query
- * @returns {Array<{item: Object}>} Filtered surah list
+ * Filter surahs by search term across multiple fields.
+ * Searches: Arabic name, English name, number, revelation place.
+ * @param {Surah[]} surahs
+ * @param {string} searchTerm
+ * @returns {Surah[]} Filtered surah list
  */
-export function filterSurahs(searchTerm) {
-  if (!searchTerm || !searchTerm.trim()) return Data
+export function filterSurahs(surahs, searchTerm) {
+  if (!Array.isArray(surahs)) return []
+  if (!searchTerm || !searchTerm.trim()) return surahs
 
   const normalized = searchTerm.trim().toLocaleLowerCase()
-  const searchIndex = createSearchIndex()
 
-  /** @type {Array<{item: Object}>} */
-  return searchIndex
+  return createSearchIndex(surahs)
     .filter(({ searchValues }) => searchValues.some((value) => value.includes(normalized)))
     .map(({ item }) => item)
 }
 
 /**
- * Get surah by number (1-114)
- * @param {number} surahNumber - Surah number
- * @returns {Object|null} Surah object or null if not found
- * @jsxImportSource react
+ * Get surah by number (1-114).
+ * @param {Surah[]} surahs
+ * @param {number} surahNumber
+ * @returns {Surah|null} Surah object or null if not found
  */
-export function getSurahByNumber(surahNumber) {
-  return Data.find((s) => s.surah_number === Number(surahNumber)) || null
+export function getSurahByNumber(surahs, surahNumber) {
+  if (!Array.isArray(surahs)) return null
+  return surahs.find((surah) => surah.surah_number === Number(surahNumber)) || null
 }
 
 /**
- * Get the index/position of a surah in the data array
- * @param {number} surahNumber - Surah number
- * @returns {number} Index in Data array (-1 if not found)
+ * Get the index/position of a surah in the data array.
+ * @param {Surah[]} surahs
+ * @param {number} surahNumber
+ * @returns {number} Index in the array (-1 if not found)
  */
-export function getSurahIndex(surahNumber) {
-  return Data.findIndex((s) => s.surah_number === Number(surahNumber))
+export function getSurahIndex(surahs, surahNumber) {
+  if (!Array.isArray(surahs)) return -1
+  return surahs.findIndex((surah) => surah.surah_number === Number(surahNumber))
 }
 
 /**
- * Get previous and next surahs for navigation
- * @param {number} surahNumber - Current surah number
- * @returns {Object} {previous, next} objects or null
+ * Get previous and next surahs for navigation.
+ * @param {Surah[]} surahs
+ * @param {number} surahNumber
+ * @returns {{ previous: Surah|null, next: Surah|null }}
  */
-export function getAdjacentSurahs(surahNumber) {
-  const index = getSurahIndex(surahNumber)
+export function getAdjacentSurahs(surahs, surahNumber) {
+  const index = getSurahIndex(surahs, surahNumber)
 
   if (index === -1) {
     return { previous: null, next: null }
   }
 
   return {
-    previous: index > 0 ? Data[index - 1] : null,
-    next: index < Data.length - 1 ? Data[index + 1] : null,
+    previous: index > 0 ? surahs[index - 1] : null,
+    next: index < surahs.length - 1 ? surahs[index + 1] : null,
   }
 }
 
 /**
- * Get all surahs
- * @returns {Array} Full list of 114 surahs
+ * Get all surahs as a copy.
+ * @param {Surah[]} surahs
+ * @returns {Surah[]} Full surah list
  */
-export function getAllSurahs() {
-  return [...Data]
+export function getAllSurahs(surahs) {
+  return Array.isArray(surahs) ? [...surahs] : []
 }
 
 /**
- * Check if a surah number is valid
+ * Check if a surah number is valid.
  * @param {number} surahNumber - Surah number to check
  * @returns {boolean} True if valid (1-114)
  */
 export function isValidSurahNumber(surahNumber) {
   const num = Number(surahNumber)
-  return Number.isInteger(num) && num >= 1 && num <= 114
+  return Number.isInteger(num) && num >= 1 && num <= QURAN_TOTAL_SURAHS
 }

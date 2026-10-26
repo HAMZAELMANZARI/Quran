@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import App from './App'
+import { QuranDataProvider } from '@features/quran/QuranDataProvider'
 import { SearchProvider } from '@features/search/SearchProvider'
 
 const IndexPage = lazy(() => import('@features/quran/pages/IndexPage'))
@@ -18,17 +19,19 @@ const LoadingFallback = () => (
 export default function AppRouter() {
   return (
     <BrowserRouter basename="/Quran/">
-      <SearchProvider>
-        <App>
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
-              <Route path="/" element={<IndexPage />} />
-              <Route path="/surah/:number" element={<SurahPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
-        </App>
-      </SearchProvider>
+      <QuranDataProvider>
+        <SearchProvider>
+          <App>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+                <Route path="/" element={<IndexPage />} />
+                <Route path="/surah/:number" element={<SurahPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </App>
+        </SearchProvider>
+      </QuranDataProvider>
     </BrowserRouter>
   )
 }

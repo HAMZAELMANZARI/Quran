@@ -89,7 +89,8 @@ VITE_APP_NAME=Quran Sound
 VITE_APP_VERSION=0.0.1
 
 # API / audio
-VITE_API_BASE_URL=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
+VITE_API_BASE_URL=https://api.cms.itqan.dev
+VITE_ITQAN_RECITATION_ID=28
 VITE_AUDIO_CDN=https://pub-9ee413c8af4041c6bd5223d08f5d0f0f.r2.dev
 
 # Features
@@ -105,10 +106,16 @@ VITE_DEBUG_MODE=false
 ```javascript
 import config from '@shared/config/env'
 
-config.appName        // 'Quran Sound'
-config.audioCdn       // CDN URL
-config.isDevelopment  // true/false
+config.appName            // 'Quran Sound'
+config.apiBaseUrl         // 'https://api.cms.itqan.dev'
+config.itqanRecitationId  // '28'
+config.audioCdn           // optional audio CDN URL
+config.isDevelopment      // true/false
 ```
+
+The Itqan endpoints used by the app are public reads, so no API key is stored in
+the browser bundle. If you change `VITE_ITQAN_RECITATION_ID`, verify the new
+recitation still returns 114 validated surahs.
 
 `.env.local` and `.env.*.local` are git-ignored. Restart the dev server after
 changing environment variables.
@@ -147,16 +154,19 @@ index.html                        # Vite HTML entry point
 src/
 ├── app/
 │   ├── App.jsx                   # Layout: SkipLink + Header + children + Footer
-│   ├── AppRouter.jsx             # BrowserRouter, SearchProvider, lazy routes
+│   ├── AppRouter.jsx             # Router, QuranDataProvider, SearchProvider, lazy routes
 │   └── ErrorBoundary.jsx         # Top-level error boundary
 ├── features/
 │   ├── quran/
 │   │   ├── pages/IndexPage.jsx   # Home (all surahs)
 │   │   ├── pages/SurahPage.jsx   # Surah detail
 │   │   ├── components/SurahCard.jsx
+│   │   ├── api/itqanApi.js       # Runtime fetch from the Itqan API
+│   │   ├── hooks/useQuranData.js
 │   │   ├── hooks/useSurah.js
 │   │   ├── utils/quranData.js
-│   │   └── data/quran.js         # 114 surah records
+│   │   ├── QuranDataProvider.jsx
+│   │   └── quranDataContext.js
 │   ├── search/
 │   │   ├── SearchProvider.jsx
 │   │   ├── searchContext.js
@@ -223,7 +233,13 @@ import useSearch from '../../../features/search/useSearch'
 
 1. Open `src/features/quran/utils/quranData.js`
 2. Add the value to `createSearchIndex()`'s `searchValues`
-3. Search again — the cached index rebuilds on a full page reload
+3. Search again — the index is cached per fetched surah array
+
+**Change the recitation source**
+
+1. Set `VITE_ITQAN_RECITATION_ID` in `.env.local`
+2. Restart the dev server
+3. Confirm the app still receives 114 validated surahs
 
 **Run tests**
 
@@ -341,15 +357,27 @@ pnpm install
 - Check `src/shared/styles/tailwind.css` is loaded
 - In the browser console: `localStorage.getItem('theme')`
 
+### Surah data does not load
+
+- Confirm `QuranDataProvider` wraps `App` in `AppRouter.jsx`
+- Confirm `VITE_API_BASE_URL` points to `https://api.cms.itqan.dev`
+- Confirm `VITE_ITQAN_RECITATION_ID` is `28`
+- Check the Network tab for `GET /recitations/28/?page=1&page_size=1000`
+- Confirm the request returns 114 results and includes CORS headers
+- Use the error screen's retry button to refetch
+
 ### Search does not filter
 
 - Confirm `SearchProvider` wraps `App` in `AppRouter.jsx`
+- Confirm the surah list finished loading (the grid is visible)
 - Confirm `IndexPage` calls `useSearch(searchTerm)`
 - Check the console for errors
 
 ### Audio does not play
 
 - Inspect the `src` on the `<audio>` element (`surah.audio_url`)
+- Confirm the API response contains `https://storage.cms.itqan.dev/...` URLs
+- Check the browser Network tab for the MP3 request
 - Verify the CDN is reachable
 - Some browsers block autoplay; press play manually
 

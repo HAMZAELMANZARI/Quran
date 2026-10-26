@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="arch" name="1. System Architecture">
-        <mxGraphModel dx="1822" dy="959" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+        <mxGraphModel dx="1792" dy="959" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -22,7 +22,7 @@
                 <mxCell id="arch-browser" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="BrowserRouter&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;basename=/Quran/&lt;/font&gt;" vertex="1">
                     <mxGeometry height="60" width="150" x="785" y="75" as="geometry"/>
                 </mxCell>
-                <mxCell id="arch-provider" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="SearchProvider&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;features/search&lt;/font&gt;" vertex="1">
+                <mxCell id="arch-provider" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="QuranDataProvider&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;+ SearchProvider&lt;/font&gt;" vertex="1">
                     <mxGeometry height="60" width="160" x="975" y="75" as="geometry"/>
                 </mxCell>
                 <mxCell id="arch-app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="App shell&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;app/App.jsx&lt;/font&gt;" vertex="1">
@@ -67,7 +67,7 @@
                 <mxCell id="arch-lane-features" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=16;fontStyle=1;" value="2 · Feature modules (src/features)" vertex="1">
                     <mxGeometry height="270" width="1520" x="30" y="260" as="geometry"/>
                 </mxCell>
-                <mxCell id="arch-f-quran" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="&lt;b&gt;features/quran&lt;/b&gt;&lt;br&gt;pages/IndexPage.jsx · pages/SurahPage.jsx&lt;br&gt;components/SurahCard.jsx&lt;br&gt;hooks/useSurah.js · utils/quranData.js&lt;br&gt;data/quran.js (114 static surahs)" vertex="1">
+                <mxCell id="arch-f-quran" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="&lt;b&gt;features/quran&lt;/b&gt;&lt;br&gt;pages/IndexPage.jsx · pages/SurahPage.jsx&lt;br&gt;components/SurahCard.jsx&lt;br&gt;QuranDataProvider.jsx · quranDataContext.js&lt;br&gt;hooks/useSurah.js · hooks/useQuranData.js&lt;br&gt;api/itqanApi.js · utils/quranData.js" vertex="1">
                     <mxGeometry height="190" width="480" x="50" y="310" as="geometry"/>
                 </mxCell>
                 <mxCell id="arch-f-search" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="&lt;b&gt;features/search&lt;/b&gt;&lt;br&gt;SearchProvider.jsx&lt;br&gt;searchContext.js&lt;br&gt;useSearch.js" vertex="1">
@@ -130,7 +130,7 @@
                 <mxCell id="arch-gh" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;" value="GitHub Pages&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;/Quran/&lt;/font&gt;" vertex="1">
                     <mxGeometry height="60" width="180" x="330" y="845" as="geometry"/>
                 </mxCell>
-                <mxCell id="arch-r2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;" value="Cloudflare R2&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;audio CDN (MP3)&lt;/font&gt;" vertex="1">
+                <mxCell id="arch-r2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;" value="Itqan CMS API&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;recitation 28 · audio storage&lt;/font&gt;" vertex="1">
                     <mxGeometry height="60" width="220" x="590" y="845" as="geometry"/>
                 </mxCell>
                 <mxCell id="arch-ls" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;" value="localStorage&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;theme preference&lt;/font&gt;" vertex="1">
@@ -142,7 +142,7 @@
                 <mxCell id="arch-e18" edge="1" parent="1" source="arch-user" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=open;dashed=1;strokeColor=#999999;fontSize=11;" target="arch-index" value="">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="arch-e19" edge="1" parent="1" source="arch-f-quran" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;fontSize=11;" target="arch-r2" value="audio URL">
+                <mxCell id="arch-e19" edge="1" parent="1" source="arch-f-quran" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;fontSize=11;" target="arch-r2" value="GET surahs + audio URL">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="arch-e20" edge="1" parent="1" source="arch-f-theme" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=open;dashed=1;strokeColor=#999999;fontSize=11;" target="arch-ls" value="read / write">
@@ -152,7 +152,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="tree" name="2. Folder Structure">
-        <mxGraphModel dx="1941" dy="1022" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1080" math="0" shadow="0">
+        <mxGraphModel dx="1909" dy="1022" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1080" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -165,7 +165,7 @@
                 <mxCell id="tree-features" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=16;fontStyle=1;" value="&lt;b&gt;features/&lt;/b&gt;" vertex="1">
                     <mxGeometry height="830" width="540" x="350" y="160" as="geometry"/>
                 </mxCell>
-                <mxCell id="tree-fq" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="&lt;b&gt;quran/&lt;/b&gt;&lt;br&gt;components/SurahCard.jsx&lt;br&gt;data/quran.js&lt;br&gt;hooks/useSurah.js&lt;br&gt;pages/IndexPage.jsx&lt;br&gt;pages/SurahPage.jsx&lt;br&gt;utils/quranData.js" vertex="1">
+                <mxCell id="tree-fq" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="&lt;b&gt;quran/&lt;/b&gt;&lt;br&gt;QuranDataProvider.jsx · quranDataContext.js&lt;br&gt;api/itqanApi.js&lt;br&gt;components/SurahCard.jsx&lt;br&gt;hooks/useSurah.js · hooks/useQuranData.js&lt;br&gt;pages/IndexPage.jsx · pages/SurahPage.jsx&lt;br&gt;utils/quranData.js" vertex="1">
                     <mxGeometry height="210" width="490" x="375" y="215" as="geometry"/>
                 </mxCell>
                 <mxCell id="tree-fs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="&lt;b&gt;search/&lt;/b&gt;&lt;br&gt;SearchProvider.jsx&lt;br&gt;searchContext.js&lt;br&gt;useSearch.js" vertex="1">
@@ -229,26 +229,26 @@
         </mxGraphModel>
     </diagram>
     <diagram id="flow" name="3. Search and Playback Flow">
-        <mxGraphModel dx="1514" dy="797" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1514" dy="810" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="flow-l1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;1.&lt;/b&gt; User types in Header search input" vertex="1">
+                <mxCell id="flow-l1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;1.&lt;/b&gt; App load: QuranDataProvider fetches 114 surahs" vertex="1">
                     <mxGeometry height="60" width="380" x="80" y="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="flow-l2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;2.&lt;/b&gt; SearchProvider stores searchTerm in React context" vertex="1">
+                <mxCell id="flow-l2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;2.&lt;/b&gt; Provider validates data and shares it through context" vertex="1">
                     <mxGeometry height="60" width="380" x="80" y="160" as="geometry"/>
                 </mxCell>
-                <mxCell id="flow-l3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;3.&lt;/b&gt; IndexPage reads context and calls useSearch" vertex="1">
+                <mxCell id="flow-l3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;3.&lt;/b&gt; User types in Header; SearchProvider stores searchTerm" vertex="1">
                     <mxGeometry height="60" width="380" x="80" y="260" as="geometry"/>
                 </mxCell>
-                <mxCell id="flow-l4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;4.&lt;/b&gt; useSearch memoizes filterSurahs(term)" vertex="1">
+                <mxCell id="flow-l4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;4.&lt;/b&gt; IndexPage reads context and calls useSearch" vertex="1">
                     <mxGeometry height="60" width="380" x="80" y="360" as="geometry"/>
                 </mxCell>
-                <mxCell id="flow-l5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;5.&lt;/b&gt; quranData uses a cached search index&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;built once, reused per keystroke&lt;/font&gt;" vertex="1">
+                <mxCell id="flow-l5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;5.&lt;/b&gt; useSearch memoizes filterSurahs(surahs, term)&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;index cached per fetched surah array&lt;/font&gt;" vertex="1">
                     <mxGeometry height="60" width="380" x="80" y="460" as="geometry"/>
                 </mxCell>
-                <mxCell id="flow-l6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;6.&lt;/b&gt; data/quran.js returns matching surahs&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;static JSON, no network request&lt;/font&gt;" vertex="1">
+                <mxCell id="flow-l6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;6.&lt;/b&gt; quranData returns matching surahs from context&lt;br&gt;&lt;font style=&#39;font-size:11px&#39;&gt;no additional network request&lt;/font&gt;" vertex="1">
                     <mxGeometry height="60" width="380" x="80" y="560" as="geometry"/>
                 </mxCell>
                 <mxCell id="flow-r1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;7.&lt;/b&gt; SurahCard onClick → navigate(&#39;/surah/:number&#39;)" vertex="1">
@@ -257,13 +257,13 @@
                 <mxCell id="flow-r2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;8.&lt;/b&gt; AppRouter matches the route and lazy-loads SurahPage" vertex="1">
                     <mxGeometry height="60" width="420" x="680" y="160" as="geometry"/>
                 </mxCell>
-                <mxCell id="flow-r3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;9.&lt;/b&gt; SurahPage calls useSurah(number)" vertex="1">
+                <mxCell id="flow-r3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;9.&lt;/b&gt; SurahPage calls useSurah(number) against context data" vertex="1">
                     <mxGeometry height="60" width="420" x="680" y="260" as="geometry"/>
                 </mxCell>
                 <mxCell id="flow-r4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;10.&lt;/b&gt; getSurahByNumber + getAdjacentSurahs resolve data" vertex="1">
                     <mxGeometry height="60" width="420" x="680" y="360" as="geometry"/>
                 </mxCell>
-                <mxCell id="flow-r5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;11.&lt;/b&gt; Native &amp;lt;audio&amp;gt; requests MP3 from Cloudflare R2" vertex="1">
+                <mxCell id="flow-r5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;11.&lt;/b&gt; Native &amp;lt;audio&amp;gt; requests MP3 from storage.cms.itqan.dev" vertex="1">
                     <mxGeometry height="60" width="420" x="680" y="460" as="geometry"/>
                 </mxCell>
                 <mxCell id="flow-x1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;align=left;spacingLeft=10;" value="&lt;b&gt;12.&lt;/b&gt; useDocumentMeta updates title and meta description" vertex="1">
