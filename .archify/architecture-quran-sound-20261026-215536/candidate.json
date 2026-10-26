@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Quran Sound Architecture",
+    "output": ".archify/architecture-quran-sound-20261026-215536/quran-sound.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "users", "type": "external", "label": "Users", "sublabel": "Browser / Mobile", "pos": [40, 280], "size": [120, 60] },
+    { "id": "router", "type": "frontend", "label": "AppRouter", "sublabel": "React Router v7", "pos": [220, 280], "size": [130, 60] },
+    { "id": "app", "type": "frontend", "label": "App Shell", "sublabel": "Header / Footer", "pos": [410, 280], "size": [130, 60] },
+    { "id": "index", "type": "frontend", "label": "IndexPage", "sublabel": "Surah Grid", "pos": [620, 180], "size": [130, 60] },
+    { "id": "surah", "type": "frontend", "label": "SurahPage", "sublabel": "Audio Player", "pos": [620, 380], "size": [130, 60] },
+    { "id": "qurandata", "type": "frontend", "label": "QuranDataProvider", "sublabel": "Context Provider", "pos": [830, 280], "size": [140, 60] },
+    { "id": "search", "type": "frontend", "label": "SearchProvider", "sublabel": "Search Context", "pos": [830, 150], "size": [140, 60] },
+    { "id": "api", "type": "backend", "label": "Itqan API", "sublabel": "CMS Recitations", "pos": [1050, 280], "size": [130, 60] },
+    { "id": "pages", "type": "cloud", "label": "GitHub Pages", "sublabel": "Static Hosting", "pos": [220, 150], "size": [130, 60] }
+  ],
+  "connections": [
+    { "id": "users-router", "from": "users", "to": "router", "label": "HTTPS" },
+    { "id": "router-app", "from": "router", "to": "app" },
+    { "id": "router-pages", "from": "router", "to": "pages", "label": "basename /Quran/", "variant": "dashed", "fromSide": "top", "toSide": "bottom" },
+    { "id": "app-index", "from": "app", "to": "index", "label": "/" },
+    { "id": "app-surah", "from": "app", "to": "surah", "label": "/surah/:number" },
+    { "id": "index-data", "from": "index", "to": "qurandata", "label": "useQuranData" },
+    { "id": "surah-data", "from": "surah", "to": "qurandata", "label": "useSurah" },
+    { "id": "index-search", "from": "index", "to": "search", "label": "useSearch", "fromSide": "top", "toSide": "bottom" },
+    { "id": "data-api", "from": "qurandata", "to": "api", "label": "fetchSurahs()", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Frontend", "items": ["React 19 + Vite 8", "React Router v7 (lazy-loaded)", "Tailwind CSS v4", "Feature-based architecture"] },
+    { "dot": "emerald", "title": "Data", "items": ["Itqan CMS API (recitation 28)", "114 surahs validated", "Context API for state", "Search filtering"] },
+    { "dot": "rose", "title": "Features", "items": ["Surah browsing grid", "Audio playback", "Prev/next navigation", "Dark mode support", "RTL Arabic UI"] }
+  ]
+}

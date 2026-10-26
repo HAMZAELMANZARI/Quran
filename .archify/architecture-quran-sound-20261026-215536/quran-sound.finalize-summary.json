@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "skipped",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/lenovo/my-project/Quran/.archify/architecture-quran-sound-20261026-215536/candidate.json",
+    "sha256": "b62d157fed445cd5b7f28ce34aa6d461eb15c470f7846578453017987e310096",
+    "bytes": 2832
+  },
+  "artifact": {
+    "path": "/home/lenovo/my-project/Quran/.archify/architecture-quran-sound-20261026-215536/quran-sound.html",
+    "sha256": "092261b0a9a71313648326ed744f7a8e6ddf4fb2afa2dc24c16c4172302e7c0b",
+    "bytes": 845021
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "skipped"
+  },
+  "failedStage": "browser-check",
+  "diagnostics": [
+    {
+      "code": "viewer/chrome-unavailable",
+      "severity": "warning",
+      "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+      "subject": {
+        "artifact": "/home/lenovo/my-project/Quran/.archify/architecture-quran-sound-20261026-215536/quran-sound.html"
+      },
+      "evidence": {
+        "executable": null
+      },
+      "supportedFixes": [
+        "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 1,
+    "shown": 1,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/lenovo/my-project/Quran/.archify/architecture-quran-sound-20261026-215536/quran-sound.finalize.json",
+    "summaryReceipt": "/home/lenovo/my-project/Quran/.archify/architecture-quran-sound-20261026-215536/quran-sound.finalize-summary.json",
+    "browserCheckReceipt": "/home/lenovo/my-project/Quran/.archify/architecture-quran-sound-20261026-215536/quran-sound.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2005,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  }
+}

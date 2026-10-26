@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "060c3a60-eea2-49eb-9c69-dc1dd76ca798",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/home/lenovo/my-project/Quran/.archify/architecture-quran-sound-20261026-215536/candidate.json",
+  "output": "/home/lenovo/my-project/Quran/.archify/architecture-quran-sound-20261026-215536/quran-sound.html",
+  "specification": {
+    "sha256": "b62d157fed445cd5b7f28ce34aa6d461eb15c470f7846578453017987e310096",
+    "bytes": 2832
+  },
+  "artifact": {
+    "sha256": "092261b0a9a71313648326ed744f7a8e6ddf4fb2afa2dc24c16c4172302e7c0b",
+    "bytes": 845021
+  }
+}
