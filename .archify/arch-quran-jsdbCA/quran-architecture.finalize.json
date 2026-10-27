@@ -1,0 +1,569 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "skipped",
+  "type": "architecture",
+  "quality": "showcase",
+  "startedAt": "2026-10-27T20:37:32.771Z",
+  "specification": {
+    "path": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/candidate.json",
+    "sha256": "b815088de2cb7fc329d29b93de8db12bba19b89814c605fc9cbbaa909f61bd4d",
+    "bytes": 3088
+  },
+  "artifact": {
+    "path": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html",
+    "sha256": "c590cf0cbd5636c3ef5bceaf96bd20d08cd195cba67d181deaa0f800be65a457",
+    "bytes": 852232
+  },
+  "stages": {
+    "validate": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": null,
+      "execution": "embedded-in-deliver",
+      "command": [
+        "/home/lenovo/.nvm/versions/node/v24.21.0/bin/node",
+        "/home/lenovo/.agents/skills/archify/bin/archify.mjs",
+        "deliver",
+        "architecture",
+        "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/candidate.json",
+        "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html",
+        "--quality",
+        "showcase",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": true,
+        "command": "validate",
+        "specification": {
+          "sha256": "b815088de2cb7fc329d29b93de8db12bba19b89814c605fc9cbbaa909f61bd4d",
+          "bytes": 3088
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        }
+      }
+    },
+    "deliver": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 1568,
+      "command": [
+        "/home/lenovo/.nvm/versions/node/v24.21.0/bin/node",
+        "/home/lenovo/.agents/skills/archify/bin/archify.mjs",
+        "deliver",
+        "architecture",
+        "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/candidate.json",
+        "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html",
+        "--quality",
+        "showcase",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "receiptId": "21d39b55-008c-447a-b5b7-287b6834e809",
+        "ok": true,
+        "command": "deliver",
+        "type": "architecture",
+        "input": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/candidate.json",
+        "output": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html",
+        "specification": {
+          "sha256": "b815088de2cb7fc329d29b93de8db12bba19b89814c605fc9cbbaa909f61bd4d",
+          "bytes": 3088
+        },
+        "artifact": {
+          "sha256": "c590cf0cbd5636c3ef5bceaf96bd20d08cd195cba67d181deaa0f800be65a457",
+          "bytes": 852232
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        },
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      }
+    },
+    "check": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 534,
+      "command": [
+        "/home/lenovo/.nvm/versions/node/v24.21.0/bin/node",
+        "/home/lenovo/.agents/skills/archify/bin/archify.mjs",
+        "check",
+        "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html",
+        "--require-provenance"
+      ],
+      "receipt": {
+        "ok": true,
+        "file": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html",
+        "artifact": {
+          "sha256": "c590cf0cbd5636c3ef5bceaf96bd20d08cd195cba67d181deaa0f800be65a457",
+          "bytes": 852232
+        },
+        "checks": [
+          {
+            "name": "single_svg",
+            "ok": true,
+            "details": [
+              "found 1 <svg> block(s)"
+            ]
+          },
+          {
+            "name": "finite_svg",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "orthogonal_arrows",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "label_route_clearance",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_crossings",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_corridors",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "container_border_runs",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "route_rhythm",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "legend_clearance",
+            "ok": true,
+            "details": []
+          }
+        ],
+        "composition": {
+          "schemaVersion": 1,
+          "profile": "showcase",
+          "status": "pass",
+          "summary": {
+            "errors": 0,
+            "warnings": 0
+          },
+          "metrics": {
+            "properCrossings": 0,
+            "resolvedCrossovers": 6,
+            "ambiguousCorridors": 0,
+            "arrowheadCollisions": 0,
+            "containerBorderRuns": 0,
+            "labelRouteClearanceIssues": 0,
+            "labelCanvasOverflowIssues": 0,
+            "minLabelRouteClearance": 10.8,
+            "desktopReadabilityIssues": 0,
+            "viewportHeightIssues": 0,
+            "minProjectedNodeTextPx": 7.5,
+            "maxBends": 5,
+            "routesOverSuggestedBends": 3,
+            "maxStretch": 1.282,
+            "routesOverSuggestedStretch": 0,
+            "minSegmentPx": 8,
+            "minInteriorSegmentPx": 21,
+            "shortSegmentCount": 1,
+            "shortEndpointSegmentCount": 1,
+            "shortInteriorSegmentCount": 0,
+            "microSegmentCount": 0
+          },
+          "suggestedLimits": {
+            "bendsPerRelationship": 2,
+            "stretch": 1.35,
+            "segmentPx": 16,
+            "microSegmentPx": 8
+          },
+          "routeReview": {
+            "crossings": [
+              {
+                "left": {
+                  "id": "r-h",
+                  "from": "router",
+                  "to": "header",
+                  "label": "layout",
+                  "collectionIndex": 4,
+                  "artifactIndex": 5
+                },
+                "right": {
+                  "id": "r-i",
+                  "from": "router",
+                  "to": "index",
+                  "label": "/",
+                  "collectionIndex": 6,
+                  "artifactIndex": 7
+                },
+                "point": [
+                  584,
+                  176
+                ],
+                "sharedNode": "router"
+              },
+              {
+                "left": {
+                  "id": "r-h",
+                  "from": "router",
+                  "to": "header",
+                  "label": "layout",
+                  "collectionIndex": 4,
+                  "artifactIndex": 5
+                },
+                "right": {
+                  "id": "q-sur",
+                  "from": "qdp",
+                  "to": "surah",
+                  "label": "surahs",
+                  "collectionIndex": 9,
+                  "artifactIndex": 10
+                },
+                "point": [
+                  584,
+                  192
+                ]
+              },
+              {
+                "left": {
+                  "id": "r-i",
+                  "from": "router",
+                  "to": "index",
+                  "label": "/",
+                  "collectionIndex": 6,
+                  "artifactIndex": 7
+                },
+                "right": {
+                  "id": "q-sur",
+                  "from": "qdp",
+                  "to": "surah",
+                  "label": "surahs",
+                  "collectionIndex": 9,
+                  "artifactIndex": 10
+                },
+                "point": [
+                  509,
+                  176
+                ]
+              },
+              {
+                "left": {
+                  "id": "r-sur",
+                  "from": "router",
+                  "to": "surah",
+                  "label": "/surah/:num",
+                  "collectionIndex": 7,
+                  "artifactIndex": 8
+                },
+                "right": {
+                  "id": "q-i",
+                  "from": "qdp",
+                  "to": "index",
+                  "label": "surahs",
+                  "collectionIndex": 8,
+                  "artifactIndex": 9
+                },
+                "point": [
+                  764,
+                  197
+                ]
+              },
+              {
+                "left": {
+                  "id": "r-sur",
+                  "from": "router",
+                  "to": "surah",
+                  "label": "/surah/:num",
+                  "collectionIndex": 7,
+                  "artifactIndex": 8
+                },
+                "right": {
+                  "id": "q-sur",
+                  "from": "qdp",
+                  "to": "surah",
+                  "label": "surahs",
+                  "collectionIndex": 9,
+                  "artifactIndex": 10
+                },
+                "point": [
+                  816.6153846153846,
+                  192
+                ],
+                "sharedNode": "surah"
+              },
+              {
+                "left": {
+                  "id": "q-i",
+                  "from": "qdp",
+                  "to": "index",
+                  "label": "surahs",
+                  "collectionIndex": 8,
+                  "artifactIndex": 9
+                },
+                "right": {
+                  "id": "q-sur",
+                  "from": "qdp",
+                  "to": "surah",
+                  "label": "surahs",
+                  "collectionIndex": 9,
+                  "artifactIndex": 10
+                },
+                "point": [
+                  764,
+                  192
+                ],
+                "sharedNode": "qdp"
+              }
+            ],
+            "crowdedSides": [
+              {
+                "node": "router",
+                "label": "App Router",
+                "side": "right",
+                "relationships": 4,
+                "sidePx": 64,
+                "neededPx": 74
+              }
+            ],
+            "detours": [
+              {
+                "relationship": {
+                  "id": "r-i",
+                  "from": "router",
+                  "to": "index",
+                  "label": "/",
+                  "collectionIndex": 6,
+                  "artifactIndex": 7
+                },
+                "bends": 3,
+                "stretch": 1.282
+              },
+              {
+                "relationship": {
+                  "id": "r-sur",
+                  "from": "router",
+                  "to": "surah",
+                  "label": "/surah/:num",
+                  "collectionIndex": 7,
+                  "artifactIndex": 8
+                },
+                "bends": 5,
+                "stretch": 1.136,
+                "directCorridorBlockers": [
+                  {
+                    "id": "index",
+                    "label": "IndexPage",
+                    "box": [
+                      640,
+                      200,
+                      140,
+                      64
+                    ]
+                  }
+                ]
+              },
+              {
+                "relationship": {
+                  "id": "q-sur",
+                  "from": "qdp",
+                  "to": "surah",
+                  "label": "surahs",
+                  "collectionIndex": 9,
+                  "artifactIndex": 10
+                },
+                "bends": 4,
+                "stretch": 1.11
+              }
+            ]
+          },
+          "leadingSpace": {
+            "measured": true,
+            "emptyTopPx": 40,
+            "emptyTopRatio": 0.085,
+            "occupiedTop": 40,
+            "viewBoxTop": 0,
+            "canvasHeight": 472,
+            "typicalNodeHeight": 64,
+            "reviewSuggested": false
+          },
+          "desktopReadability": {
+            "budgetBasis": "recognized-declared-wide",
+            "readerContract": "declared-wide-v1",
+            "availableDiagramWidth": 1115.625,
+            "actualBudgetPx": 1115.625,
+            "actualReaderWidth": 1145.625,
+            "desiredReaderWidth": 1145.625,
+            "viewportCap": 1376,
+            "limit": "source-size",
+            "requestedTargetPx": 7.5,
+            "requestedTargetMet": true,
+            "hardFloorPx": 6,
+            "hardFloorMet": true,
+            "minimumOwner": {
+              "kind": "edge",
+              "id": "b-a",
+              "from": "browser",
+              "to": "app"
+            },
+            "minimumSourceTextPx": 8,
+            "minimumProjectedTextPx": 7.5,
+            "semanticTextCount": 36
+          },
+          "issues": []
+        },
+        "provenance": "current",
+        "deliveryReceiptId": "21d39b55-008c-447a-b5b7-287b6834e809"
+      }
+    },
+    "browser-check": {
+      "status": "skipped",
+      "exitCode": 2,
+      "durationMs": 102,
+      "command": [
+        "/home/lenovo/.nvm/versions/node/v24.21.0/bin/node",
+        "/home/lenovo/.agents/skills/archify/bin/archify.mjs",
+        "browser-check",
+        "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html",
+        "--json",
+        "--require-provenance"
+      ],
+      "execution": "in-process",
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "browser-check",
+        "evidenceKind": "automated-browser",
+        "status": "skipped",
+        "visualReview": "not-requested",
+        "provenance": "current",
+        "deliveryReceiptId": "21d39b55-008c-447a-b5b7-287b6834e809",
+        "artifact": {
+          "path": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html",
+          "sha256": "c590cf0cbd5636c3ef5bceaf96bd20d08cd195cba67d181deaa0f800be65a457",
+          "bytes": 852232
+        },
+        "state": {
+          "detail": "read",
+          "motion": "still"
+        },
+        "chrome": {
+          "status": "unavailable",
+          "executable": null
+        },
+        "diagnostics": [
+          {
+            "code": "viewer/chrome-unavailable",
+            "severity": "warning",
+            "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+            "subject": {
+              "artifact": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html"
+            },
+            "evidence": {
+              "executable": null
+            },
+            "supportedFixes": [
+              "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+            ]
+          }
+        ],
+        "containment": {
+          "status": "skipped",
+          "policy": "fit-or-reader-declared-readable-vertical-scroll",
+          "viewports": []
+        },
+        "themeStates": {
+          "status": "skipped",
+          "viewports": []
+        },
+        "readability": {
+          "status": "skipped",
+          "minimumProjectedNodeTextPx": 6,
+          "viewports": []
+        },
+        "viewerChrome": {
+          "status": "skipped",
+          "viewports": []
+        },
+        "captures": {
+          "status": "not-requested",
+          "screenshots": [],
+          "contactSheet": null
+        },
+        "sidecars": {
+          "receipt": "quran-architecture.browser-check.json",
+          "files": []
+        },
+        "error": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path."
+      }
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "viewer/chrome-unavailable",
+      "severity": "warning",
+      "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+      "subject": {
+        "artifact": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html"
+      },
+      "evidence": {
+        "executable": null
+      },
+      "supportedFixes": [
+        "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+      ]
+    }
+  ],
+  "evidence": {
+    "receipt": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.finalize.json",
+    "summaryReceipt": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.finalize-summary.json",
+    "browserCheckReceipt": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "browser-check",
+  "finishedAt": "2026-10-27T20:37:35.313Z",
+  "durationMs": 2541,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-27T20:35:17.755Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}

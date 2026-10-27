@@ -10,10 +10,12 @@ const PAGE_SIZE = 1000
 /**
  * @param {number} page
  * @param {AbortSignal} [signal]
+ * @param {string|number} [recitationId]
  */
-async function fetchPage(page, signal) {
+async function fetchPage(page, signal, recitationId) {
   const baseUrl = config.apiBaseUrl.replace(/\/+$/, '')
-  const url = new URL(`${baseUrl}/recitations/${encodeURIComponent(config.itqanRecitationId)}/`)
+  const id = recitationId ?? config.itqanRecitationId
+  const url = new URL(`${baseUrl}/recitations/${encodeURIComponent(id)}/`)
   url.searchParams.set('page', String(page))
   url.searchParams.set('page_size', String(PAGE_SIZE))
 
@@ -109,16 +111,16 @@ function validateSurahs(surahs) {
 
 /**
  * Fetch the complete surah list from the Itqan CMS API.
- * @param {{ signal?: AbortSignal }} [options]
+ * @param {{ signal?: AbortSignal, recitationId?: string|number }} [options]
  * @returns {Promise<Surah[]>}
  */
-export async function fetchSurahs({ signal } = {}) {
+export async function fetchSurahs({ signal, recitationId } = {}) {
   const records = []
   let total = null
   let page = 1
 
   do {
-    const body = await fetchPage(page, signal)
+    const body = await fetchPage(page, signal, recitationId)
 
     if (total === null) {
       total = body.count

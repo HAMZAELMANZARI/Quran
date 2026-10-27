@@ -789,3 +789,37 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for the full procedure.
 - **[ACCESSIBILITY.md](./ACCESSIBILITY.md)** — WCAG compliance
 - **[map.md](./map.md)** — File-by-file repository map
 - **[README.md](../README.md)** — Project overview
+
+## Multi-Riwayat (Recitation Styles) Support
+
+### Overview
+The application now supports multiple recitations/riwayat from the Itqan CMS API, allowing users to switch between different recitation styles directly from the home page.
+
+### Architecture Changes
+
+#### Data Layer
+- **API (`features/quran/api/itqanApi.js`)**: `fetchSurahs()` accepts optional `recitationId` parameter, passed to `/recitations/{id}/` endpoint
+- **Provider (`features/quran/QuranDataProvider.jsx`)**: Manages `recitationId` state, triggers refetch when changed, exposes `setRecitationId` via context
+- **Context (`features/quran/quranDataContext.js`)**: Extended to include `recitationId` and `setRecitationId`
+
+#### UI
+- **Home Page (`features/quran/pages/IndexPage.jsx`)**: Added "القرآن الكريم" section with riwayat selector grid above the Surah index
+- **Constants (`shared/utils/constants.js`)**: Added `RIWAYAT_OPTIONS` array with recitation mappings
+
+#### Supported Riwayat
+| Label (Arabic) | Label (English) | Riwayah | Recitation ID |
+|---|---|---|---|
+| التجويد (ملون) | Tajweed (color-coded) | Hafs 'an 'Asim | 31 |
+| شعبة عن عاصم | Shu'bah 'an 'Asim | Shu'bah 'an 'Asim | 33 |
+| قالون عن نافع | Qalun 'an Nafi' | Qalun 'an Nafi' | 19 |
+| ورش عن نافع | Warsh 'an Nafi' | Warsh 'an Nafi' | 17 |
+| البزي عن ابن كثير | Al-Bazzi 'an Ibn Kathir | Al-Bazzi 'an Ibn Kathir | 24 |
+| قنبل عن ابن كثير | Qunbul 'an Ibn Kathir | Qunbul 'an Ibn Kathir | 25 |
+| الدوري عن أبي عمرو | Al-Duri 'an Abi 'Amr | Al-Duri 'an Abi 'Amr | 27 |
+
+### Data Flow
+1. User selects riwayat on home page → `setRecitationId(id)` called
+2. Provider sets loading state and updates `recitationId` → triggers useEffect
+3. `fetchSurahs({ recitationId })` fetches from API for selected recitation
+4. Data cached in provider context, consumed by `useQuranData()` in pages
+5. Surah cards and audio use the selected recitation's data

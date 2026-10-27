@@ -153,6 +153,20 @@ export const API = {
 }
 
 // ============================================================================
+// Riwayat (Recitation Styles)
+// ============================================================================
+export const RIWAYAT_OPTIONS = [
+  { id: '31', label: 'التجويد (ملون)', labelEn: 'Tajweed (color-coded)', description: 'رواية حفص عن عاصم' },
+  { id: '33', label: 'شعبة عن عاصم', labelEn: "Shu'bah", description: "رواية شعبة عن عاصم" },
+  { id: '19', label: 'قالون عن نافع', labelEn: 'Qalun', description: "رواية قالون عن نافع" },
+  { id: '17', label: 'ورش عن نافع', labelEn: 'Warsh', description: "رواية ورش عن نافع" },
+  { id: '24', label: 'البزي عن ابن كثير', labelEn: 'Al-Bazzi', description: "رواية البزي عن ابن كثير" },
+  { id: '25', label: 'قنبل عن ابن كثير', labelEn: 'Qunbul', description: "رواية قنبل عن ابن كثير" },
+  { id: '27', label: 'الدوري عن أبي عمرو', labelEn: 'Al-Duri', description: "رواية الدوري عن أبي عمرو" },
+]
+
+
+// ============================================================================
 // Pagination & Limits
 // ============================================================================
 export const PAGINATION = {

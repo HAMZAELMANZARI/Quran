@@ -582,3 +582,21 @@ pnpm test:coverage
 - **[ACCESSIBILITY.md](./ACCESSIBILITY.md)** — Accessibility details
 - **[map.md](./map.md)** — File-by-file repository map
 - **[README.md](../README.md)** — Project overview
+
+## IndexPage (Enhanced)
+
+The home page now includes a riwayat/recitation selector section above the Surah index.
+
+### Features
+- **Quran Section**: Displays "القرآن الكريم" heading with riwayat selector
+- **Riwayat Selector**: Responsive grid of buttons for selecting recitation styles
+- **Dynamic Loading**: Automatically refetches surah data when recitation changes
+- **Responsive Layout**: Adapts from 2 columns (mobile) to 7 columns (desktop)
+
+### Props
+None - uses context hooks
+
+### Context Usage
+- `useQuranData()`: Accesses `recitationId`, `setRecitationId`, `isLoading`, `error`, `retry`
+- `useContext(SearchContext)`: For search functionality
+- `useSearch()`: For filtering surahs
