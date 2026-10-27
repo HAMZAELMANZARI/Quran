@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Quran Sound - Application Architecture",
+    "output": "quran-architecture.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {"id": "browser", "type": "external", "label": "Browser", "sublabel": "User", "pos": [40, 200], "size": [120, 60]},
+    {"id": "app", "type": "frontend", "label": "App Shell", "sublabel": "App.jsx / ErrorBoundary", "pos": [220, 200], "size": [140, 64]},
+    {"id": "router", "type": "frontend", "label": "App Router", "sublabel": "React Router 7", "pos": [420, 200], "size": [140, 64]},
+    {"id": "qdp", "type": "backend", "label": "QuranDataProvider", "sublabel": "Data Context", "pos": [420, 80], "size": [150, 64]},
+    {"id": "sp", "type": "backend", "label": "SearchProvider", "sublabel": "Search Context", "pos": [420, 320], "size": [150, 64]},
+    {"id": "header", "type": "frontend", "label": "Header", "sublabel": "Shared", "pos": [640, 120], "size": [120, 60]},
+    {"id": "footer", "type": "frontend", "label": "Footer", "sublabel": "Shared", "pos": [640, 280], "size": [120, 60]},
+    {"id": "index", "type": "frontend", "label": "IndexPage", "sublabel": "Home + Riwayat", "pos": [640, 200], "size": [140, 64]},
+    {"id": "surah", "type": "frontend", "label": "SurahPage", "sublabel": "Audio + Nav", "pos": [820, 200], "size": [140, 64]},
+    {"id": "itqan", "type": "cloud", "label": "Itqan CMS API", "sublabel": "api.cms.itqan.dev", "pos": [640, 40], "size": [150, 64]},
+    {"id": "cdn", "type": "cloud", "label": "Audio CDN", "sublabel": "R2", "pos": [1020, 200], "size": [130, 60]}
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "SPA (Client)", "wraps": ["app", "router", "qdp", "sp", "header", "footer", "index", "surah"]}
+  ],
+  "connections": [
+    {"id": "b-a", "from": "browser", "to": "app", "label": "load"},
+    {"id": "a-r", "from": "app", "to": "router", "label": "mount"},
+    {"id": "r-q", "from": "router", "to": "qdp", "label": "wraps"},
+    {"id": "r-s", "from": "router", "to": "sp", "label": "wraps"},
+    {"id": "r-h", "from": "router", "to": "header", "label": "layout"},
+    {"id": "r-f", "from": "router", "to": "footer", "label": "layout"},
+    {"id": "r-i", "from": "router", "to": "index", "label": "/"},
+    {"id": "r-sur", "from": "router", "to": "surah", "label": "/surah/:num"},
+    {"id": "q-i", "from": "qdp", "to": "index", "label": "surahs"},
+    {"id": "q-sur", "from": "qdp", "to": "surah", "label": "surahs"},
+    {"id": "s-i", "from": "sp", "to": "index", "label": "search"},
+    {"id": "q-api", "from": "qdp", "to": "itqan", "label": "fetch recitations"},
+    {"id": "sur-cdn", "from": "surah", "to": "cdn", "label": "play"}
+  ],
+  "cards": [
+    {"dot": "cyan", "title": "Routing", "items": ["BrowserRouter basename /Quran/", "Lazy-loaded pages"]},
+    {"dot": "emerald", "title": "Data", "items": ["Multi-recitation support via context", "Fetches 114 surahs per recitation"]},
+    {"dot": "amber", "title": "UX", "items": ["Search, theme, responsive design", "Riwayat selector on home"]}
+  ]
+}

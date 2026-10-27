@@ -5,8 +5,9 @@ WORKDIR /app
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@12.11.2 --activate
 
-# Copy package files
+# Copy package files and scripts (needed for preinstall)
 COPY package.json pnpm-lock.yaml .npmrc ./
+COPY scripts ./scripts
 RUN pnpm install --frozen-lockfile
 
 # Copy source
@@ -25,6 +26,10 @@ RUN echo 'server { \
     index index.html; \
     location / { \
         try_files $uri $uri/ /index.html; \
+    } \
+    location ~* \.(js|css|svg|png|jpg|jpeg|gif|woff|woff2|eot|ttf|otf)$ { \
+        expires 30d; \
+        add_header Cache-Control "public, immutable"; \
     } \
 }' > /etc/nginx/conf.d/default.conf
 

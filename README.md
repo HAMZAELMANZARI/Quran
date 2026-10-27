@@ -202,3 +202,23 @@ See LICENSE file for details.
 **Current Phase**: Architecture refactor and test migration complete
 
 For detailed project roadmap, see [ARCHITECTURE.md](./docs/ARCHITECTURE.md#future-architecture-considerations)
+
+## Recent Updates (October 2025)
+
+### New Features
+- **Multi-Riwayat Support**: Added support for multiple Quran recitations/riwayat directly from the home page
+  - Tajweed (color-coded) - Hafs 'an 'Asim (recitation 31)
+  - Shu'bah 'an 'Asim (recitation 33)
+  - Qalun 'an Nafi' (recitation 19)
+  - Warsh 'an Nafi' (recitation 17)
+  - Al-Bazzi 'an Ibn Kathir (recitation 24)
+  - Qunbul 'an Ibn Kathir (recitation 25)
+  - Al-Duri 'an Abi 'Amr (recitation 27)
+- **Riwayat Selector**: New section above the Surah index on the home page allows users to switch between different recitation styles
+- **Responsive Design**: Riwayat selector adapts to all screen sizes with grid layout (2 columns on mobile, up to 7 columns on large screens)
+
+### Technical Changes
+- **API Layer**: Extended `fetchSurahs()` to accept optional `recitationId` parameter for fetching different recitations
+- **State Management**: Enhanced `QuranDataProvider` to manage selected recitation with automatic refetching
+- **Context**: Updated `QuranDataContext` to expose `recitationId` and `setRecitationId`
+- **Constants**: Added `RIWAYAT_OPTIONS` configuration with recitation IDs and labels

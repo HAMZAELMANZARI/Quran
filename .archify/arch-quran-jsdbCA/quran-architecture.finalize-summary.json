@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "skipped",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/candidate.json",
+    "sha256": "b815088de2cb7fc329d29b93de8db12bba19b89814c605fc9cbbaa909f61bd4d",
+    "bytes": 3088
+  },
+  "artifact": {
+    "path": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html",
+    "sha256": "c590cf0cbd5636c3ef5bceaf96bd20d08cd195cba67d181deaa0f800be65a457",
+    "bytes": 852232
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "skipped"
+  },
+  "failedStage": "browser-check",
+  "diagnostics": [
+    {
+      "code": "viewer/chrome-unavailable",
+      "severity": "warning",
+      "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+      "subject": {
+        "artifact": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html"
+      },
+      "evidence": {
+        "executable": null
+      },
+      "supportedFixes": [
+        "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 1,
+    "shown": 1,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.finalize.json",
+    "summaryReceipt": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.finalize-summary.json",
+    "browserCheckReceipt": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-27T20:35:17.755Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2541,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  }
+}

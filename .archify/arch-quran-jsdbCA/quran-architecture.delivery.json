@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "21d39b55-008c-447a-b5b7-287b6834e809",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/candidate.json",
+  "output": "/home/lenovo/my-project/Quran/.archify/arch-quran-jsdbCA/quran-architecture.html",
+  "specification": {
+    "sha256": "b815088de2cb7fc329d29b93de8db12bba19b89814c605fc9cbbaa909f61bd4d",
+    "bytes": 3088
+  },
+  "artifact": {
+    "sha256": "c590cf0cbd5636c3ef5bceaf96bd20d08cd195cba67d181deaa0f800be65a457",
+    "bytes": 852232
+  }
+}

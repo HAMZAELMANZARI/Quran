@@ -34,7 +34,8 @@ function renderIndexPage(searchTerm = '', dataOverrides = {}) {
 describe('IndexPage component', () => {
   it('should render the main heading', () => {
     renderIndexPage()
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('فهرس السور')
+    const headings = screen.getAllByRole('heading', { level: 1 })
+    expect(headings.some((h) => h.textContent.includes('فهرس السور'))).toBe(true)
   })
 
   it('should expose the main content target for the skip link', () => {
@@ -47,7 +48,10 @@ describe('IndexPage component', () => {
 
   it('should render all surahs when no search term is given', () => {
     const { container } = renderIndexPage()
-    expect(container.querySelectorAll('section button')).toHaveLength(ALL_SURAHS)
+    const sections = container.querySelectorAll('main > div')
+    // The last card contains the surahs grid
+    const lastCard = sections[sections.length - 1]
+    expect(lastCard.querySelectorAll('section button')).toHaveLength(ALL_SURAHS)
   })
 
   it('should announce the result count in a live region', () => {
@@ -67,13 +71,17 @@ describe('IndexPage component', () => {
     const { container } = renderIndexPage('zzzzzz-not-a-surah')
     // The same string also appears in the live region, so scope the query
     // to the visible grid message.
-    const gridMessage = container.querySelector('section p')
+    const sections = container.querySelectorAll('main > div')
+    const lastCard = sections[sections.length - 1]
+    const gridMessage = lastCard.querySelector('section p')
     expect(gridMessage).toHaveTextContent('لا توجد سور مطابقة للبحث')
   })
 
   it('should filter surahs by search term', () => {
     const { container } = renderIndexPage('الفاتحة')
-    expect(container.querySelectorAll('section button')).toHaveLength(1)
+    const sections = container.querySelectorAll('main > div')
+    const lastCard = sections[sections.length - 1]
+    expect(lastCard.querySelectorAll('section button')).toHaveLength(1)
   })
 
   it('should label each surah card for screen readers', () => {
@@ -89,7 +97,8 @@ describe('IndexPage component', () => {
   it('should show a retry action when loading fails', () => {
     const { retry } = renderIndexPage('', { isLoading: false, surahs: [], error: 'Network error' })
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('تعذر تحميل بيانات السور')
+    const headings = screen.getAllByRole('heading', { level: 1 })
+    expect(headings.some((h) => h.textContent.includes('تعذر تحميل بيانات السور'))).toBe(true)
     fireEvent.click(screen.getByRole('button', { name: 'إعادة المحاولة' }))
     expect(retry).toHaveBeenCalledTimes(1)
   })
