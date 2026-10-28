@@ -36,7 +36,9 @@ export default function useDarkMode() {
     if (success) {
       setIsDarkMode(nextIsDarkMode)
     } else {
-      console.warn('Failed to save theme preference, using in-memory state')
+      if (import.meta.env?.DEV) {
+        console.warn('Failed to save theme preference, using in-memory state')
+      }
       // Still update state even if storage fails
       setIsDarkMode(nextIsDarkMode)
     }

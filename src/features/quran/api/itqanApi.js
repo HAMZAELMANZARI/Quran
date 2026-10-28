@@ -1,7 +1,9 @@
 import { config } from '@shared/config/env'
 import { QURAN_TOTAL_SURAHS } from '@shared/utils/constants'
+import { fetchWithTimeout } from '@shared/utils/security'
 
 const PAGE_SIZE = 1000
+const REQUEST_TIMEOUT_MS = 30000
 
 /**
  * @typedef {import('@types/index').Surah} Surah
@@ -15,26 +17,50 @@ const PAGE_SIZE = 1000
 async function fetchPage(page, signal, recitationId) {
   const baseUrl = config.apiBaseUrl.replace(/\/+$/, '')
   const id = recitationId ?? config.itqanRecitationId
-  const url = new URL(`${baseUrl}/recitations/${encodeURIComponent(id)}/`)
+  // Validate recitationId is a safe string/number
+  if (id === null || id === undefined) {
+    throw new Error('Invalid recitation ID')
+  }
+  const url = new URL(`${baseUrl}/recitations/${encodeURIComponent(String(id))}/`)
   url.searchParams.set('page', String(page))
   url.searchParams.set('page_size', String(PAGE_SIZE))
 
-  const response = await fetch(url.toString(), {
-    signal,
-    headers: { Accept: 'application/json' },
-  })
-
-  if (!response.ok) {
-    throw new Error(`Itqan API request failed (${response.status})`)
+  const controller = new AbortController()
+  
+  // Combine signals if external signal provided
+  if (signal) {
+    if (signal.aborted) {
+      controller.abort()
+    } else {
+      signal.addEventListener('abort', () => controller.abort(), { once: true })
+    }
   }
 
-  const body = await response.json()
+  try {
+    const response = await fetchWithTimeout(url.toString(), {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' },
+    }, REQUEST_TIMEOUT_MS)
 
-  if (!body || !Array.isArray(body.results) || !Number.isInteger(body.count)) {
-    throw new Error('Unexpected response from the Itqan API')
+    if (!response.ok) {
+      throw new Error(`Itqan API request failed (${response.status})`)
+    }
+
+    const body = await response.json()
+
+    if (!body || !Array.isArray(body.results) || !Number.isInteger(body.count)) {
+      throw new Error('Unexpected response from the Itqan API')
+    }
+
+    return body
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      const timeoutError = new Error('Request timeout or aborted')
+      timeoutError.cause = error
+      throw timeoutError
+    }
+    throw error
   }
-
-  return body
 }
 
 /**

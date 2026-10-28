@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import { sanitizeErrorMessage } from '@shared/utils/security'
 
 /**
  * Error Boundary component that catches React errors
@@ -21,8 +22,10 @@ export default class ErrorBoundary extends Component {
   /** @param {Error} error - The error that was thrown */
   /** @param {import('react').ErrorInfo} errorInfo */
   componentDidCatch(error, errorInfo) {
-    // Log error details for debugging
-    console.error('Error caught by ErrorBoundary:', error, errorInfo)
+    // Log error details for debugging (only in development)
+    if (import.meta.env?.DEV) {
+      console.error('Error caught by ErrorBoundary:', error, errorInfo)
+    }
     this.setState({ errorInfo })
   }
 
@@ -52,18 +55,20 @@ export default class ErrorBoundary extends Component {
               </p>
 
               {/* Error Details */}
-              <div className="mb-4 rounded bg-red-100 p-4 font-mono text-xs text-red-900 dark:bg-red-900 dark:text-red-100">
-                <p className="mb-2 font-bold">Error Details:</p>
-                <p className="break-words">{this.state.error?.toString()}</p>
-                {import.meta.env?.DEV && this.state.errorInfo && (
-                  <details className="mt-4">
-                    <summary className="cursor-pointer font-bold">Stack Trace</summary>
-                    <pre className="mt-2 whitespace-pre-wrap text-xs">
-                      {this.state.errorInfo.componentStack}
-                    </pre>
-                  </details>
-                )}
-              </div>
+              {import.meta.env?.DEV && (
+                <div className="mb-4 rounded bg-red-100 p-4 font-mono text-xs text-red-900 dark:bg-red-900 dark:text-red-100">
+                  <p className="mb-2 font-bold">Error Details:</p>
+                  <p className="break-words">{sanitizeErrorMessage(this.state.error)}</p>
+                  {this.state.errorInfo && (
+                    <details className="mt-4">
+                      <summary className="cursor-pointer font-bold">Stack Trace</summary>
+                      <pre className="mt-2 whitespace-pre-wrap text-xs">
+                        {this.state.errorInfo.componentStack}
+                      </pre>
+                    </details>
+                  )}
+                </div>
+              )}
 
               {/* Help Text */}
               <p className="mb-6 text-sm text-red-700 dark:text-red-300">
