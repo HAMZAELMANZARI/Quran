@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import IndexPage from '@features/quran/pages/IndexPage'
 import { SearchContext } from '@features/search/searchContext'
 import { QuranDataContext } from '@features/quran/quranDataContext'
@@ -18,17 +19,23 @@ function renderIndexPage(searchTerm = '', dataOverrides = {}) {
     ...dataOverrides,
   }
 
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+
   const result = render(
-    <MemoryRouter>
-      <QuranDataContext.Provider value={data}>
-        <SearchContext.Provider value={{ searchTerm, setSearchTerm: vi.fn() }}>
-          <IndexPage />
-        </SearchContext.Provider>
-      </QuranDataContext.Provider>
-    </MemoryRouter>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <QuranDataContext.Provider value={data}>
+          <SearchContext.Provider value={{ searchTerm, setSearchTerm: vi.fn() }}>
+            <IndexPage />
+          </SearchContext.Provider>
+        </QuranDataContext.Provider>
+      </MemoryRouter>
+    </QueryClientProvider>
   )
 
-  return { ...result, retry }
+  return { ...result, retry, queryClient }
 }
 
 describe('IndexPage component', () => {
@@ -87,6 +94,17 @@ describe('IndexPage component', () => {
   it('should label each surah card for screen readers', () => {
     renderIndexPage('الفاتحة')
     expect(screen.getByLabelText(/استمع إلى سورة الفاتحة/)).toBeInTheDocument()
+  })
+
+  it('should prefetch surah data on mouse enter', () => {
+    const { queryClient } = renderIndexPage('الفاتحة')
+    const prefetchSpy = vi
+      .spyOn(queryClient, 'prefetchQuery')
+      .mockResolvedValue()
+
+    fireEvent.mouseEnter(screen.getByLabelText(/استمع إلى سورة الفاتحة/))
+
+    expect(prefetchSpy).toHaveBeenCalledTimes(1)
   })
 
   it('should show a loading state while fetching', () => {

@@ -1,14 +1,17 @@
 import { useCallback, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { SearchContext } from '@features/search/searchContext'
 import useSearch from '@features/search/useSearch'
 import useDocumentMeta from '@shared/hooks/useDocumentMeta'
 import { APP_DESCRIPTION, APP_TITLE, LAYOUT_CLASSES, LABELS, RIWAYAT_OPTIONS } from '@shared/utils/constants'
 import SurahCard from '@features/quran/components/SurahCard'
 import { useQuranData } from '@features/quran/hooks/useQuranData'
+import { prefetchSurahs } from '@features/quran/api/quranQueries'
 
 export default function IndexPage() {
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
     const { searchTerm } = useContext(SearchContext)
     const { isLoading, error, retry, recitationId, setRecitationId } = useQuranData()
     const filteredData = useSearch(searchTerm)
@@ -20,6 +23,11 @@ export default function IndexPage() {
     const handleSelect = useCallback((number) => {
         navigate(`/surah/${number}`)
     }, [navigate])
+
+    // Warm TanStack Query's cache before the user commits to navigating.
+    const handlePrefetch = useCallback(() => {
+        prefetchSurahs(queryClient, recitationId)
+    }, [queryClient, recitationId])
 
 
 
@@ -113,6 +121,7 @@ export default function IndexPage() {
             key={item.surah_number}
             item={item}
             onSelect={handleSelect}
+            onPrefetch={handlePrefetch}
         />
     ))
 

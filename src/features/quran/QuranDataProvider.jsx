@@ -1,64 +1,38 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { QuranDataContext } from './quranDataContext'
-import { fetchSurahs } from './api/itqanApi'
+import { surahsQueryOptions } from './api/quranQueries'
 import { config } from '@shared/config/env'
 
 /**
  * @param {{ children: import('react').ReactNode }} props
  */
 export function QuranDataProvider({ children }) {
-  const [state, setState] = useState({
-    surahs: [],
-    isLoading: true,
-    error: null,
-  })
-  const [requestId, setRequestId] = useState(0)
-  const [recitationId, setRecitationId] = useState(
+  const [recitationId, setRecitationIdState] = useState(
     config.itqanRecitationId,
   )
+  const { data, isPending, error, refetch } = useQuery(
+    surahsQueryOptions(recitationId),
+  )
 
-  useEffect(() => {
-    const controller = new AbortController()
-    let cancelled = false
-
-    fetchSurahs({ signal: controller.signal, recitationId })
-      .then((surahs) => {
-        if (!cancelled) {
-          setState({ surahs, isLoading: false, error: null })
-        }
-      })
-      .catch((error) => {
-        if (cancelled || error.name === 'AbortError') {
-          return
-        }
-
-        setState({
-          surahs: [],
-          isLoading: false,
-          error: error.message || 'Failed to load surah data',
-        })
-      })
-
-    return () => {
-      cancelled = true
-      controller.abort()
-    }
-  }, [requestId, recitationId])
+  const setRecitationId = useCallback((id) => {
+    setRecitationIdState(id)
+  }, [])
 
   const retry = useCallback(() => {
-    setState({ surahs: [], isLoading: true, error: null })
-    setRequestId((current) => current + 1)
-  }, [])
-
-  const handleSetRecitationId = useCallback((id) => {
-    setState({ surahs: [], isLoading: true, error: null })
-    setRecitationId(id)
-    setRequestId((current) => current + 1)
-  }, [])
+    refetch()
+  }, [refetch])
 
   const value = useMemo(
-    () => ({ ...state, retry, recitationId, setRecitationId: handleSetRecitationId }),
-    [state, retry, recitationId, handleSetRecitationId],
+    () => ({
+      surahs: data ?? [],
+      isLoading: isPending,
+      error: error ? error.message || 'Failed to load surah data' : null,
+      retry,
+      recitationId,
+      setRecitationId,
+    }),
+    [data, isPending, error, retry, recitationId, setRecitationId],
   )
 
   return (
