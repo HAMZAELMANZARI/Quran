@@ -1,11 +1,13 @@
 import { memo } from 'react'
 import { LAYOUT_CLASSES, UI } from '@shared/utils/constants'
+import { preloadSurahPage } from '@features/quran/pages/surahPageLoader'
 
 /**
  * @typedef {import('@types/index').Surah} Surah
  * @typedef {Object} SurahCardProps
  * @property {Surah} item
  * @property {(number: number) => void} onSelect
+ * @property {() => void} [onPrefetch]
  */
 
 /**
@@ -13,10 +15,17 @@ import { LAYOUT_CLASSES, UI } from '@shared/utils/constants'
  * re-renders the cards whose data actually changed.
  * @param {SurahCardProps} props
  */
-const SurahCard = memo(function SurahCard({ item, onSelect }) {
+const SurahCard = memo(function SurahCard({ item, onSelect, onPrefetch }) {
+    const handlePrefetch = () => {
+        preloadSurahPage()
+        onPrefetch?.()
+    }
+
     return (
         <button
             onClick={() => onSelect(item.surah_number)}
+            onMouseEnter={handlePrefetch}
+            onFocus={handlePrefetch}
             aria-label={`استمع إلى سورة ${item.surah_name} (${item.surah_name_en})`}
             className={LAYOUT_CLASSES.SURAH_CARD}
         >

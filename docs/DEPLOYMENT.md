@@ -428,6 +428,72 @@ Benefits: automatic deploys, tests before publishing, and a deployment history.
 
 ---
 
+## Kubernetes (local)
+
+The container image (nginx serving `dist/` on port `8080`) can be deployed to a
+local cluster (Docker Desktop, minikube, kind, or k3s) with the manifests in
+`k8s/`:
+
+| File | Purpose |
+|------|---------|
+| `k8s/deployment.yaml` | 2 replicas, rolling updates, readiness/liveness probes, resource limits |
+| `k8s/service.yaml` | `NodePort` on port `80` → container port `8080` |
+| `k8s/kustomization.yaml` | Groups resources and sets the default image tag |
+
+### Build and load the image
+
+```bash
+docker build -t quran:latest .
+```
+
+Make the image available to the cluster:
+
+```bash
+# kind
+kind load docker-image quran:latest
+
+# minikube
+minikube image load quran:latest
+
+# Docker Desktop / k3s: the local image is used directly
+```
+
+The Deployment uses `imagePullPolicy: IfNotPresent`, so no registry is required.
+
+### Deploy
+
+```bash
+kubectl apply -k k8s
+kubectl rollout status deployment/quran --timeout=180s
+kubectl get pods,service quran
+```
+
+Access the app through a port-forward:
+
+```bash
+kubectl port-forward service/quran 8080:80
+# open http://localhost:8080/Quran/
+```
+
+Or use the assigned NodePort:
+
+```bash
+kubectl get service quran
+# open http://localhost:<NODE-PORT>/Quran/
+```
+
+### Update and remove
+
+```bash
+# after rebuilding and reloading the image
+kubectl rollout restart deployment/quran
+
+# remove all resources
+kubectl delete -k k8s
+```
+
+---
+
 ## Related Documentation
 
 - **[SETUP.md](./SETUP.md)** — Development environment

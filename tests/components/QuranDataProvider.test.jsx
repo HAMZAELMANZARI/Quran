@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { QuranDataProvider } from '@features/quran/QuranDataProvider'
 import { useQuranData } from '@features/quran/hooks/useQuranData'
 import { fetchSurahs } from '@features/quran/api/itqanApi'
@@ -23,10 +24,16 @@ function Probe() {
 }
 
 function renderProvider() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+
   return render(
-    <QuranDataProvider>
-      <Probe />
-    </QuranDataProvider>,
+    <QueryClientProvider client={queryClient}>
+      <QuranDataProvider>
+        <Probe />
+      </QuranDataProvider>
+    </QueryClientProvider>,
   )
 }
 

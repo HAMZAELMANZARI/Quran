@@ -1,11 +1,14 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
+import { queryClient } from './queryClient'
 import { QuranDataProvider } from '@features/quran/QuranDataProvider'
 import { SearchProvider } from '@features/search/SearchProvider'
+import { preloadSurahPage } from '@features/quran/pages/surahPageLoader'
 
 const IndexPage = lazy(() => import('@features/quran/pages/IndexPage'))
-const SurahPage = lazy(() => import('@features/quran/pages/SurahPage'))
+const SurahPage = lazy(preloadSurahPage)
 
 const LoadingFallback = () => (
   <main className="flex items-center justify-center min-h-screen">
@@ -18,21 +21,23 @@ const LoadingFallback = () => (
 
 export default function AppRouter() {
   return (
-    <BrowserRouter basename="/Quran/">
-      <QuranDataProvider>
-        <SearchProvider>
-          <App>
-            <Suspense fallback={<LoadingFallback />}>
-              <Routes>
-                <Route path="/" element={<IndexPage />} />
-                <Route path="/surah/:number" element={<SurahPage />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </App>
-        </SearchProvider>
-      </QuranDataProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter basename="/Quran/">
+        <QuranDataProvider>
+          <SearchProvider>
+            <App>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path="/" element={<IndexPage />} />
+                  <Route path="/surah/:number" element={<SurahPage />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
+            </App>
+          </SearchProvider>
+        </QuranDataProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   )
 }
 

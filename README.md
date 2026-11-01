@@ -167,7 +167,7 @@ Quran Sound is deployed to GitHub Pages at `https://{username}.github.io/Quran/`
 pnpm run deploy
 ```
 
-See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed deployment instructions.
+See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed deployment instructions, including the [local Kubernetes setup](./docs/DEPLOYMENT.md#kubernetes-local) with manifests in `k8s/`.
 
 ## Contributing
 
