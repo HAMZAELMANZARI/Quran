@@ -6,7 +6,7 @@ const PAGE_SIZE = 1000
 const REQUEST_TIMEOUT_MS = 30000
 
 /**
- * @typedef {import('@types/index').Surah} Surah
+ * @typedef {import('@/types/index').Surah} Surah
  */
 
 /**
@@ -76,7 +76,7 @@ function toSurah(item) {
     duration_ms: Number(item.duration_ms),
     size_bytes: Number(item.size_bytes),
     revelation_order: Number(item.revelation_order),
-    revelation_place: item.revelation_place,
+    revelation_place: /** @type {'Makkah'|'Madinah'} */ (item.revelation_place),
     ayahs_count: Number(item.ayahs_count),
     ayahs_timings: Array.isArray(item.ayahs_timings) ? item.ayahs_timings : [],
   }

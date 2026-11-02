@@ -21,7 +21,7 @@ export function getItem(key, defaultValue = null) {
     const item = window.localStorage?.getItem(key)
     return item ?? defaultValue
   } catch (/** @type {unknown} */ error) {
-    if (import.meta.env?.DEV) {
+    if (import.meta.env.DEV) {
       if (error instanceof Error) {
         console.warn(`Failed to read from localStorage (key: "${key}"):`, error.message)
       } else {
@@ -46,7 +46,7 @@ export function setItem(key, value) {
     window.localStorage?.setItem(key, value)
     return true
   } catch (/** @type {unknown} */ error) {
-    if (import.meta.env?.DEV) {
+    if (import.meta.env.DEV) {
       if (error instanceof Error) {
         if (error.name === 'QuotaExceededError') {
           console.warn(`localStorage quota exceeded when setting "${key}"`)
@@ -76,7 +76,7 @@ export function removeItem(key) {
     window.localStorage?.removeItem(key)
     return true
   } catch (/** @type {unknown} */ error) {
-    if (import.meta.env?.DEV) {
+    if (import.meta.env.DEV) {
       if (error instanceof Error) {
         console.warn(`Failed to remove from localStorage (key: "${key}"):`, error.message)
       } else {
@@ -99,7 +99,7 @@ export function clear() {
     window.localStorage?.clear()
     return true
   } catch (/** @type {unknown} */ error) {
-    if (import.meta.env?.DEV) {
+    if (import.meta.env.DEV) {
       if (error instanceof Error) {
         console.warn('Failed to clear localStorage:', error.message)
       } else {
@@ -139,7 +139,7 @@ export function getJSON(key, defaultValue = null) {
     const item = getItem(key)
     return item ? JSON.parse(item) : defaultValue
   } catch (/** @type {unknown} */ error) {
-    if (import.meta.env?.DEV) {
+    if (import.meta.env.DEV) {
       if (error instanceof Error) {
         console.warn(`Failed to parse JSON from localStorage (key: "${key}"):`, error.message)
       } else {
@@ -161,7 +161,7 @@ export function setJSON(key, value) {
     const json = JSON.stringify(value)
     return setItem(key, json)
   } catch (/** @type {unknown} */ error) {
-    if (import.meta.env?.DEV) {
+    if (import.meta.env.DEV) {
       if (error instanceof Error) {
         console.warn(`Failed to stringify and save to localStorage (key: "${key}"):`, error.message)
       } else {

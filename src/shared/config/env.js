@@ -2,7 +2,7 @@
  * Environment configuration
  * Centralizes all import.meta.env access for the application
  *
- * @typedef {'Quran Sound'} AppName
+ * @typedef {string} AppName
  * @typedef {string} AppVersion
  * @typedef {string} APIBaseUrl
  * @typedef {string} ItqanRecitationId
@@ -45,9 +45,9 @@ export const config = {
 
   // Build environment
   debugMode: import.meta.env?.VITE_DEBUG_MODE === 'true',
-  isDevelopment: import.meta.env?.DEV,
-  isProduction: import.meta.env?.PROD,
-  isSSR: import.meta.env?.SSR,
+  isDevelopment: import.meta.env.DEV,
+  isProduction: import.meta.env.PROD,
+  isSSR: import.meta.env.SSR,
 }
 
 export default config

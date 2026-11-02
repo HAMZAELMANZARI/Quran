@@ -10,7 +10,7 @@
  * @returns {string}
  */
 export function sanitizeErrorMessage(error) {
-  if (import.meta.env?.DEV) {
+  if (import.meta.env.DEV) {
     return error instanceof Error ? error.message : String(error)
   }
   

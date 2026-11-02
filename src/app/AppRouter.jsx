@@ -6,8 +6,10 @@ import { queryClient } from './queryClient'
 import { QuranDataProvider } from '@features/quran/QuranDataProvider'
 import { SearchProvider } from '@features/search/SearchProvider'
 import { preloadSurahPage } from '@features/quran/pages/surahPageLoader'
+import { ROUTES } from '@shared/utils/constants'
 
 const IndexPage = lazy(() => import('@features/quran/pages/IndexPage'))
+const SearchPage = lazy(() => import('@features/search/SearchPage'))
 const SurahPage = lazy(preloadSurahPage)
 
 const LoadingFallback = () => (
@@ -28,9 +30,10 @@ export default function AppRouter() {
             <App>
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
-                  <Route path="/" element={<IndexPage />} />
-                  <Route path="/surah/:number" element={<SurahPage />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
+                  <Route path={ROUTES.HOME} element={<IndexPage />} />
+                  <Route path={ROUTES.SEARCH} element={<SearchPage />} />
+                  <Route path={ROUTES.SURAH} element={<SurahPage />} />
+                  <Route path={ROUTES.NOT_FOUND} element={<Navigate to={ROUTES.HOME} replace />} />
                 </Routes>
               </Suspense>
             </App>

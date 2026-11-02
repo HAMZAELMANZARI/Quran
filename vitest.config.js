@@ -14,13 +14,13 @@ export default defineConfig({
       '@app': resolve(__dirname, './src/app'),
       '@features': resolve(__dirname, './src/features'),
       '@shared': resolve(__dirname, './src/shared'),
-      '@types': resolve(__dirname, './src/types'),
     },
   },
   test: {
     globals: true,
     environment: 'happy-dom',
     setupFiles: './tests/setup.js',
+    include: ['tests/**/*.{test,spec}.{js,jsx,ts,tsx}'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

@@ -13,7 +13,7 @@ import { useQuranData } from '@features/quran/hooks/useQuranData'
  * - Revelation place (Makkah/Madinah)
  *
  * @param {string} searchTerm - Search query string
- * @returns {import('@types/index').Surah[]} Filtered array of surah objects
+ * @returns {import('@/types/index').Surah[]} Filtered array of surah objects
  */
 export function useSearch(searchTerm = '') {
   const { surahs } = useQuranData()

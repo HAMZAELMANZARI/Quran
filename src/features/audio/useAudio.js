@@ -1,8 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 
 /**
- * Custom hook for managing audio playback state and controls
- * Prepares foundation for Phase 4 audio enhancements
+ * Custom hook for managing audio playback state and controls.
  *
  * @param {string} src - Audio source URL
  * @returns {Object} Object containing:
@@ -14,29 +13,13 @@ import { useRef, useState, useEffect } from 'react'
  *   - play: Function to start playback
  *   - pause: Function to pause playback
  *   - seek: Function to seek to position
- */
-/**
- * Custom hook for managing audio playback state and controls
- * Prepares foundation for Phase 4 audio enhancements
- *
- * @param {string} src - Audio source URL
- * @returns {Object} Object containing:
- *   - audioRef: Reference to audio element
- *   - isPlaying: Current playback state
- *   - currentTime: Current playback position (seconds)
- *   - duration: Total audio duration (seconds)
- *   - error: Error state if any
- *   - play: Function to start playback
- *   - pause: Function to pause playback
- *   - seek: Function to seek to position
- * @jsxImportSource react
  */
 export function useAudio(src) {
   const audioRef = /** @type {import('react').MutableRefObject<HTMLAudioElement | null>} */(useRef(null))
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState(/** @type {string|null} */ (null))
 
   useEffect(() => {
     const audio = /** @type {HTMLAudioElement} */(audioRef.current)
@@ -62,9 +45,9 @@ export function useAudio(src) {
     }
 
     // Handle errors
-    /** @type {EventHandler<HTMLAudioElement, Event>} */
-    const handleError = (e) => {
-      setError(e.type || 'Audio error')
+    /** @param {Event} event */
+    const handleError = (event) => {
+      setError(event.type || 'Audio error')
       setIsPlaying(false)
     }
 

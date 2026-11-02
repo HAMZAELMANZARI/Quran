@@ -5,14 +5,8 @@ import { useQuranData } from './useQuranData'
 /**
  * Custom hook for resolving a surah and its neighbors from fetched data.
  *
- * @param {number|string} surahNumber - The surah number (1-114)
- * @returns {Object} Object containing:
- *   - surah: The surah object or null
- *   - previous: Previous surah object or null
- *   - next: Next surah object or null
- *   - isValid: Whether the surah number is valid
- *   - isLoading: Whether the surah list is still loading
- *   - error: Error message if any
+ * @param {number|string|undefined} surahNumber - The surah number (1-114)
+ * @returns {import('@/types/index').SurahNavigation} Resolved surah and navigation state
  */
 export function useSurah(surahNumber) {
   const { surahs, isLoading, error: loadError } = useQuranData()

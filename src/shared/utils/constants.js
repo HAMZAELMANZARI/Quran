@@ -65,6 +65,7 @@ export const THEME_COLORS = {
 // ============================================================================
 export const ROUTES = {
   HOME: '/',
+  SEARCH: '/search',
   SURAH: '/surah/:number',
   NOT_FOUND: '*',
 }
@@ -97,6 +98,9 @@ export const LABELS = {
   // Search
   SEARCH_PLACEHOLDER: 'ابحث باسم السورة أو رقمها',
   SEARCH_SURAHS: 'Search surahs',
+  SEARCH_OPEN: 'Open search',
+  SEARCH_TITLE: 'البحث عن سورة',
+  SEARCH_RESULTS: 'نتائج البحث',
   NO_RESULTS: 'لا توجد سور مطابقة للبحث',
 
   // Surah Details
@@ -180,6 +184,10 @@ export const PAGINATION = {
 export const ARIA_LABELS = {
   SEARCH_INPUT: 'Search surahs by name or number',
   TOGGLE_THEME: 'Toggle dark/light mode',
+  /**
+   * @param {string} name
+   * @param {string} nameEn
+   */
   SURAH_CARD: (name, nameEn) => `Listen to surah ${name} (${nameEn})`,
   PLAY_AUDIO: 'Play audio',
   PAUSE_AUDIO: 'Pause audio',
@@ -226,7 +234,7 @@ export function getSurahAriaLabel(surahName, surahNameEn) {
 
 /**
  * Format surah metadata for display
- * @param {Object} surah - Surah object
+ * @param {import('@/types/index').Surah} surah - Surah object
  * @returns {string} Formatted metadata string
  */
 export function formatSurahMetadata(surah) {
