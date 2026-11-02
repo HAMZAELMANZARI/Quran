@@ -2,28 +2,50 @@ import { Component } from 'react'
 import { sanitizeErrorMessage } from '@shared/utils/security'
 
 /**
+ * @typedef {Object} ErrorBoundaryProps
+ * @property {import('react').ReactNode} children
+ */
+
+/**
+ * @typedef {Object} ErrorBoundaryState
+ * @property {boolean} hasError
+ * @property {Error|null} error
+ * @property {import('react').ErrorInfo|null} errorInfo
+ */
+
+/**
  * Error Boundary component that catches React errors
  * Displays user-friendly error message in Arabic/English
  * Provides reload button for recovery
+ * @extends {Component<ErrorBoundaryProps, ErrorBoundaryState>}
  */
 export default class ErrorBoundary extends Component {
-  /** @param {import('react').ComponentProps<typeof ErrorBoundary>} props */
+  /** @param {ErrorBoundaryProps} props */
   constructor(props) {
     super(props)
-    this.state = { hasError: false, error: null, errorInfo: null }
+    this.state = /** @type {ErrorBoundaryState} */ ({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    })
   }
 
-  /** @param {Error} error */
+  /**
+   * @param {Error} error
+   * @returns {Partial<ErrorBoundaryState>}
+   */
   static getDerivedStateFromError(error) {
     // Update state so the next render will show the fallback UI
     return { hasError: true, error }
   }
 
-  /** @param {Error} error - The error that was thrown */
-  /** @param {import('react').ErrorInfo} errorInfo */
+  /**
+   * @param {Error} error - The error that was thrown
+   * @param {import('react').ErrorInfo} errorInfo
+   */
   componentDidCatch(error, errorInfo) {
     // Log error details for debugging (only in development)
-    if (import.meta.env?.DEV) {
+    if (import.meta.env.DEV) {
       console.error('Error caught by ErrorBoundary:', error, errorInfo)
     }
     this.setState({ errorInfo })
@@ -55,10 +77,12 @@ export default class ErrorBoundary extends Component {
               </p>
 
               {/* Error Details */}
-              {import.meta.env?.DEV && (
+              {import.meta.env.DEV && (
                 <div className="mb-4 rounded bg-red-100 p-4 font-mono text-xs text-red-900 dark:bg-red-900 dark:text-red-100">
                   <p className="mb-2 font-bold">Error Details:</p>
-                  <p className="break-words">{sanitizeErrorMessage(this.state.error)}</p>
+                  <p className="break-words">
+                    {this.state.error ? sanitizeErrorMessage(this.state.error) : ''}
+                  </p>
                   {this.state.errorInfo && (
                     <details className="mt-4">
                       <summary className="cursor-pointer font-bold">Stack Trace</summary>

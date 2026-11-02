@@ -9,13 +9,13 @@ import { config } from '@shared/config/env'
  */
 export function QuranDataProvider({ children }) {
   const [recitationId, setRecitationIdState] = useState(
-    config.itqanRecitationId,
+    /** @type {string|number} */ (config.itqanRecitationId),
   )
   const { data, isPending, error, refetch } = useQuery(
     surahsQueryOptions(recitationId),
   )
 
-  const setRecitationId = useCallback((id) => {
+  const setRecitationId = useCallback((/** @type {string|number} */ id) => {
     setRecitationIdState(id)
   }, [])
 

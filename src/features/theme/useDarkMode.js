@@ -2,6 +2,9 @@
 import { useEffect, useState } from 'react'
 import { getItem, setItem } from '@shared/utils/storage'
 
+/**
+ * @returns {[boolean, () => void]} Current theme state and a toggle function
+ */
 export default function useDarkMode() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window === 'undefined') return false
@@ -20,7 +23,7 @@ export default function useDarkMode() {
     if (getItem('theme')) return
     const mediaQuery = window.matchMedia?.('(prefers-color-scheme: dark)')
     if (!mediaQuery) return
-    /** @type {() => void} */
+    /** @param {MediaQueryListEvent} event */
     const handleChange = (event) => setIsDarkMode(event.matches)
 
     mediaQuery.addEventListener?.('change', handleChange)
@@ -36,7 +39,7 @@ export default function useDarkMode() {
     if (success) {
       setIsDarkMode(nextIsDarkMode)
     } else {
-      if (import.meta.env?.DEV) {
+      if (import.meta.env.DEV) {
         console.warn('Failed to save theme preference, using in-memory state')
       }
       // Still update state even if storage fails

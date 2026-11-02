@@ -2,6 +2,7 @@ import { fetchSurahs } from './itqanApi'
 
 export const quranQueryKeys = {
   all: ['quran'],
+  /** @param {string|number} recitationId */
   surahs: (recitationId) => [
     ...quranQueryKeys.all,
     'surahs',
@@ -17,6 +18,7 @@ export const quranQueryKeys = {
 export function surahsQueryOptions(recitationId) {
   return {
     queryKey: quranQueryKeys.surahs(recitationId),
+    /** @param {{ signal: AbortSignal }} context */
     queryFn: ({ signal }) => fetchSurahs({ signal, recitationId }),
   }
 }

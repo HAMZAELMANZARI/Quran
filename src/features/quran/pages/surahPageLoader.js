@@ -1,3 +1,4 @@
+/** @type {Promise<{ default: import('react').ComponentType }>|undefined} */
 let surahPagePromise
 
 /**

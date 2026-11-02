@@ -1,7 +1,7 @@
 import { QURAN_TOTAL_SURAHS } from '@shared/utils/constants'
 
 /**
- * @typedef {import('@types/index').Surah} Surah
+ * @typedef {import('@/types/index').Surah} Surah
  * @typedef {Object} SearchItem
  * @property {Surah} item - The surah item object
  * @property {string[]} searchValues - Array of searchable values

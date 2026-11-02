@@ -5,7 +5,7 @@ import { SearchContext } from '@features/search/searchContext'
 import useSearch from '@features/search/useSearch'
 import useDocumentMeta from '@shared/hooks/useDocumentMeta'
 import { APP_DESCRIPTION, APP_TITLE, LAYOUT_CLASSES, LABELS, RIWAYAT_OPTIONS } from '@shared/utils/constants'
-import SurahCard from '@features/quran/components/SurahCard'
+import SurahResults from '@features/quran/components/SurahResults'
 import { useQuranData } from '@features/quran/hooks/useQuranData'
 import { prefetchSurahs } from '@features/quran/api/quranQueries'
 
@@ -20,7 +20,7 @@ export default function IndexPage() {
 
     // Stable callback so memoized SurahCards are not re-rendered on
     // every keystroke in the search box.
-    const handleSelect = useCallback((number) => {
+    const handleSelect = useCallback((/** @type {number} */ number) => {
         navigate(`/surah/${number}`)
     }, [navigate])
 
@@ -116,15 +116,6 @@ export default function IndexPage() {
         )
     }
 
-    const surahs = filteredData.map((item) => (
-        <SurahCard
-            key={item.surah_number}
-            item={item}
-            onSelect={handleSelect}
-            onPrefetch={handlePrefetch}
-        />
-    ))
-
     return (
         <main id="main-content" tabIndex={-1} className={LAYOUT_CLASSES.CONTAINER}>
             <div className={LAYOUT_CLASSES.CARD + ' mb-4'}>
@@ -157,29 +148,12 @@ export default function IndexPage() {
                 </section>
             </div>
 
-            <div className={LAYOUT_CLASSES.CARD}>
-                <h1 className={LAYOUT_CLASSES.MAIN_HEADING}>
-                    {LABELS.SURAH_INDEX}
-                </h1>
-
-                {/*
-                  Announces the number of matching surahs to screen readers
-                  whenever the search results change.
-                */}
-                <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-                    {filteredData.length === 0
-                        ? LABELS.NO_RESULTS
-                        : `عدد النتائج: ${filteredData.length}`}
-                </p>
-
-                <section className={LAYOUT_CLASSES.SURAH_GRID}>
-                    {surahs.length > 0 ? surahs : (
-                        <p className="col-span-full py-8 text-center text-(--text-muted)">
-                            {LABELS.NO_RESULTS}
-                        </p>
-                    )}
-                </section>
-            </div>
+            <SurahResults
+                surahs={filteredData}
+                heading={LABELS.SURAH_INDEX}
+                onSelect={handleSelect}
+                onPrefetch={handlePrefetch}
+            />
         </main>
     )
 }

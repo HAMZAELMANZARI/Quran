@@ -6,7 +6,9 @@ import { createContext } from 'react'
  * @property {(term: string) => void} setSearchTerm
  */
 
-/**
- * @type {import('react').Context<SearchContextValue>}
- */
-export const SearchContext = createContext()
+export const SearchContext = createContext(
+  /** @type {SearchContextValue} */ ({
+    searchTerm: '',
+    setSearchTerm: () => {},
+  }),
+)

@@ -10,6 +10,7 @@ export default function SurahPage() {
     const navigate = useNavigate()
     const { surah, previous, next, isValid, isLoading, error } = useSurah(number)
     const { retry } = useQuranData()
+    /** @type {import('react').RefObject<HTMLHeadingElement|null>} */
     const headingRef = useRef(null)
 
     // Move focus to the heading when navigating between surahs so keyboard

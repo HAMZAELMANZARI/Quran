@@ -3,7 +3,7 @@ import { LAYOUT_CLASSES, UI } from '@shared/utils/constants'
 import { preloadSurahPage } from '@features/quran/pages/surahPageLoader'
 
 /**
- * @typedef {import('@types/index').Surah} Surah
+ * @typedef {import('@/types/index').Surah} Surah
  * @typedef {Object} SurahCardProps
  * @property {Surah} item
  * @property {(number: number) => void} onSelect
@@ -15,7 +15,7 @@ import { preloadSurahPage } from '@features/quran/pages/surahPageLoader'
  * re-renders the cards whose data actually changed.
  * @param {SurahCardProps} props
  */
-const SurahCard = memo(function SurahCard({ item, onSelect, onPrefetch }) {
+function SurahCardBase({ item, onSelect, onPrefetch }) {
     const handlePrefetch = () => {
         preloadSurahPage()
         onPrefetch?.()
@@ -36,6 +36,8 @@ const SurahCard = memo(function SurahCard({ item, onSelect, onPrefetch }) {
             </span>
         </button>
     )
-})
+}
+
+const SurahCard = memo(SurahCardBase)
 
 export default SurahCard
