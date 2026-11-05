@@ -105,12 +105,16 @@ export default function SurahPage() {
                     {surah.surah_name}
                 </h1>
 
-                <p className="par-center text-center text-base sm:text-lg">
-                    {surah.surah_name_en} {UI.SEPARATOR} {surah.revelation_place} {UI.SEPARATOR} آية {surah.ayahs_count}
+                <p className="par-center mb-6 flex-wrap items-center justify-center gap-x-2 gap-y-1 p-0 text-center text-sm text-(--text-muted) sm:text-base">
+                    <span>{surah.surah_name_en}</span>
+                    <span aria-hidden="true">{UI.SEPARATOR}</span>
+                    <span>{surah.revelation_place}</span>
+                    <span aria-hidden="true">{UI.SEPARATOR}</span>
+                    <span>آية {surah.ayahs_count}</span>
                 </p>
 
                 <audio
-                    className="mx-auto mb-6 w-full max-w-2xl"
+                    className="mx-auto mb-6 block w-full max-w-2xl"
                     controls
                     preload={UI.AUDIO_PRELOAD}
                     src={surah.audio_url}
@@ -120,23 +124,23 @@ export default function SurahPage() {
 
                 <nav
                     aria-label={LABELS.NAVIGATE_SURAHS}
-                    className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                     {previous ? (
                         <button
                             onClick={() => navigate(`/surah/${previous.surah_number}`)}
-                            className={LAYOUT_CLASSES.BUTTON_NAV + ' order-2 sm:order-1'}
+                            className={LAYOUT_CLASSES.BUTTON_NAV + ' order-2 flex min-h-11 w-full min-w-0 items-center justify-center gap-2 text-center sm:order-1 sm:w-auto sm:justify-start'}
                         >
-                            <i className={UI.CHEVRON_RIGHT} />
-                            {previous.surah_name}
+                            <i className={UI.CHEVRON_RIGHT} aria-hidden="true" />
+                            <span className="truncate">{previous.surah_name}</span>
                         </button>
                     ) : (
-                        <span className="order-2 sm:order-1" />
+                        <span className="hidden sm:order-1 sm:block" aria-hidden="true" />
                     )}
 
                     <button
                         onClick={() => navigate('/')}
-                        className={LAYOUT_CLASSES.BUTTON_NAV + ' order-1 inline-block sm:order-2 text-center'}
+                        className={LAYOUT_CLASSES.BUTTON_NAV + ' order-1 flex min-h-11 w-full items-center justify-center text-center sm:order-2 sm:w-auto'}
                     >
                         {LABELS.BACK_TO_INDEX}
                     </button>
@@ -144,10 +148,10 @@ export default function SurahPage() {
                     {next ? (
                         <button
                             onClick={() => navigate(`/surah/${next.surah_number}`)}
-                            className={LAYOUT_CLASSES.BUTTON_NAV + ' order-3 text-left'}
+                            className={LAYOUT_CLASSES.BUTTON_NAV + ' order-3 flex min-h-11 w-full min-w-0 items-center justify-center gap-2 text-center sm:w-auto sm:justify-end'}
                         >
-                            {next.surah_name}
-                            <i className={UI.CHEVRON_LEFT} />
+                            <span className="truncate">{next.surah_name}</span>
+                            <i className={UI.CHEVRON_LEFT} aria-hidden="true" />
                         </button>
                     ) : null}
                 </nav>
